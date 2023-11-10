@@ -1,41 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ employee.name }}</title>
+    <title>{{ employee.name }} - @{{employee.email}}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     {% include 'navbar.html' %}
     <h1>{{ employee.name }}</h1>
-    <p><strong>Title:</strong> {{ employee.title }}</p>
-    <p><strong>Department:</strong> {{ employee.department }}</p>
-    <p><strong>Email:</strong> {{ employee.email or 'N/A' }}</p>
-    <p><strong>Phone:</strong> {{ employee.phone or 'N/A' }}</p>
+    <h2>@{{ employee.email }}</h2>
 
-    {% if employee.picture_url %}
-        <img src="{{ employee.picture_url }}" alt="Picture of {{ employee.name }}" class="employee-picture">
+    <div class="employee-profile">
+        <div>
+            {% if employee.picture_url %}
+                <img src="{{ employee.picture_url }}" alt="Picture of {{ employee.name }}" class="employee-picture">
+            {% else %}
+                <p>No picture available.</p>
+            {% endif %}
+        </div>
+        <div class="employee-info">
+            <p><strong>Name:</strong> {{ employee.name }}</p>
+            <p><strong>Title:</strong> {{ employee.title }}</p>
+            <p><strong>Department:</strong> {{ employee.department }}</p>
+            <p><strong>Phone:</strong> {{ employee.phone or 'N/A' }}</p>
+            <!-- Add any other information here -->
+        </div>
+    </div>
+
+    {% if manager_chain %}
+    <div class="relation-section">
+        <h2>Management Chain</h2>
+        {% for manager in manager_chain %}
+            <div class="relation-item">
+                <div class="small-employee-picture-container" style="background-image: url('{{ manager.picture_url }}');"></div>
+                <a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a> - {{ manager.title }}
+            </div>
+        {% endfor %}
+    </div>
     {% else %}
-        <p>No picture available.</p>
-    {% endif %}
+    <p>This employee does not report to anyone.</p>
+{% endif %}
 
-    {% if manager %}
-        <p><strong>Reports to:</strong> <a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a> - {{ manager.title }}</p>
-        <div class="small-employee-picture-container" style="background-image: url('{{ manager.picture_url }}');"></div>
-    {% else %}
-        <p>This employee does not report to anyone.</p>
-    {% endif %}
-
-    <h2>Subordinates of {{ employee.name }}</h2>
+<!-- Direct Reports Section -->
+<div class="relation-section">
+    <h2>Direct Reports</h2>
     {% if subordinates %}
         <ul>
             {% for subordinate in subordinates %}
-            <li><a href="{{ url_for('view_employee', id=subordinate.id) }}">{{ subordinate.name }}</a> - {{ subordinate.title }}</li>
-            <div class="small-employee-picture-container" style="background-image: url('{{ subordinate.picture_url }}');"></div>
+            <li class="relation-item">
+                <div class="small-employee-picture-container" style="background-image: url('{{ subordinate.picture_url }}');"></div>
+                <a href="{{ url_for('view_employee', id=subordinate.id) }}">{{ subordinate.name }}</a> - {{ subordinate.title }}
+            </li>
             {% endfor %}
         </ul>
     {% else %}
         <p>{{ employee.name }} does not have any subordinates.</p>
     {% endif %}
+</div>
+
 
     <!-- Add links to edit or go back to the employee list -->
     <p><a href="{{ url_for('edit_employee', id=employee.id) }}">Edit this employee</a></p>

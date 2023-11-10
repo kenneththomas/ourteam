@@ -20,13 +20,14 @@ def list_employees():
 @app.route('/employee/<int:id>')
 def view_employee(id):
     employee = Employee.query.get_or_404(id)
-    manager = None
+    manager_chain = None
     if employee.reports_to:
-        manager = Employee.query.get(employee.reports_to)  # Get the manager details
+        manager_chain = get_management_chain(employee)
+        manager_chain = list(reversed(manager_chain))
     subordinates = Employee.query.filter_by(reports_to=id).all()
     form = EmployeeForm(obj=employee)
     form.id.data = id
-    return render_template('view_employee.html', employee=employee, subordinates=subordinates, manager=manager)
+    return render_template('view_employee.html', employee=employee, subordinates=subordinates, manager_chain=manager_chain)
 
 @app.route('/employee/add', methods=['GET', 'POST'])
 def add_employee():
@@ -61,6 +62,20 @@ def edit_employee(id):
         db.session.commit()
         return redirect(url_for('view_employee', id=employee.id))
     return render_template('add_edit_employee.html', form=form)
+
+def get_management_chain(employee, levels=3):
+    """Recursively fetches up to `levels` of managers for a given employee."""
+    chain = []
+    current = employee
+    while current and levels > 0:
+        if current.reports_to:
+            manager = Employee.query.get(current.reports_to)
+            chain.append(manager)
+            current = manager
+            levels -= 1
+        else:
+            break
+    return chain
 
 if __name__ == '__main__':
     app.run(debug=True, port=5002)
