@@ -18,7 +18,7 @@
     {% endif %}
 
     {% if manager %}
-        <p><strong>Reports to:</strong> <a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a></p>
+        <p><strong>Reports to:</strong> <a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a> - {{ manager.title }}</p>
         <div class="small-employee-picture-container" style="background-image: url('{{ manager.picture_url }}');"></div>
     {% else %}
         <p>This employee does not report to anyone.</p>

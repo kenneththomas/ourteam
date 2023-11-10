@@ -52,16 +52,16 @@ h1 {
 }
 
 .small-employee-picture {
-    width: 100px;  /* smaller width for the reporting chain */
+    width: 200px;  /* smaller width for the reporting chain */
     height: auto;
     border-radius: 4px;
 }
 
 .small-employee-picture-container {
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
     border-radius: 4px;
-    background-size: 175% auto; /* Increase the size to zoom in */
+    background-size: 160% auto; /* Increase the size to zoom in */
     background-position: center top;
     display: inline-block;
 }
