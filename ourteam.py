@@ -10,7 +10,7 @@ db.init_app(app)
 
 @app.route('/')
 def index():
-    return "Welcome to OurTeam!"
+    return render_template('index.html')
 
 @app.route('/employees')
 def list_employees():

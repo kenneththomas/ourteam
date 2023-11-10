@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Add/Edit Employee</title>
-    <!-- Add any additional CSS or JS here -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h1>{{ 'Edit' if form.id.data else 'Add' }} Employee</h1>

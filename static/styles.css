@@ -1,0 +1,52 @@
+body {
+    font-family: "Lucida Grande", Tahoma, Verdana, Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+    background-color: #F7F7F7;
+}
+
+nav {
+    background-color: #3B5998;
+    padding: 10px 0;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+nav ul li a {
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+.container {
+    width: 80%;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+}
+
+h1 {
+    color: #3B5998;
+}
+
+.employee-picture {
+    width: 500px;  /* or any other fixed width */
+    height: auto;  /* maintains the aspect ratio */
+    border-radius: 8px;  /* Optional: for rounded corners */
+}

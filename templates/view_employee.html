@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>{{ employee.name }}</title>
-    <!-- You can add additional CSS or JavaScript here -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h1>{{ employee.name }}</h1>
@@ -12,7 +12,7 @@
     <p><strong>Phone:</strong> {{ employee.phone or 'N/A' }}</p>
 
     {% if employee.picture_url %}
-        <img src="{{ employee.picture_url }}" alt="Picture of {{ employee.name }}">
+        <img src="{{ employee.picture_url }}" alt="Picture of {{ employee.name }}" class="employee-picture">
     {% else %}
         <p>No picture available.</p>
     {% endif %}
