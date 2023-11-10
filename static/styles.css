@@ -50,3 +50,22 @@ h1 {
     height: auto;  /* maintains the aspect ratio */
     border-radius: 8px;  /* Optional: for rounded corners */
 }
+
+.small-employee-picture {
+    width: 100px;  /* smaller width for the reporting chain */
+    height: auto;
+    border-radius: 4px;
+}
+
+.small-employee-picture-container {
+    width: 100px;
+    height: 100px;
+    border-radius: 4px;
+    background-size: 175% auto; /* Increase the size to zoom in */
+    background-position: center top;
+    display: inline-block;
+}
+
+.small-employee-picture-container img {
+    display: none; /* Hide the actual img element */
+}
