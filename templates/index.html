@@ -6,11 +6,6 @@
 </head>
 <body>
     <h1>Welcome to OurTeam!</h1>
-    <nav>
-        <ul>
-            <li><a href="{{ url_for('list_employees') }}">View Employee List</a></li>
-            <li><a href="{{ url_for('add_employee') }}">Create New Employee</a></li>
-        </ul>
-    </nav>
+    {% include 'navbar.html' %}
 </body>
 </html>

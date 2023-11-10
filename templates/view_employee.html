@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
+    {% include 'navbar.html' %}
     <h1>{{ employee.name }}</h1>
     <p><strong>Title:</strong> {{ employee.title }}</p>
     <p><strong>Department:</strong> {{ employee.department }}</p>
