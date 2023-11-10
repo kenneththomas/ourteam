@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ employee.name }}</title>
+    <!-- You can add additional CSS or JavaScript here -->
+</head>
+<body>
+    <h1>{{ employee.name }}</h1>
+    <p><strong>Title:</strong> {{ employee.title }}</p>
+    <p><strong>Department:</strong> {{ employee.department }}</p>
+    <p><strong>Email:</strong> {{ employee.email or 'N/A' }}</p>
+    <p><strong>Phone:</strong> {{ employee.phone or 'N/A' }}</p>
+
+    {% if employee.picture_url %}
+        <img src="{{ employee.picture_url }}" alt="Picture of {{ employee.name }}">
+    {% else %}
+        <p>No picture available.</p>
+    {% endif %}
+
+    {% if manager %}
+        <p><strong>Reports to:</strong> <a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a></p>
+    {% else %}
+        <p>This employee does not report to anyone.</p>
+    {% endif %}
+
+    <h2>Subordinates of {{ employee.name }}</h2>
+    {% if subordinates %}
+        <ul>
+            {% for subordinate in subordinates %}
+            <li><a href="{{ url_for('view_employee', id=subordinate.id) }}">{{ subordinate.name }}</a> - {{ subordinate.title }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>{{ employee.name }} does not have any subordinates.</p>
+    {% endif %}
+
+    <!-- Add links to edit or go back to the employee list -->
+    <p><a href="{{ url_for('edit_employee', id=employee.id) }}">Edit this employee</a></p>
+    <p><a href="{{ url_for('list_employees') }}">Back to employee list</a></p>
+</body>
+</html>

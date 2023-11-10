@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OurTeam - Employees</title>
+</head>
+<body>
+    <h1>Employees</h1>
+    <ul>
+        {% for employee in employees %}
+            <li><a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
