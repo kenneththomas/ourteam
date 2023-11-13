@@ -32,7 +32,7 @@
         {% for manager in manager_chain %}
             <div class="relation-item">
                 <div class="small-employee-picture-container" style="background-image: url('{{ manager.picture_url }}');"></div>
-                <a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a> - {{ manager.title }}
+                <a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a>- {{ manager.title }}
             </div>
         {% endfor %}
     </div>
@@ -43,7 +43,7 @@
 <div class="relation-section">
         <div class="relation-item">
             <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
-            <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a> - {{ employee.title }}
+            <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>- {{ employee.title }}
         </div>
 </div>
 
@@ -54,7 +54,7 @@
             {% for subordinate in subordinates %}
             <li class="relation-item">
                 <div class="small-employee-picture-container" style="background-image: url('{{ subordinate.picture_url }}');"></div>
-                <a href="{{ url_for('view_employee', id=subordinate.id) }}">{{ subordinate.name }}</a> - {{ subordinate.title }}
+                <a href="{{ url_for('view_employee', id=subordinate.id) }}">{{ subordinate.name }}</a>- {{ subordinate.title }}
             </li>
             {% endfor %}
         </ul>

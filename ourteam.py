@@ -44,7 +44,7 @@ def add_employee():
         )
         db.session.add(new_employee)
         db.session.commit()
-        return redirect(url_for('list_employees'))
+        return redirect(url_for('view_employee', id=new_employee.id))
     return render_template('add_edit_employee.html', form=form)
 
 @app.route('/employee/edit/<int:id>', methods=['GET', 'POST'])

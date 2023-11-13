@@ -55,9 +55,10 @@ h1 {
 .small-employee-picture-container {
     width: 120px;
     height: 120px;
+    min-width: 120px;
     border-radius: 4px;
     background-size: 160% auto; /* Increase the size to zoom in */
-    background-position: center top;
+    background-position: center 12%;
     display: inline-block;
 }
 
@@ -97,6 +98,21 @@ h1 {
     align-items: center;
     gap: 10px;
     margin-bottom: 10px;
+    border : 1px solid #ddd;
+    max-width: 400px;
+    min-width: 400px;
+    word-wrap: break-word;
+    padding: 5px;
+}
+
+.name-section {
+    /* Adjust the width as needed */
+    flex-basis: 40%;
+}
+
+.title-section {
+    /* Adjust the width as needed */
+    flex-basis: 40%;
 }
 
 
