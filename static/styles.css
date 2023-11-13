@@ -95,6 +95,7 @@ h1 {
 
 .relation-item {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     gap: 10px;
     margin-bottom: 10px;
@@ -106,15 +107,21 @@ h1 {
 }
 
 .name-section {
-    /* Adjust the width as needed */
     flex-basis: 40%;
+}
+
+.info-section {
+    display: flex;
+    flex-direction: column;
 }
 
 .title-section {
-    /* Adjust the width as needed */
     flex-basis: 40%;
 }
 
+.department-section {
+    flex-basis: 40%;
+}
 
 .relation-section ul {
     display: flex; /* Use flexbox for the container */

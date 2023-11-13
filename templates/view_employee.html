@@ -32,7 +32,16 @@
         {% for manager in manager_chain %}
             <div class="relation-item">
                 <div class="small-employee-picture-container" style="background-image: url('{{ manager.picture_url }}');"></div>
-                <a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a>- {{ manager.title }}
+                <div class="info-section">
+                    <div class="name-section">
+                        <a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a>
+                    </div>
+                    <div class="title-section">
+                        {{ manager.title }}
+                    </div>
+                    <div class="department-section">
+                        {{ manager.department }}
+                    </div>
             </div>
         {% endfor %}
     </div>
@@ -43,7 +52,17 @@
 <div class="relation-section">
         <div class="relation-item">
             <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
-            <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>- {{ employee.title }}
+            <div class="info-section">
+                <div class="name-section">
+                    <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>
+                </div>
+                <div class="title-section">
+                    {{ employee.title }}
+                </div>
+                <div class="department-section">
+                    {{ employee.department }}
+                </div>
+            </div>
         </div>
 </div>
 
@@ -54,7 +73,17 @@
             {% for subordinate in subordinates %}
             <li class="relation-item">
                 <div class="small-employee-picture-container" style="background-image: url('{{ subordinate.picture_url }}');"></div>
-                <a href="{{ url_for('view_employee', id=subordinate.id) }}">{{ subordinate.name }}</a>- {{ subordinate.title }}
+                <div class="info-section">
+                    <div class="name-section">
+                        <a href="{{ url_for('view_employee', id=subordinate.id) }}">{{ subordinate.name }}</a>
+                    </div>
+                    <div class="title-section">
+                        {{ subordinate.title }}
+                    </div>
+                    <div class="department-section">
+                        {{ subordinate.department }}
+                    </div>
+                </div>
             </li>
             {% endfor %}
         </ul>
