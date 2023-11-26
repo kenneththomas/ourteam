@@ -3,9 +3,11 @@
         <li><a href="{{ url_for('index') }}">Home</a></li>
         <li><a href="{{ url_for('list_employees') }}">View Employee List</a></li>
         <li><a href="{{ url_for('add_employee') }}">Create New Employee</a></li>
-        <li>    <form action="/search" method="get" style="display: inline-block; vertical-align: middle; float: right;">
-            <input type="text" name="query" placeholder="Search employees...">
-            <input type="submit" value="Search">
-        </form></li>
+        <li>
+            <form action="/search" method="get" style="display: inline-block; vertical-align: middle; float: right;">
+                <input type="text" name="query" placeholder="Search employees...">
+                <input type="submit" value="Search">
+            </form>
+        </li>
     </ul>
 </nav>

@@ -3,14 +3,15 @@
 <head>
     <title>Search Results</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='search_results.css') }}">
 </head>
-<body>
+<body class="search-results-body">
     {% include 'navbar.html' %}
     <h1>Search Results</h1>
     {% if results %}
-        <ul>
+        <ul class="search-results">
             {% for employee in results %}
-                <li>
+                <li class="search-li">
                     <a href="{{ url_for('view_employee', id=employee.id) }}">
                         {{ employee.name }}
                     </a>
