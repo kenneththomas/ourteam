@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Search Results</h1>
+    {% if results %}
+        <ul>
+            {% for employee in results %}
+                <li>
+                    <a href="{{ url_for('view_employee', id=employee.id) }}">
+                        {{ employee.name }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No results found</p>
+    {% endif %}
+</body>
+</html>

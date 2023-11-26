@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from models import db, Employee
 from forms import EmployeeForm
 
@@ -63,6 +63,12 @@ def edit_employee(id):
         return redirect(url_for('view_employee', id=employee.id))
     return render_template('add_edit_employee.html', form=form)
 
+@app.route('/search')
+def search():
+    query = request.args.get('query')
+    results = Employee.query.filter(Employee.name.contains(query)).all()
+    return render_template('search_results.html', results=results)
+
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""
     chain = []
@@ -80,8 +86,8 @@ def get_management_chain(employee, levels=3):
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5002)
 
-'''
+
 with app.app_context():
     db.create_all()
-'''
+
 
