@@ -20,7 +20,9 @@ def list_employees():
 @app.route('/employee/<int:id>')
 def view_employee(id):
     employee = Employee.query.get_or_404(id)
+    department = employee.department
     session['previous_employee_id'] = id
+    session['previous_employee_department'] = department
     manager_chain = None
     if employee.reports_to:
         manager_chain = get_management_chain(employee)
@@ -36,6 +38,9 @@ def add_employee():
     if 'previous_employee_id' in session:
         form.reports_to.data = session['previous_employee_id']
         del session['previous_employee_id']
+    if 'previous_employee_department' in session:
+        form.department.data = session['previous_employee_department']
+        del session['previous_employee_department']
     if form.validate_on_submit():
         new_employee = Employee(
             name=form.name.data,
