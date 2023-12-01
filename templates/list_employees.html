@@ -8,10 +8,30 @@
 <body class="search-results-body">
     {% include 'navbar.html' %}
     <h1>Employees</h1>
-    <ul class="search-results">
-        {% for employee in employees %}
-            <li class="search-li"><a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a></li>
+    <ul>
+        {% for employee in employees.items %}
+        <div class="relation-item">
+            <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
+            <div class="info-section">
+                <div class="name-section">
+                    <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>
+                </div>
+                <div class="title-section">
+                    {{ employee.title }}
+                </div>
+                <div class="department-section">
+                    {{ employee.department }}
+                </div>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
+        </ul>
+        
+        {% if employees.has_prev %}
+        <a class="button" href="{{ url_for('list_employees', page=employees.prev_num) }}">Previous</a>
+    {% endif %}
+    {% if employees.has_next %}
+        <a class="button" href="{{ url_for('list_employees', page=employees.next_num) }}">Next</a>
+    {% endif %}
 </body>
 </html>

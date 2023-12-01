@@ -93,6 +93,51 @@
     {% endif %}
 </div>
 
+<h1>Gallery</h1>
+<div class="gallery">
+    <div id="image-container" style="max-width: 500px; max-height: 500px; overflow: hidden;">
+        {% for image in images %}
+        <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" style="display: none; width: 100%; height: auto;">
+        {% endfor %}
+    </div>
+    
+    <script>
+        let images = document.querySelectorAll('.employee-image');
+        let currentImageIndex = 0;
+    
+        function showNextImage() {
+            images[currentImageIndex].style.display = 'none';
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            images[currentImageIndex].style.display = 'block';
+        }
+    
+        images[0].style.display = 'block';  // Show the first image initially
+        setInterval(showNextImage, 5000);  // Change the image every 5 seconds
+    </script>
+</div>
+
+<h1>Wall</h1>
+{% for comment in comments %}
+    <div class="comment-container">
+        <a href="{{ url_for('view_employee', id=comment.author.id) }}">
+            <img src="{{ comment.author.picture_url }}" alt="{{ comment.author.name }}">
+        </a>
+        <div class="comment-content">
+            <p><strong>{{ comment.author.name }}</strong></p>
+            <p>{{ comment.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</p>
+            <p>{{ comment.content }}</p>
+        </div>
+    </div>
+{% endfor %}
+
+<form action="{{ url_for('add_comment', id=employee.id) }}" method="post">
+    <textarea name="content" required></textarea>
+    <input type="number" name="author_id" placeholder="Author ID" required>
+    <input type="submit" value="Post Comment">
+</form>
+
+
+<a href="{{ url_for('add_image', id=employee.id) }}">Add Image</a>
 
     <!-- Add links to edit or go back to the employee list -->
     <p><a href="{{ url_for('edit_employee', id=employee.id) }}">Edit this employee</a></p>

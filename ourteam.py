@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session
-from models import db, Employee
-from forms import EmployeeForm
+from models import db, Employee, EmployeeImage, Comment
+from forms import EmployeeForm, AddImageUrlForm
+from sqlalchemy import func
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ourteam.db'
@@ -10,16 +11,20 @@ db.init_app(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    featured_employees = Employee.query.order_by(func.random()).limit(5).all()
+    return render_template('index.html', featured_employees=featured_employees)
 
 @app.route('/employees')
 def list_employees():
-    employees = Employee.query.all()
+    page = request.args.get('page', 1, type=int)
+    employees = Employee.query.paginate(page=page, per_page=5)
     return render_template('list_employees.html', employees=employees)
 
 @app.route('/employee/<int:id>')
 def view_employee(id):
     employee = Employee.query.get_or_404(id)
+    images = EmployeeImage.query.filter_by(employee_id=id).all()
+    comments = Comment.query.filter_by(employee_id=id).order_by(Comment.timestamp.desc()).all()
     department = employee.department
     session['previous_employee_id'] = id
     session['previous_employee_department'] = department
@@ -30,7 +35,7 @@ def view_employee(id):
     subordinates = Employee.query.filter_by(reports_to=id).all()
     form = EmployeeForm(obj=employee)
     form.id.data = id
-    return render_template('view_employee.html', employee=employee, subordinates=subordinates, manager_chain=manager_chain)
+    return render_template('view_employee.html', employee=employee, subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments)
 
 @app.route('/employee/add', methods=['GET', 'POST'])
 def add_employee():
@@ -77,6 +82,25 @@ def search():
     query = request.args.get('query')
     results = Employee.query.filter(Employee.name.contains(query)).all()
     return render_template('search_results.html', results=results)
+
+@app.route('/employee/<int:id>/add_image', methods=['GET', 'POST'])
+def add_image(id):
+    form = AddImageUrlForm()
+    if form.validate_on_submit():
+        image = EmployeeImage(image_url=form.image_url.data, employee_id=id)
+        db.session.add(image)
+        db.session.commit()
+        return redirect(url_for('view_employee', id=id))
+    return render_template('add_image.html', form=form)
+
+@app.route('/employee/<int:id>/add_comment', methods=['POST'])
+def add_comment(id):
+    content = request.form.get('content')
+    author_id = request.form.get('author_id', type=int)
+    comment = Comment(content=content, employee_id=id, author_id=author_id)
+    db.session.add(comment)
+    db.session.commit()
+    return redirect(url_for('view_employee', id=id))
 
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""
