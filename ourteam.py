@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, session
-from models import db, Employee
-from forms import EmployeeForm
+from models import db, Employee, EmployeeImage
+from forms import EmployeeForm, AddImageUrlForm
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ourteam.db'
@@ -20,6 +20,7 @@ def list_employees():
 @app.route('/employee/<int:id>')
 def view_employee(id):
     employee = Employee.query.get_or_404(id)
+    images = EmployeeImage.query.filter_by(employee_id=id).all()
     department = employee.department
     session['previous_employee_id'] = id
     session['previous_employee_department'] = department
@@ -30,7 +31,7 @@ def view_employee(id):
     subordinates = Employee.query.filter_by(reports_to=id).all()
     form = EmployeeForm(obj=employee)
     form.id.data = id
-    return render_template('view_employee.html', employee=employee, subordinates=subordinates, manager_chain=manager_chain)
+    return render_template('view_employee.html', employee=employee, subordinates=subordinates, manager_chain=manager_chain, images=images)
 
 @app.route('/employee/add', methods=['GET', 'POST'])
 def add_employee():
@@ -77,6 +78,16 @@ def search():
     query = request.args.get('query')
     results = Employee.query.filter(Employee.name.contains(query)).all()
     return render_template('search_results.html', results=results)
+
+@app.route('/employee/<int:id>/add_image', methods=['GET', 'POST'])
+def add_image(id):
+    form = AddImageUrlForm()
+    if form.validate_on_submit():
+        image = EmployeeImage(image_url=form.image_url.data, employee_id=id)
+        db.session.add(image)
+        db.session.commit()
+        return redirect(url_for('view_employee', id=id))
+    return render_template('add_image.html', form=form)
 
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""

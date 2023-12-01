@@ -111,6 +111,11 @@ h1 {
     flex-basis: 40%;
 }
 
+.name-section a {
+    text-decoration: none;
+    font-weight: bold;
+}
+
 .info-section {
     display: flex;
     flex-direction: column;
