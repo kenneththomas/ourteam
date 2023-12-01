@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session
 from models import db, Employee, EmployeeImage
 from forms import EmployeeForm, AddImageUrlForm
+from sqlalchemy import func
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ourteam.db'
@@ -10,7 +11,8 @@ db.init_app(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    featured_employees = Employee.query.order_by(func.random()).limit(5).all()
+    return render_template('index.html', featured_employees=featured_employees)
 
 @app.route('/employees')
 def list_employees():
