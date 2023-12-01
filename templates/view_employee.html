@@ -116,6 +116,27 @@
     </script>
 </div>
 
+<h1>Wall</h1>
+{% for comment in comments %}
+    <div class="comment-container">
+        <a href="{{ url_for('view_employee', id=comment.author.id) }}">
+            <img src="{{ comment.author.picture_url }}" alt="{{ comment.author.name }}">
+        </a>
+        <div class="comment-content">
+            <p><strong>{{ comment.author.name }}</strong></p>
+            <p>{{ comment.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</p>
+            <p>{{ comment.content }}</p>
+        </div>
+    </div>
+{% endfor %}
+
+<form action="{{ url_for('add_comment', id=employee.id) }}" method="post">
+    <textarea name="content" required></textarea>
+    <input type="number" name="author_id" placeholder="Author ID" required>
+    <input type="submit" value="Post Comment">
+</form>
+
+
 <a href="{{ url_for('add_image', id=employee.id) }}">Add Image</a>
 
     <!-- Add links to edit or go back to the employee list -->
