@@ -16,7 +16,8 @@ def index():
 
 @app.route('/employees')
 def list_employees():
-    employees = Employee.query.all()
+    page = request.args.get('page', 1, type=int)
+    employees = Employee.query.paginate(page=page, per_page=5)
     return render_template('list_employees.html', employees=employees)
 
 @app.route('/employee/<int:id>')
