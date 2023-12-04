@@ -169,14 +169,34 @@ h1 {
     border: 1px solid #ccc;
     padding: 10px;
     border-radius: 5px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .comment-container img {
-    width: 50px;
-    height: 50px;
+    width: 100px;
+    height: 100px;
     margin-right: 10px;
+    border-radius: 50%;
 }
 
 .comment-container .comment-content {
     flex-grow: 1;
+}
+
+.comment-container .comment-content p {
+    margin: 0 0 10px;
+}
+
+.comment-container .comment-content p:last-child {
+    margin-bottom: 0;
+}
+
+.comment-poster textarea {
+    width: calc(50% - 20px);
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 3px;
+    border: 1px solid #bdc7d8;
+    font-size: 14px;
 }

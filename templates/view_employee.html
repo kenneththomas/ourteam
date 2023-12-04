@@ -123,19 +123,22 @@
             <img src="{{ comment.author.picture_url }}" alt="{{ comment.author.name }}">
         </a>
         <div class="comment-content">
-            <p><strong>{{ comment.author.name }}</strong></p>
+            <p><strong><a href="{{ url_for('view_employee', id=comment.author.id) }}">{{ comment.author.name }}</a></strong></p>
             <p>{{ comment.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</p>
             <p>{{ comment.content }}</p>
         </div>
     </div>
 {% endfor %}
 
+<h1>Post a Comment</h1>
 <form action="{{ url_for('add_comment', id=employee.id) }}" method="post">
-    <textarea name="content" required></textarea>
+    <div class="comment-poster">
+        <textarea name="content" required></textarea>
+    </div>
     <input type="number" name="author_id" placeholder="Author ID" required>
     <input type="submit" value="Post Comment">
 </form>
-
+<br/>
 
 <a href="{{ url_for('add_image', id=employee.id) }}">Add Image</a>
 
