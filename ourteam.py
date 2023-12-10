@@ -102,6 +102,11 @@ def add_comment(id):
     db.session.commit()
     return redirect(url_for('view_employee', id=id))
 
+@app.route('/department/<department_name>', methods=['GET'])
+def list_employees_by_department(department_name):
+    employees = Employee.query.filter_by(department=department_name).all()
+    return render_template('department_employees.html', employees=employees, department_name=department_name)
+
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""
     chain = []
