@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    </head>
+    <body>
+        {% include 'navbar.html' %}
+        <h1>Employees in {{ department_name }}</h1>
+        <ul>
+            {% for employee in employees %}
+                <li class="relation-item">
+                    <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
+                    <div class="info-section">
+                        <div class="name-section">
+                            <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>
+                        </div>
+                        <div class="title-section">
+                            {{ employee.title }}
+                        </div>
+                        <div class="department-section">
+                            {{ employee.department }}
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

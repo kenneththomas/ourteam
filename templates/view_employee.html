@@ -20,7 +20,9 @@
         <div class="employee-info">
             <p><strong>Name:</strong> {{ employee.name }}</p>
             <p><strong>Title:</strong> {{ employee.title }}</p>
-            <p><strong>Department:</strong> {{ employee.department }}</p>
+            <p><strong>Department:</strong>     <a href="{{ url_for('list_employees_by_department', department_name=employee.department) }}">
+                {{ employee.department }}
+            </a></p>
             <p><strong>Phone:</strong> {{ employee.phone or 'N/A' }}</p>
             <!-- Add any other information here -->
         </div>
