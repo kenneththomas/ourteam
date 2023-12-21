@@ -1,0 +1,65 @@
+<head>
+    <title>Recent Actions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='recent_actions.css') }}">
+</head>
+<h1>Recent Actions</h1>
+<ul>
+{% for action in actions %}
+    <li>
+        {{ action.description }} at {{ action.timestamp }}
+        {% if action.from_id %}
+            by <a href="{{ url_for('view_employee', id=action.from_id) }}">{{ action.from_employee.name }}</a>
+            <div class="relation-section">
+                <div class="relation-item">
+                    <div class="small-employee-picture-container" style="background-image: url('{{ action.from_employee.picture_url }}');"></div>
+                    <div class="info-section">
+                        <div class="name-section">
+                            <a href="{{ url_for('view_employee', id=action.from_employee.id) }}">{{ action.from_employee.name }}</a>
+                        </div>
+                        <div class="title-section">
+                            {{ action.from_employee.title }}
+                        </div>
+                        <div class="department-section">
+                            {{ action.from_employee.department }}
+                        </div>
+                        <div class="id-section">
+                            #{{ action.from_employee.id }}
+                        </div>
+                    </div>
+                </div>
+        </div>
+        {% endif %}
+        {% if action.to_id %}
+            <div class="relation-section">
+                <div class="relation-item">
+                    <div class="small-employee-picture-container" style="background-image: url('{{ action.to_employee.picture_url }}');"></div>
+                    <div class="info-section">
+                        <div class="name-section">
+                            <a href="{{ url_for('view_employee', id=action.to_employee.id) }}">{{ action.to_employee.name }}</a>
+                        </div>
+                        <div class="title-section">
+                            {{ action.to_employee.title }}
+                        </div>
+                        <div class="department-section">
+                            {{ action.to_employee.department }}
+                        </div>
+                        <div class="id-section">
+                            #{{ action.to_employee.id }}
+                        </div>
+                    </div>
+                </div>
+        </div>
+        <div class="action-section">
+            <div class="action-item">
+                <div class="action-description">
+                    {{ action.description }}
+                </div>
+                <div class="action-timestamp">
+                    {{ action.timestamp }}
+                </div>
+            </div>
+        {% endif %}
+    </li>
+{% endfor %}
+</ul>

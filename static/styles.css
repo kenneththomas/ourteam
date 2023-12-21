@@ -200,3 +200,7 @@ h1 {
     border: 1px solid #bdc7d8;
     font-size: 14px;
 }
+.id-section {
+    font-size: 12px;
+    font-style: italic;
+}

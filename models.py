@@ -33,3 +33,13 @@ class Comment(db.Model):
 
     employee = db.relationship('Employee', foreign_keys=[employee_id])
     author = db.relationship('Employee', foreign_keys=[author_id])
+
+class Action(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(200), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    from_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
+    to_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
+
+    from_employee = db.relationship('Employee', foreign_keys=[from_id])
+    to_employee = db.relationship('Employee', foreign_keys=[to_id])
