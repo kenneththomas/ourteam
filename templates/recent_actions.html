@@ -3,6 +3,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='recent_actions.css') }}">
 </head>
+{% include 'navbar.html' %}
 <h1>Recent Actions</h1>
 <ul>
 {% for action in actions %}
@@ -63,3 +64,9 @@
     </li>
 {% endfor %}
 </ul>
+{% if prev_url %}
+    <a href="{{ prev_url }}" class="button">Previous</a>
+{% endif %}
+{% if next_url %}
+    <a href="{{ next_url }}" class="button">Next</a>
+{% endif %}
