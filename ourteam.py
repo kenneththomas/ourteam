@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request, session
-from models import db, Employee, EmployeeImage, Comment
+from models import db, Employee, EmployeeImage, Comment, Action
 from forms import EmployeeForm, AddImageUrlForm
 from sqlalchemy import func
 
@@ -93,12 +93,15 @@ def add_image(id):
         return redirect(url_for('view_employee', id=id))
     return render_template('add_image.html', form=form)
 
-@app.route('/employee/<int:id>/add_comment', methods=['POST'])
+@app.route('/add_comment/<id>', methods=['POST'])
 def add_comment(id):
     content = request.form.get('content')
     author_id = request.form.get('author_id', type=int)
+    employee_id = request.form.get('employee_id', type=int)
     comment = Comment(content=content, employee_id=id, author_id=author_id)
     db.session.add(comment)
+    action = Action(description=f"New comment by {author_id}: {content}", from_id=author_id, to_id=employee_id)
+    db.session.add(action)
     db.session.commit()
     return redirect(url_for('view_employee', id=id))
 
@@ -106,6 +109,11 @@ def add_comment(id):
 def list_employees_by_department(department_name):
     employees = Employee.query.filter_by(department=department_name).all()
     return render_template('department_employees.html', employees=employees, department_name=department_name)
+
+@app.route('/recent_actions', methods=['GET'])
+def recent_actions():
+    actions = Action.query.order_by(Action.timestamp.desc()).limit(10).all()
+    return render_template('recent_actions.html', actions=actions)
 
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""
