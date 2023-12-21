@@ -58,6 +58,12 @@ def add_employee():
         )
         db.session.add(new_employee)
         db.session.commit()
+
+        #action for new employee
+        action = Action(description=f"New employee added: {new_employee.name} - {new_employee.department}", from_id=new_employee.id)
+        db.session.add(action)
+        db.session.commit()
+
         return redirect(url_for('view_employee', id=new_employee.id))
     return render_template('add_edit_employee.html', form=form)
 
