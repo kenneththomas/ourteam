@@ -130,7 +130,8 @@ def add_comment(id):
     action = Action(description=f"New comment by {author_id}: {content}", from_id=author_id, to_id=id)
     db.session.add(action)
     db.session.commit()
-    return redirect(url_for('view_employee', id=id))
+    return render_template('comment.html', comment=comment)
+    #return redirect(url_for('view_employee', id=id))
 
 @app.route('/department/<department_name>', methods=['GET'])
 def list_employees_by_department(department_name):

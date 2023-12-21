@@ -3,6 +3,8 @@
 <head>
     <title>{{ employee.name }} - @{{employee.email}}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='comment.js') }}"></script>
 </head>
 <body>
     {% include 'navbar.html' %}
@@ -128,6 +130,7 @@
 </div>
 
 <h1>Wall</h1>
+<div class="wall">
 {% for comment in comments %}
     <div class="comment-container">
         <a href="{{ url_for('view_employee', id=comment.author.id) }}">
@@ -140,9 +143,10 @@
         </div>
     </div>
 {% endfor %}
+</div>
 
 <h1>Post a Comment</h1>
-<form action="{{ url_for('add_comment', id=employee.id) }}" method="post">
+<form id="comment-form" action="{{ url_for('add_comment', id=employee.id) }}" method="post">
     <input type="number" name="author_id" placeholder="Author ID" required>
     <div class="comment-poster">
         <textarea name="content" required></textarea>
