@@ -97,10 +97,9 @@ def add_image(id):
 def add_comment(id):
     content = request.form.get('content')
     author_id = request.form.get('author_id', type=int)
-    employee_id = request.form.get('employee_id', type=int)
     comment = Comment(content=content, employee_id=id, author_id=author_id)
     db.session.add(comment)
-    action = Action(description=f"New comment by {author_id}: {content}", from_id=author_id, to_id=employee_id)
+    action = Action(description=f"New comment by {author_id}: {content}", from_id=author_id, to_id=id)
     db.session.add(action)
     db.session.commit()
     return redirect(url_for('view_employee', id=id))
