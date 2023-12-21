@@ -64,3 +64,9 @@
     </li>
 {% endfor %}
 </ul>
+{% if prev_url %}
+    <a href="{{ prev_url }}" class="button">Previous</a>
+{% endif %}
+{% if next_url %}
+    <a href="{{ next_url }}" class="button">Next</a>
+{% endif %}

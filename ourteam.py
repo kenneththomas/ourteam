@@ -76,6 +76,9 @@ def edit_employee(id):
     original_title = employee.title
     original_department = employee.department
     original_reports_to = employee.reports_to
+    #get original name of manager
+    if employee.reports_to:
+        original_mgr_name = Employee.query.get(employee.reports_to).name
 
     if form.validate_on_submit():
         employee.name = form.name.data
@@ -86,6 +89,7 @@ def edit_employee(id):
         employee.picture_url = form.picture_url.data
         employee.reports_to = form.reports_to.data
         db.session.commit()
+
         #action for title change
         if form.title.data != original_title:
             action = Action(description=f"Title changed from {original_title} to {form.title.data}", from_id=employee.id)
@@ -99,7 +103,7 @@ def edit_employee(id):
         #action for reports_to change but get name of manager
         if form.reports_to.data != original_reports_to:
             manager = Employee.query.get(form.reports_to.data)
-            action = Action(description=f"Manager changed from {original_reports_to} to {manager.name}", from_id=employee.id)
+            action = Action(description=f"Manager changed from {original_mgr_name} to {manager.name}", from_id=employee.id)
             db.session.add(action)
             db.session.commit()
         return redirect(url_for('view_employee', id=employee.id))
@@ -140,8 +144,12 @@ def list_employees_by_department(department_name):
 
 @app.route('/recent_actions', methods=['GET'])
 def recent_actions():
-    actions = Action.query.order_by(Action.timestamp.desc()).limit(10).all()
-    return render_template('recent_actions.html', actions=actions)
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    actions = Action.query.order_by(Action.timestamp.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    next_url = url_for('recent_actions', page=actions.next_num) if actions.has_next else None
+    prev_url = url_for('recent_actions', page=actions.prev_num) if actions.has_prev else None
+    return render_template('recent_actions.html', actions=actions.items, next_url=next_url, prev_url=prev_url)
 
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""
