@@ -7,7 +7,7 @@
 <body>
     {% include 'navbar.html' %}
     <h1>{{ employee.name }}</h1>
-    <h2>@{{ employee.email }}</h2>
+    <h2>@{{ employee.email }} - #{{ employee.id }}</h2>
 
     <div class="employee-profile">
         <div>
@@ -44,6 +44,9 @@
                     <div class="department-section">
                         {{ manager.department }}
                     </div>
+                    <div class="id-section">
+                        #{{ manager.id }}
+                    </div>
             </div>
         </div>
         {% endfor %}
@@ -65,6 +68,9 @@
                 <div class="department-section">
                     {{ employee.department }}
                 </div>
+                <div class="id-section">
+                    #{{ employee.id }}
+                </div>
             </div>
         </div>
 </div>
@@ -85,6 +91,9 @@
                     </div>
                     <div class="department-section">
                         {{ subordinate.department }}
+                    </div>
+                    <div class="id-section">
+                        #{{ subordinate.id }}
                     </div>
                 </div>
             </li>
