@@ -65,6 +65,12 @@ def add_employee():
 def edit_employee(id):
     employee = Employee.query.get_or_404(id)
     form = EmployeeForm(obj=employee)
+
+    #get original values for actions
+    original_title = employee.title
+    original_department = employee.department
+    original_reports_to = employee.reports_to
+
     if form.validate_on_submit():
         employee.name = form.name.data
         employee.title = form.title.data
@@ -74,6 +80,22 @@ def edit_employee(id):
         employee.picture_url = form.picture_url.data
         employee.reports_to = form.reports_to.data
         db.session.commit()
+        #action for title change
+        if form.title.data != original_title:
+            action = Action(description=f"Title changed from {original_title} to {form.title.data}", from_id=employee.id)
+            db.session.add(action)
+            db.session.commit()
+        #action for department change
+        if form.department.data != original_department:
+            action = Action(description=f"Department changed from {original_department} to {form.department.data}", from_id=employee.id)
+            db.session.add(action)
+            db.session.commit()
+        #action for reports_to change but get name of manager
+        if form.reports_to.data != original_reports_to:
+            manager = Employee.query.get(form.reports_to.data)
+            action = Action(description=f"Manager changed from {original_reports_to} to {manager.name}", from_id=employee.id)
+            db.session.add(action)
+            db.session.commit()
         return redirect(url_for('view_employee', id=employee.id))
     return render_template('add_edit_employee.html', form=form)
 

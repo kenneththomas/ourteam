@@ -3,6 +3,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='recent_actions.css') }}">
 </head>
+{% include 'navbar.html' %}
 <h1>Recent Actions</h1>
 <ul>
 {% for action in actions %}
