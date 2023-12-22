@@ -3,6 +3,11 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+employee_group = db.Table('employee_group',
+    db.Column('employee_id', db.Integer, db.ForeignKey('employee.id'), primary_key=True),
+    db.Column('group_id', db.Integer, db.ForeignKey('group.id'), primary_key=True)
+)
+
 class Employee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -13,6 +18,7 @@ class Employee(db.Model):
     picture_url = db.Column(db.String)
     reports_to = db.Column(db.Integer, db.ForeignKey('employee.id'))
     images = db.relationship('EmployeeImage', backref='employee', lazy=True)
+    groups = db.relationship('Group', secondary=employee_group, backref=db.backref('members', lazy='dynamic'))
 
 class Department(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -43,3 +49,7 @@ class Action(db.Model):
 
     from_employee = db.relationship('Employee', foreign_keys=[from_id])
     to_employee = db.relationship('Employee', foreign_keys=[to_id])
+
+class Group(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    groupname = db.Column(db.String(200), nullable=False)

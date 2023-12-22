@@ -1,5 +1,5 @@
-from flask import Flask, render_template, redirect, url_for, request, session
-from models import db, Employee, EmployeeImage, Comment, Action
+from flask import Flask, render_template, redirect, url_for, request, session, flash
+from models import db, Employee, EmployeeImage, Comment, Action, Group
 from forms import EmployeeForm, AddImageUrlForm
 from sqlalchemy import func
 
@@ -150,6 +150,48 @@ def recent_actions():
     next_url = url_for('recent_actions', page=actions.next_num) if actions.has_next else None
     prev_url = url_for('recent_actions', page=actions.prev_num) if actions.has_prev else None
     return render_template('recent_actions.html', actions=actions.items, next_url=next_url, prev_url=prev_url)
+
+@app.route('/add_to_group/<int:id>', methods=['POST'])
+def add_to_group(id):
+    group_name = request.form.get('groupname')
+    group = Group.query.filter_by(groupname=group_name).first()
+    employee = Employee.query.get(id)
+
+    print(f'debug: group_name: {group_name} group: {group} employee: {employee}')
+    
+    if group is None:
+        flash('Group not found.')
+        return redirect(url_for('view_employee', id=id))
+
+    if employee is None:
+        flash('Employee not found.')
+        return redirect(url_for('view_employee', id=id))
+
+    group.members.append(employee)
+    db.session.commit()
+    return redirect(url_for('view_employee', id=id))
+
+@app.route('/manage_groups', methods=['GET', 'POST'])
+def manage_groups():
+    if request.method == 'POST':
+        groupname = request.form.get('groupname')
+        if groupname:
+            group = Group(groupname=groupname)
+            db.session.add(group)
+            db.session.commit()
+            flash('Group created.')
+        else:
+            flash('Group name is required.')
+    groups = Group.query.all()
+    return render_template('manage_groups.html', groups=groups)
+
+@app.route('/view_group/<int:id>', methods=['GET'])
+def view_group(id):
+    group = Group.query.get(id)
+    if group is None:
+        flash('Group not found.')
+        return redirect(url_for('manage_groups'))
+    return render_template('view_group.html', group=group)
 
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""
