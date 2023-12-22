@@ -165,12 +165,12 @@ h1 {
 .comment-container {
     display: flex;
     align-items: start;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     border: 1px solid #ccc;
-    padding: 10px;
     border-radius: 5px;
     background-color: #f9f9f9;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    width: 1000px;
 }
 
 .comment-container img {
