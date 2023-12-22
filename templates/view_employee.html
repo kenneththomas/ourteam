@@ -12,6 +12,7 @@
     <h1>{{ employee.name }}</h1>
     <h2>@{{ employee.email }} - #{{ employee.id }}</h2>
 
+
     <div class="employee-profile">
         <div>
             {% if employee.picture_url %}
@@ -27,9 +28,16 @@
                 {{ employee.department }}
             </a></p>
             <p><strong>Phone:</strong> {{ employee.phone or 'N/A' }}</p>
-            <!-- Add any other information here -->
+            <h2>Recent Actions</h2>
+            <ul>
+            {% for action in recent_actions %}
+                <li>{{ action.timestamp }}</li>
+                <p>{{action.description }}</p>
+            {% endfor %}
+            </ul>
         </div>
     </div>
+
 
     {% if manager_chain %}
     <div class="relation-section">
@@ -107,6 +115,8 @@
     {% endif %}
 </div>
 
+<!-- only show this section if there are images to show-->
+{% if images %}
 <h1>Gallery</h1>
 <div class="gallery">
     <div id="image-container" style="max-width: 500px; max-height: 500px; overflow: hidden;">
@@ -114,6 +124,7 @@
         <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" style="display: none; width: 100%; height: auto;">
         {% endfor %}
     </div>
+{% endif %}
     
     <script>
         let images = document.querySelectorAll('.employee-image');

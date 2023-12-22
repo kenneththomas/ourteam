@@ -35,7 +35,9 @@ def view_employee(id):
     subordinates = Employee.query.filter_by(reports_to=id).all()
     form = EmployeeForm(obj=employee)
     form.id.data = id
-    return render_template('view_employee.html', employee=employee, subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments)
+    recent_actions = Action.query.filter_by(from_id=id).order_by(Action.timestamp.desc()).limit(5).all()
+    return render_template('view_employee.html', employee=employee, recent_actions=recent_actions, 
+                           subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments)
 
 @app.route('/employee/add', methods=['GET', 'POST'])
 def add_employee():
@@ -129,9 +131,13 @@ def add_image(id):
 def add_comment(id):
     content = request.form.get('content')
     author_id = request.form.get('author_id', type=int)
+    author = Employee.query.get(author_id)
+    author_name = author.name
+    recipient = Employee.query.get(id)
+    recipient_name = recipient.name
     comment = Comment(content=content, employee_id=id, author_id=author_id)
     db.session.add(comment)
-    action = Action(description=f"New comment by {author_id}: {content}", from_id=author_id, to_id=id)
+    action = Action(description=f"New comment by {author_name} to {recipient_name}: {content}", from_id=author_id, to_id=id)
     db.session.add(action)
     db.session.commit()
     return render_template('comment.html', comment=comment)
