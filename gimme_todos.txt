@@ -1,1 +1,2 @@
 -icon on all pages
+-fix navbar on recent actions

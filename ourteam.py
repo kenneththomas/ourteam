@@ -185,6 +185,14 @@ def manage_groups():
     groups = Group.query.all()
     return render_template('manage_groups.html', groups=groups)
 
+@app.route('/view_group/<int:id>', methods=['GET'])
+def view_group(id):
+    group = Group.query.get(id)
+    if group is None:
+        flash('Group not found.')
+        return redirect(url_for('manage_groups'))
+    return render_template('view_group.html', group=group)
+
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""
     chain = []

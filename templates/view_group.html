@@ -1,0 +1,44 @@
+<head>
+    <title>Recent Actions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='resources/ourteam_icon.ico') }}">
+</head>
+{% include 'navbar.html' %}
+<h1>{{ group.groupname }}</h1>
+
+<h2>Members</h2>
+<ul>
+    {% for member in group.members %}
+    <li class="relation-item">
+        <div class="small-employee-picture-container" style="background-image: url('{{ member.picture_url }}');"></div>
+        <div class="info-section">
+            <div class="name-section">
+                <a href="{{ url_for('view_employee', id=member.id) }}">{{ member.name }}</a>
+            </div>
+            <div class="title-section">
+                {{ member.title }}
+            </div>
+            <div class="department-section">
+                {{ member.department }}
+            </div>
+            <div class="id-section">
+                #{{ member.id }}
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+
+
+<a href="{{ url_for('manage_groups') }}">Back to Group Management</a>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}

@@ -165,19 +165,17 @@
 
 <h2>Groups</h2>
 <ul>
-{% for group in employee.groups %}
-    <li>{{ group.groupname }}</li>
-{% endfor %}
-</ul>
+    {% for group in employee.groups %}
+        <li>
+            {{ group.groupname }}
+            <a href="{{ url_for('view_group', id=group.id) }}">View Group</a>
+        </li>
+    {% endfor %}
+    </ul>
 
 <!-- Form to add the employee to a group -->
 <h2>Add to Group</h2>
 <form action="{{ url_for('add_to_group', id=employee.id) }}" method="post">
-    <!--select name="group_id">
-    {% for group in groups %}
-        <option value="{{ group.id }}">{{ group.groupname }}</option>
-    {% endfor %}
-    </select-->
     <input type="text" name="groupname" placeholder="Group Name" required>
     <input type="submit" value="Add to Group">
 </form>
