@@ -1,2 +1,3 @@
--icon on all pages
--fix navbar on recent actions
+1. icon on all pages
+2. fix navbar on recent actions
+3. fix navbar padding

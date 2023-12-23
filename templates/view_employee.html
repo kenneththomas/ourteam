@@ -66,6 +66,29 @@
     <p>This employee does not report to anyone.</p>
 {% endif %}
 
+{% if co_manager %}
+<div class="relation-section">
+    <h2>Co-Manager</h2>
+    <div class="relation-item">
+        <div class="small-employee-picture-container" style="background-image: url('{{ co_manager.picture_url }}');"></div>
+        <div class="info-section">
+            <div class="name-section">
+                <a href="{{ url_for('view_employee', id=co_manager.id) }}">{{ co_manager.name }}</a>
+            </div>
+            <div class="title-section">
+                {{ co_manager.title }}
+            </div>
+            <div class="department-section">
+                {{ co_manager.department }}
+            </div>
+            <div class="id-section">
+                #{{ co_manager.id }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="relation-section">
         <div class="relation-item">
             <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
@@ -143,18 +166,28 @@
 
 <h1>Wall</h1>
 <div class="wall">
-{% for comment in comments %}
+{% for comment in comments.items %}
     <div class="comment-container">
         <a href="{{ url_for('view_employee', id=comment.author.id) }}">
             <img src="{{ comment.author.picture_url }}" alt="{{ comment.author.name }}">
         </a>
         <div class="comment-content">
-            <p><strong><a href="{{ url_for('view_employee', id=comment.author.id) }}">{{ comment.author.name }}</a> - {{ comment.author.department }}</strong></p>
+            <p><a href="{{ url_for('view_employee', id=comment.author.id) }}">{{ comment.author.name }}</a> - <strong>{{ comment.author.department }} -</strong> <em>{{ comment.author.title }}</em></p>
             <p>{{ comment.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</p>
             <p>{{ comment.content }}</p>
         </div>
     </div>
 {% endfor %}
+</div>
+
+<!-- Pagination Links -->
+<div class="pagination">
+    {% if comments.has_prev %}
+        <a href="{{ url_for('view_employee', id=employee.id, comments_page=comments.prev_num) }}">Previous</a>
+    {% endif %}
+    {% if comments.has_next %}
+        <a href="{{ url_for('view_employee', id=employee.id, comments_page=comments.next_num) }}">Next</a>
+    {% endif %}
 </div>
 
 <h1>Post a Comment</h1>

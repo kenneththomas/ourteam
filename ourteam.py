@@ -24,7 +24,24 @@ def list_employees():
 def view_employee(id):
     employee = Employee.query.get_or_404(id)
     images = EmployeeImage.query.filter_by(employee_id=id).all()
-    comments = Comment.query.filter_by(employee_id=id).order_by(Comment.timestamp.desc()).all()
+
+    # this is for my own broken implementation, will fix for real use later
+    comanager_overrides = {
+        '261' : '225'
+    }
+
+    co_manager = None
+    if str(id) in comanager_overrides:
+        co_manager_id = comanager_overrides[str(id)]
+        co_manager = Employee.query.filter_by(name=co_manager_id).first()
+        print(f'co_manager: {co_manager}')
+    
+    # Get the page number for the comments
+    comments_page = request.args.get('comments_page', 1, type=int)
+    
+    # Paginate the comments
+    comments = Comment.query.filter_by(employee_id=id).order_by(Comment.timestamp.desc()).paginate(page=comments_page, per_page=8)
+    
     department = employee.department
     session['previous_employee_id'] = id
     session['previous_employee_department'] = department
@@ -37,7 +54,7 @@ def view_employee(id):
     form.id.data = id
     recent_actions = Action.query.filter_by(from_id=id).order_by(Action.timestamp.desc()).limit(5).all()
     return render_template('view_employee.html', employee=employee, recent_actions=recent_actions, 
-                           subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments)
+                           subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments, co_manager=co_manager)
 
 @app.route('/employee/add', methods=['GET', 'POST'])
 def add_employee():

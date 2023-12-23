@@ -5,6 +5,7 @@ body {
     color: #333;
     background-color: #F7F7F7;
     margin: 0;
+    margin-top: 60px; /* Adjust this value to match your navbar's height */
 }
 
 nav {
@@ -45,6 +46,7 @@ nav ul li a:hover {
 
 h1 {
     color: #3B5998;
+    size: 24px;
 }
 
 .small-employee-picture {
@@ -205,4 +207,11 @@ h1 {
 .id-section {
     font-size: 12px;
     font-style: italic;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    /* other styles as needed */
 }
