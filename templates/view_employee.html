@@ -172,7 +172,7 @@
             <img src="{{ comment.author.picture_url }}" alt="{{ comment.author.name }}">
         </a>
         <div class="comment-content">
-            <p><a href="{{ url_for('view_employee', id=comment.author.id) }}">{{ comment.author.name }}</a> - <strong>{{ comment.author.department }} -</strong> <em>{{ comment.author.title }}</em></p>
+            <p><a href="{{ url_for('view_employee', id=comment.author.id) }}">{{ comment.author.name }}</a> - <strong>{{ comment.author.department }} -</strong> <em>{{ comment.author.title }} (#{{ comment.author.id }})</em></p>
             <p>{{ comment.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</p>
             <p>{{ comment.content }}</p>
         </div>

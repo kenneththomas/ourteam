@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from models import db, Employee, EmployeeImage, Comment, Action, Group
 from forms import EmployeeForm, AddImageUrlForm
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ourteam.db'
@@ -40,7 +40,7 @@ def view_employee(id):
     comments_page = request.args.get('comments_page', 1, type=int)
     
     # Paginate the comments
-    comments = Comment.query.filter_by(employee_id=id).order_by(Comment.timestamp.desc()).paginate(page=comments_page, per_page=8)
+    comments = Comment.query.filter(or_(Comment.employee_id==id, Comment.author_id==id)).order_by(Comment.timestamp.desc()).paginate(page=comments_page, per_page=8)
     
     department = employee.department
     session['previous_employee_id'] = id
