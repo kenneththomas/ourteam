@@ -1,7 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from models import db, Employee, EmployeeImage, Comment, Action, Group
 from forms import EmployeeForm, AddImageUrlForm
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ourteam.db'
@@ -24,7 +24,24 @@ def list_employees():
 def view_employee(id):
     employee = Employee.query.get_or_404(id)
     images = EmployeeImage.query.filter_by(employee_id=id).all()
-    comments = Comment.query.filter_by(employee_id=id).order_by(Comment.timestamp.desc()).all()
+
+    # this is for my own broken implementation, will fix for real use later
+    comanager_overrides = {
+        '261' : '225'
+    }
+
+    co_manager = None
+    if str(id) in comanager_overrides:
+        co_manager_id = comanager_overrides[str(id)]
+        co_manager = Employee.query.filter_by(name=co_manager_id).first()
+        print(f'co_manager: {co_manager}')
+    
+    # Get the page number for the comments
+    comments_page = request.args.get('comments_page', 1, type=int)
+    
+    # Paginate the comments
+    comments = Comment.query.filter(or_(Comment.employee_id==id, Comment.author_id==id)).order_by(Comment.timestamp.desc()).paginate(page=comments_page, per_page=8)
+    
     department = employee.department
     session['previous_employee_id'] = id
     session['previous_employee_department'] = department
@@ -35,7 +52,9 @@ def view_employee(id):
     subordinates = Employee.query.filter_by(reports_to=id).all()
     form = EmployeeForm(obj=employee)
     form.id.data = id
-    return render_template('view_employee.html', employee=employee, subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments)
+    recent_actions = Action.query.filter_by(from_id=id).order_by(Action.timestamp.desc()).limit(5).all()
+    return render_template('view_employee.html', employee=employee, recent_actions=recent_actions, 
+                           subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments, co_manager=co_manager)
 
 @app.route('/employee/add', methods=['GET', 'POST'])
 def add_employee():
@@ -129,9 +148,13 @@ def add_image(id):
 def add_comment(id):
     content = request.form.get('content')
     author_id = request.form.get('author_id', type=int)
+    author = Employee.query.get(author_id)
+    author_name = author.name
+    recipient = Employee.query.get(id)
+    recipient_name = recipient.name
     comment = Comment(content=content, employee_id=id, author_id=author_id)
     db.session.add(comment)
-    action = Action(description=f"New comment by {author_id}: {content}", from_id=author_id, to_id=id)
+    action = Action(description=f"New comment by {author_name} to {recipient_name}: {content}", from_id=author_id, to_id=id)
     db.session.add(action)
     db.session.commit()
     return render_template('comment.html', comment=comment)
