@@ -167,16 +167,7 @@
 <h1>Wall</h1>
 <div class="wall">
 {% for comment in comments.items %}
-    <div class="comment-container">
-        <a href="{{ url_for('view_employee', id=comment.author.id) }}">
-            <img src="{{ comment.author.picture_url }}" alt="{{ comment.author.name }}">
-        </a>
-        <div class="comment-content">
-            <p><a href="{{ url_for('view_employee', id=comment.author.id) }}">{{ comment.author.name }}</a> - <strong>{{ comment.author.department }} -</strong> <em>{{ comment.author.title }} (#{{ comment.author.id }})</em></p>
-            <p>{{ comment.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</p>
-            <p>{{ comment.content }}</p>
-        </div>
-    </div>
+    {% include 'comment.html' %}
 {% endfor %}
 </div>
 
