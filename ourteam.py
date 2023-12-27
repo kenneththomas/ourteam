@@ -2,8 +2,13 @@ from flask import Flask, render_template, redirect, url_for, request, session, f
 from models import db, Employee, EmployeeImage, Comment, Action, Group
 from forms import EmployeeForm, AddImageUrlForm
 from sqlalchemy import func, or_
+from markupsafe import Markup
+
+def nl2br(s):
+    return Markup(s.replace('\n', '<br>\n'))
 
 app = Flask(__name__)
+app.jinja_env.filters['nl2br'] = nl2br
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ourteam.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your-secret-key'
