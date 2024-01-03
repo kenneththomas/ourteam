@@ -53,3 +53,9 @@ class Action(db.Model):
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     groupname = db.Column(db.String(200), nullable=False)
+
+class EmployeeXP(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    xp = db.Column(db.Integer, default=0)
+    level = db.Column(db.Integer, default=1)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
