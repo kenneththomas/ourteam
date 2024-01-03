@@ -7,6 +7,11 @@ from markupsafe import Markup
 def nl2br(s):
     return Markup(s.replace('\n', '<br>\n'))
 
+xp_actions = {
+    'send_comment': 10,
+    'receive_comment': 5,
+}
+
 app = Flask(__name__)
 app.jinja_env.filters['nl2br'] = nl2br
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ourteam.db'
@@ -30,6 +35,15 @@ def view_employee(id):
     employee = Employee.query.get_or_404(id)
     images = EmployeeImage.query.filter_by(employee_id=id).all()
     employee_xp = EmployeeXP.query.filter_by(employee_id=id).first()
+
+    if not employee_xp:
+        employee_xp = EmployeeXP(employee_id=id, xp=0)
+        db.session.add(employee_xp)
+
+    employee_xp.xp += 1
+    #print employee name and xp gain
+    print(f'employee: {employee.name} xp: {employee_xp.xp} +1 xp')
+    db.session.commit()
 
     # this is for my own broken implementation, will fix for real use later
     comanager_overrides = {
@@ -166,7 +180,7 @@ def add_comment(id):
         db.session.add(author_xp)
     
     # Award XP to the author for leaving a comment
-    author_xp.xp += 10  # adjust the amount of XP as needed
+    author_xp.xp += xp_actions['send_comment']  # adjust the amount of XP as needed
     #print author name and xp
     print(f'author: {author_name} xp: {author_xp.xp}')
 
@@ -175,7 +189,7 @@ def add_comment(id):
     if recipient_xp is None:
         recipient_xp = EmployeeXP(employee_id=id, xp=0)  # initialize xp to 0
         db.session.add(recipient_xp)
-    recipient_xp.xp += 10
+    recipient_xp.xp += xp_actions['receive_comment']  # adjust the amount of XP as needed
     #print recipient name and xp
     print(f'recipient: {recipient_name} xp: {recipient_xp.xp}')
 
@@ -241,6 +255,14 @@ def view_group(id):
         flash('Group not found.')
         return redirect(url_for('manage_groups'))
     return render_template('view_group.html', group=group)
+
+@app.route('/leaderboard')
+def leaderboard():
+    # Query the database to get all employees sorted by their XP in descending order
+    employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).all()
+
+    # Render the leaderboard template
+    return render_template('leaderboard.html', employees=employees)
 
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""

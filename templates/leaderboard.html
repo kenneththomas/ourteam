@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>XP Leaderboard</title>
+</head>
+<body>
+    <h1>XP Leaderboard</h1>
+    <table>
+        <tr>
+            <th>Employee</th>
+            <th>XP</th>
+        </tr>
+        {% for employee in employees %}
+        <tr>
+            <td>{{ employee.employee.name }}</td>
+            <td>{{ employee.xp }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
