@@ -204,8 +204,7 @@
 <ul>
     {% for group in employee.groups %}
         <li>
-            {{ group.groupname }}
-            <a href="{{ url_for('view_group', id=group.id) }}">View Group</a>
+            <a href="{{ url_for('view_group', id=group.id) }}">{{ group.groupname }}</a>
         </li>
     {% endfor %}
     </ul>
