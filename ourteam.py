@@ -258,8 +258,8 @@ def view_group(id):
 
 @app.route('/leaderboard')
 def leaderboard():
-    # Query the database to get all employees sorted by their XP in descending order
-    employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).all()
+    # Query the database to get top 100 employees by XP
+    employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).limit(100).all()
 
     # Render the leaderboard template
     return render_template('leaderboard.html', employees=employees)
