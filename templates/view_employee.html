@@ -34,7 +34,7 @@
             <ul>
             {% for action in recent_actions %}
                 <li>{{ action.timestamp }}</li>
-                <p>{{ action.description|truncate(50, True) }}</p>
+                <p>{{ action.description|truncate(240, True) }}</p>
             {% endfor %}
             </ul>
         </div>
