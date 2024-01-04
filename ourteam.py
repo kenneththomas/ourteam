@@ -11,6 +11,7 @@ def nl2br(s):
 xp_actions = {
     'send_comment': 10,
     'receive_comment': 5,
+    'update_bio' : 10,
 }
 
 app = Flask(__name__)
@@ -112,11 +113,18 @@ def edit_employee(id):
     employee = Employee.query.get_or_404(id)
     form = EmployeeForm(obj=employee)
 
+    #initialize xp gain
+    employee_xp = EmployeeXP.query.filter_by(employee_id=id).first()
+    if not employee_xp:
+        employee_xp = EmployeeXP(employee_id=id, xp=0)
+        db.session.add(employee_xp)
+
     #get original values for actions
     original_name = employee.name
     original_title = employee.title
     original_department = employee.department
     original_reports_to = employee.reports_to
+    original_bio = employee.bio
     #get original name of manager
     if employee.reports_to:
         original_mgr_name = Employee.query.get(employee.reports_to).name
@@ -129,6 +137,7 @@ def edit_employee(id):
         employee.phone = form.phone.data
         employee.picture_url = form.picture_url.data
         employee.reports_to = form.reports_to.data
+        employee.bio = form.bio.data
         db.session.commit()
 
         #action for title change
@@ -151,6 +160,13 @@ def edit_employee(id):
         if form.name.data != original_name:
             action = Action(description=f"Name changed from {original_name} to {form.name.data}", from_id=employee.id)
             db.session.add(action)
+            db.session.commit()
+        #action for bio change
+        if form.bio.data != original_bio:
+            action = Action(description=f"Bio changed from {original_bio} to {form.bio.data}", from_id=employee.id)
+            db.session.add(action)
+            #gain xp for bio change
+            employee_xp.xp += xp_actions['update_bio']
             db.session.commit()
         return redirect(url_for('view_employee', id=employee.id))
     return render_template('add_edit_employee.html', form=form)

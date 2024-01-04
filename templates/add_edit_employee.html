@@ -66,6 +66,17 @@
             {% endif %}
         </div>
         <div>
+            {{ form.bio.label }}
+            {{ form.bio(rows=5) }}
+            {% if form.bio.errors %}
+                <ul class="errors">
+                {% for error in form.bio.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </div>  
+        <div>
             {{ form.submit() }}
         </div>
     </form>

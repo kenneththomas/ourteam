@@ -30,6 +30,7 @@
             <p><strong>Phone:</strong> {{ employee.phone or 'N/A' }}</p>
             <p><strong>XP:</strong> {{ employee_xp.xp }}</p>
             <p><strong>Level:</strong> {{ employee_xp.level }}</p>
+            <p><strong>Bio:</strong> {{ employee.bio|nl2br if employee.bio else 'N/A' }}</p>
             <h2>Recent Actions</h2>
             <ul>
             {% for action in recent_actions %}
