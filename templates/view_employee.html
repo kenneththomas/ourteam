@@ -46,7 +46,7 @@
         <h2>Management Chain</h2>
         {% for manager in manager_chain %}
             <div class="relation-item">
-                <div class="small-employee-picture-container" style="background-image: url('{{ manager.picture_url }}');"></div>
+                <div class="small-employee-picture-container fade-in" style="background-image: url('{{ manager.picture_url }}');"></div>
                 <div class="info-section">
                     <div class="name-section">
                         <a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a>
@@ -72,7 +72,7 @@
 <div class="relation-section">
     <h2>Co-Manager</h2>
     <div class="relation-item">
-        <div class="small-employee-picture-container" style="background-image: url('{{ co_manager.picture_url }}');"></div>
+        <div class="small-employee-picture-container fade-in" style="background-image: url('{{ co_manager.picture_url }}');"></div>
         <div class="info-section">
             <div class="name-section">
                 <a href="{{ url_for('view_employee', id=co_manager.id) }}">{{ co_manager.name }}</a>
@@ -117,7 +117,7 @@
         <ul>
             {% for subordinate in subordinates %}
             <li class="relation-item">
-                <div class="small-employee-picture-container" style="background-image: url('{{ subordinate.picture_url }}');"></div>
+                <div class="small-employee-picture-container fade-in" style="background-image: url('{{ subordinate.picture_url }}');"></div>
                 <div class="info-section">
                     <div class="name-section">
                         <a href="{{ url_for('view_employee', id=subordinate.id) }}">{{ subordinate.name }}</a>
