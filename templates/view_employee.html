@@ -42,6 +42,7 @@
                 <div class="xp-bar-label">{{ progress }} / {{ next_level_xp }}</div>
             </div>
             <p><strong>Bio:</strong> {{ employee.bio|nl2br if employee.bio else 'N/A' }}</p>
+            <a class="button" href="{{ url_for('edit_employee', id=employee.id) }}">Edit this employee</a>
             <h2>Recent Actions</h2>
             <ul>
             {% for action in recent_actions %}
@@ -206,7 +207,6 @@
 <br/>
 
 <a class="button" href="{{ url_for('add_image', id=employee.id) }}">Add Image</a>
-<a class="button" href="{{ url_for('edit_employee', id=employee.id) }}">Edit this employee</a>
 <a class="button" href="{{ url_for('list_employees') }}">Back to employee list</a>
 </body>
 
