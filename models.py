@@ -53,3 +53,13 @@ class Action(db.Model):
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     groupname = db.Column(db.String(200), nullable=False)
+
+class EmployeeXP(db.Model):
+    __tablename__ = 'employee_xp'
+
+    id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'))
+    xp = db.Column(db.Integer, default=0)
+
+    # Define a relationship to the Employee model
+    employee = db.relationship('Employee', backref='xp')

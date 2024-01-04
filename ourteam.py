@@ -1,11 +1,16 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash
-from models import db, Employee, EmployeeImage, Comment, Action, Group
+from models import db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP
 from forms import EmployeeForm, AddImageUrlForm
 from sqlalchemy import func, or_
 from markupsafe import Markup
 
 def nl2br(s):
     return Markup(s.replace('\n', '<br>\n'))
+
+xp_actions = {
+    'send_comment': 10,
+    'receive_comment': 5,
+}
 
 app = Flask(__name__)
 app.jinja_env.filters['nl2br'] = nl2br
@@ -29,6 +34,16 @@ def list_employees():
 def view_employee(id):
     employee = Employee.query.get_or_404(id)
     images = EmployeeImage.query.filter_by(employee_id=id).all()
+    employee_xp = EmployeeXP.query.filter_by(employee_id=id).first()
+
+    if not employee_xp:
+        employee_xp = EmployeeXP(employee_id=id, xp=0)
+        db.session.add(employee_xp)
+
+    employee_xp.xp += 1
+    #print employee name and xp gain
+    print(f'employee: {employee.name} xp: {employee_xp.xp} +1 xp')
+    db.session.commit()
 
     # this is for my own broken implementation, will fix for real use later
     comanager_overrides = {
@@ -59,7 +74,7 @@ def view_employee(id):
     form.id.data = id
     recent_actions = Action.query.filter_by(from_id=id).order_by(Action.timestamp.desc()).limit(5).all()
     return render_template('view_employee.html', employee=employee, recent_actions=recent_actions, 
-                           subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments, co_manager=co_manager)
+                           subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments, co_manager=co_manager, employee_xp=employee_xp)
 
 @app.route('/employee/add', methods=['GET', 'POST'])
 def add_employee():
@@ -158,6 +173,26 @@ def add_comment(id):
     recipient = Employee.query.get(id)
     recipient_name = recipient.name
     comment = Comment(content=content, employee_id=id, author_id=author_id)
+
+    author_xp = EmployeeXP.query.filter_by(employee_id=author_id).first()
+    if author_xp is None:
+        author_xp = EmployeeXP(employee_id=author_id, xp=0)  # initialize xp to 0
+        db.session.add(author_xp)
+    
+    # Award XP to the author for leaving a comment
+    author_xp.xp += xp_actions['send_comment']  # adjust the amount of XP as needed
+    #print author name and xp
+    print(f'author: {author_name} xp: {author_xp.xp}')
+
+    #award xp to recipient
+    recipient_xp = EmployeeXP.query.filter_by(employee_id=id).first()
+    if recipient_xp is None:
+        recipient_xp = EmployeeXP(employee_id=id, xp=0)  # initialize xp to 0
+        db.session.add(recipient_xp)
+    recipient_xp.xp += xp_actions['receive_comment']  # adjust the amount of XP as needed
+    #print recipient name and xp
+    print(f'recipient: {recipient_name} xp: {recipient_xp.xp}')
+
     db.session.add(comment)
     action = Action(description=f"New comment by {author_name} to {recipient_name}: {content}", from_id=author_id, to_id=id)
     db.session.add(action)
@@ -220,6 +255,14 @@ def view_group(id):
         flash('Group not found.')
         return redirect(url_for('manage_groups'))
     return render_template('view_group.html', group=group)
+
+@app.route('/leaderboard')
+def leaderboard():
+    # Query the database to get top 100 employees by XP
+    employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).limit(100).all()
+
+    # Render the leaderboard template
+    return render_template('leaderboard.html', employees=employees)
 
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""
