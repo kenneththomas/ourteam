@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash
+from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify
 from models import db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP
 from forms import EmployeeForm, AddImageUrlForm
 from sqlalchemy import func, or_
@@ -258,11 +258,23 @@ def view_group(id):
 
 @app.route('/leaderboard')
 def leaderboard():
-    # Query the database to get top 100 employees by XP
-    employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).limit(100).all()
+    employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).limit(50).all()
 
     # Render the leaderboard template
     return render_template('leaderboard.html', employees=employees)
+
+previous_positions = {}
+
+@app.route('/get_leaderboard_data')
+def get_leaderboard_data():
+    employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).limit(100).all()
+    employee_data = []
+    for i, e in enumerate(employees):
+        previous_position = previous_positions.get(e.employee.id)
+        employee_data.append({"id": e.employee.id, "name": e.employee.name, "xp": e.xp, "previous_position": previous_position})
+        # Update the previous position
+        previous_positions[e.employee.id] = i + 1
+    return jsonify({"employees": employee_data})
 
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""

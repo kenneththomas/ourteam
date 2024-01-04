@@ -1,3 +1,7 @@
 1. icon on all pages
 2. fix navbar on recent actions
 3. fix navbar padding
+4. xp bar
+5. leveling
+6. leaderboard show how much xp gained since last update
+7. fix bug where new person on leaderboard shows as losing position instead of gaining position
