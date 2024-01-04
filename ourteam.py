@@ -45,6 +45,9 @@ def view_employee(id):
     employee_xp.xp += 1
     #print employee name and xp gain
     print(f'employee: {employee.name} xp: {employee_xp.xp} +1 xp')
+    level = calculate_level(employee_xp.xp)
+    next_level_xp = level * 100
+    progress = employee_xp.xp % next_level_xp
     db.session.commit()
 
     # this is for my own broken implementation, will fix for real use later
@@ -76,7 +79,7 @@ def view_employee(id):
     form.id.data = id
     recent_actions = Action.query.filter_by(from_id=id).order_by(Action.timestamp.desc()).limit(5).all()
     return render_template('view_employee.html', employee=employee, recent_actions=recent_actions, 
-                           subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments, co_manager=co_manager, employee_xp=employee_xp)
+                           subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments, co_manager=co_manager, employee_xp=employee_xp, next_level_xp=next_level_xp, progress=progress)
 
 @app.route('/employee/add', methods=['GET', 'POST'])
 def add_employee():
@@ -214,6 +217,7 @@ def add_comment(id):
     
     # Award XP to the author for leaving a comment
     author_xp.xp += xp_actions['send_comment']  # adjust the amount of XP as needed
+    author_xp.level = calculate_level(author_xp.xp)
     #print author name and xp
     print(f'author: {author_name} xp: {author_xp.xp}')
 
@@ -223,6 +227,7 @@ def add_comment(id):
         recipient_xp = EmployeeXP(employee_id=id, xp=0)  # initialize xp to 0
         db.session.add(recipient_xp)
     recipient_xp.xp += xp_actions['receive_comment']  # adjust the amount of XP as needed
+    recipient_xp.level = calculate_level(recipient_xp.xp)
     #print recipient name and xp
     print(f'recipient: {recipient_name} xp: {recipient_xp.xp}')
 
@@ -323,6 +328,14 @@ def get_management_chain(employee, levels=3):
         else:
             break
     return chain
+
+def calculate_level(xp):
+    # Define the XP requirement for each level
+    level = 1
+    while xp >= level * 100:
+        xp -= level * 100
+        level += 1
+    return level
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5002)
