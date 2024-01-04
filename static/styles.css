@@ -258,7 +258,7 @@ table.leaderboard {
 }
 
 .fade-in {
-    animation: fadeIn 1s ease-in-out;
+    animation: fadeIn 0.5s ease-in-out;
 }
 
 @keyframes flicker {
@@ -268,5 +268,5 @@ table.leaderboard {
 }
 
 .flicker {
-    animation: flicker 0.5s ease-in-out infinite;
+    animation: flicker 0.5s ease-in-out;
 }

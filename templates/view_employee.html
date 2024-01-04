@@ -14,7 +14,7 @@
 
 
     <div class="employee-profile">
-        <div>
+        <div class="fade-in">
             {% if employee.picture_url %}
                 <img src="{{ employee.picture_url }}" alt="Picture of {{ employee.name }}" class="employee-picture">
             {% else %}
@@ -34,7 +34,7 @@
             <ul>
             {% for action in recent_actions %}
                 <li>{{ action.timestamp }}</li>
-                <p>{{action.description }}</p>
+                <p>{{ action.description|truncate(50, True) }}</p>
             {% endfor %}
             </ul>
         </div>
@@ -93,7 +93,7 @@
 
 <div class="relation-section">
         <div class="relation-item">
-            <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
+            <div class="small-employee-picture-container fade-in" style="background-image: url('{{ employee.picture_url }}');"></div>
             <div class="info-section">
                 <div class="name-section">
                     <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>
