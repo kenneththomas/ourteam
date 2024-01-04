@@ -14,7 +14,7 @@
 
 
     <div class="employee-profile">
-        <div>
+        <div class="fade-in">
             {% if employee.picture_url %}
                 <img src="{{ employee.picture_url }}" alt="Picture of {{ employee.name }}" class="employee-picture">
             {% else %}
@@ -34,7 +34,7 @@
             <ul>
             {% for action in recent_actions %}
                 <li>{{ action.timestamp }}</li>
-                <p>{{action.description }}</p>
+                <p>{{ action.description|truncate(50, True) }}</p>
             {% endfor %}
             </ul>
         </div>
@@ -46,7 +46,7 @@
         <h2>Management Chain</h2>
         {% for manager in manager_chain %}
             <div class="relation-item">
-                <div class="small-employee-picture-container" style="background-image: url('{{ manager.picture_url }}');"></div>
+                <div class="small-employee-picture-container fade-in" style="background-image: url('{{ manager.picture_url }}');"></div>
                 <div class="info-section">
                     <div class="name-section">
                         <a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a>
@@ -72,7 +72,7 @@
 <div class="relation-section">
     <h2>Co-Manager</h2>
     <div class="relation-item">
-        <div class="small-employee-picture-container" style="background-image: url('{{ co_manager.picture_url }}');"></div>
+        <div class="small-employee-picture-container fade-in" style="background-image: url('{{ co_manager.picture_url }}');"></div>
         <div class="info-section">
             <div class="name-section">
                 <a href="{{ url_for('view_employee', id=co_manager.id) }}">{{ co_manager.name }}</a>
@@ -93,7 +93,7 @@
 
 <div class="relation-section">
         <div class="relation-item">
-            <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
+            <div class="small-employee-picture-container fade-in" style="background-image: url('{{ employee.picture_url }}');"></div>
             <div class="info-section">
                 <div class="name-section">
                     <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>
@@ -117,7 +117,7 @@
         <ul>
             {% for subordinate in subordinates %}
             <li class="relation-item">
-                <div class="small-employee-picture-container" style="background-image: url('{{ subordinate.picture_url }}');"></div>
+                <div class="small-employee-picture-container fade-in" style="background-image: url('{{ subordinate.picture_url }}');"></div>
                 <div class="info-section">
                     <div class="name-section">
                         <a href="{{ url_for('view_employee', id=subordinate.id) }}">{{ subordinate.name }}</a>
@@ -193,11 +193,9 @@
 </form>
 <br/>
 
-<a href="{{ url_for('add_image', id=employee.id) }}">Add Image</a>
-
-    <!-- Add links to edit or go back to the employee list -->
-    <p><a href="{{ url_for('edit_employee', id=employee.id) }}">Edit this employee</a></p>
-    <p><a href="{{ url_for('list_employees') }}">Back to employee list</a></p>
+<a class="button" href="{{ url_for('add_image', id=employee.id) }}">Add Image</a>
+<a class="button" href="{{ url_for('edit_employee', id=employee.id) }}">Edit this employee</a>
+<a class="button" href="{{ url_for('list_employees') }}">Back to employee list</a>
 </body>
 
 <h2>Groups</h2>
