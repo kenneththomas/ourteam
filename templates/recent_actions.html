@@ -8,7 +8,7 @@
 <h1>Recent Actions</h1>
 <ul>
 {% for action in actions %}
-    <li>
+    <li class="action">
         {{ action.description }} at {{ action.timestamp }}
         {% if action.from_id %}
             by <a href="{{ url_for('view_employee', id=action.from_id) }}">{{ action.from_employee.name }}</a>

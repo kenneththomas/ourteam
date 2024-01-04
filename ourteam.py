@@ -1,5 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify
-from models import db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP
+from models import (
+    db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP
+)
 from forms import EmployeeForm, AddImageUrlForm
 from sqlalchemy import func, or_
 from markupsafe import Markup
@@ -11,6 +13,7 @@ def nl2br(s):
 xp_actions = {
     'send_comment': 10,
     'receive_comment': 5,
+    'update_bio' : 10,
 }
 
 app = Flask(__name__)
@@ -44,6 +47,9 @@ def view_employee(id):
     employee_xp.xp += 1
     #print employee name and xp gain
     print(f'employee: {employee.name} xp: {employee_xp.xp} +1 xp')
+    level = calculate_level(employee_xp.xp)
+    next_level_xp = level * 100
+    progress = employee_xp.xp % next_level_xp
     db.session.commit()
 
     # this is for my own broken implementation, will fix for real use later
@@ -75,7 +81,7 @@ def view_employee(id):
     form.id.data = id
     recent_actions = Action.query.filter_by(from_id=id).order_by(Action.timestamp.desc()).limit(5).all()
     return render_template('view_employee.html', employee=employee, recent_actions=recent_actions, 
-                           subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments, co_manager=co_manager, employee_xp=employee_xp)
+                           subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments, co_manager=co_manager, employee_xp=employee_xp, next_level_xp=next_level_xp, progress=progress)
 
 @app.route('/employee/add', methods=['GET', 'POST'])
 def add_employee():
@@ -112,11 +118,19 @@ def edit_employee(id):
     employee = Employee.query.get_or_404(id)
     form = EmployeeForm(obj=employee)
 
+    #initialize xp gain
+    employee_xp = EmployeeXP.query.filter_by(employee_id=id).first()
+    if not employee_xp:
+        employee_xp = EmployeeXP(employee_id=id, xp=0)
+        db.session.add(employee_xp)
+
     #get original values for actions
     original_name = employee.name
     original_title = employee.title
     original_department = employee.department
     original_reports_to = employee.reports_to
+    original_bio = employee.bio
+    original_location = employee.location
     #get original name of manager
     if employee.reports_to:
         original_mgr_name = Employee.query.get(employee.reports_to).name
@@ -129,6 +143,8 @@ def edit_employee(id):
         employee.phone = form.phone.data
         employee.picture_url = form.picture_url.data
         employee.reports_to = form.reports_to.data
+        employee.bio = form.bio.data
+        employee.location = form.location.data
         db.session.commit()
 
         #action for title change
@@ -151,6 +167,21 @@ def edit_employee(id):
         if form.name.data != original_name:
             action = Action(description=f"Name changed from {original_name} to {form.name.data}", from_id=employee.id)
             db.session.add(action)
+            db.session.commit()
+        #action for bio change
+        if form.bio.data != original_bio:
+            action = Action(description=f"Bio changed from {original_bio} to {form.bio.data}", from_id=employee.id)
+            db.session.add(action)
+            #gain xp for bio change
+            employee_xp.xp += xp_actions['update_bio']
+            db.session.commit()
+
+        #action for location change
+        if form.location.data != original_location:
+            action = Action(description=f"Location changed from {original_location} to {form.location.data}", from_id=employee.id)
+            db.session.add(action)
+            #gain xp for location change
+            employee_xp.xp += xp_actions['update_bio']
             db.session.commit()
         return redirect(url_for('view_employee', id=employee.id))
     return render_template('add_edit_employee.html', form=form)
@@ -188,6 +219,7 @@ def add_comment(id):
     
     # Award XP to the author for leaving a comment
     author_xp.xp += xp_actions['send_comment']  # adjust the amount of XP as needed
+    author_xp.level = calculate_level(author_xp.xp)
     #print author name and xp
     print(f'author: {author_name} xp: {author_xp.xp}')
 
@@ -197,6 +229,7 @@ def add_comment(id):
         recipient_xp = EmployeeXP(employee_id=id, xp=0)  # initialize xp to 0
         db.session.add(recipient_xp)
     recipient_xp.xp += xp_actions['receive_comment']  # adjust the amount of XP as needed
+    recipient_xp.level = calculate_level(recipient_xp.xp)
     #print recipient name and xp
     print(f'recipient: {recipient_name} xp: {recipient_xp.xp}')
 
@@ -297,6 +330,14 @@ def get_management_chain(employee, levels=3):
         else:
             break
     return chain
+
+def calculate_level(xp):
+    # Define the XP requirement for each level
+    level = 1
+    while xp >= level * 100:
+        xp -= level * 100
+        level += 1
+    return level
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5002)

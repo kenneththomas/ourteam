@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, IntegerField, SelectField, HiddenField
+from wtforms import StringField, SubmitField, IntegerField, SelectField, HiddenField, TextAreaField
 from wtforms.validators import DataRequired, Email, Optional
 
 class EmployeeForm(FlaskForm):
@@ -11,6 +11,8 @@ class EmployeeForm(FlaskForm):
     phone = StringField('Phone', validators=[Optional()])
     picture_url = StringField('Picture URL', validators=[Optional()])
     reports_to = IntegerField('Reports To', validators=[Optional()])
+    bio = TextAreaField('Bio', validators=[Optional()])
+    location = StringField('Location', validators=[Optional()])
     submit = SubmitField('Submit')
 
 class AddImageUrlForm(FlaskForm):
