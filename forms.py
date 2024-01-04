@@ -12,6 +12,7 @@ class EmployeeForm(FlaskForm):
     picture_url = StringField('Picture URL', validators=[Optional()])
     reports_to = IntegerField('Reports To', validators=[Optional()])
     bio = TextAreaField('Bio', validators=[Optional()])
+    location = StringField('Location', validators=[Optional()])
     submit = SubmitField('Submit')
 
 class AddImageUrlForm(FlaskForm):

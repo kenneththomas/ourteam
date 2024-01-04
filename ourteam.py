@@ -125,6 +125,7 @@ def edit_employee(id):
     original_department = employee.department
     original_reports_to = employee.reports_to
     original_bio = employee.bio
+    original_location = employee.location
     #get original name of manager
     if employee.reports_to:
         original_mgr_name = Employee.query.get(employee.reports_to).name
@@ -138,6 +139,7 @@ def edit_employee(id):
         employee.picture_url = form.picture_url.data
         employee.reports_to = form.reports_to.data
         employee.bio = form.bio.data
+        employee.location = form.location.data
         db.session.commit()
 
         #action for title change
@@ -166,6 +168,14 @@ def edit_employee(id):
             action = Action(description=f"Bio changed from {original_bio} to {form.bio.data}", from_id=employee.id)
             db.session.add(action)
             #gain xp for bio change
+            employee_xp.xp += xp_actions['update_bio']
+            db.session.commit()
+
+        #action for location change
+        if form.location.data != original_location:
+            action = Action(description=f"Location changed from {original_location} to {form.location.data}", from_id=employee.id)
+            db.session.add(action)
+            #gain xp for location change
             employee_xp.xp += xp_actions['update_bio']
             db.session.commit()
         return redirect(url_for('view_employee', id=employee.id))

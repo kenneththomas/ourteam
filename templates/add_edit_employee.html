@@ -66,6 +66,17 @@
             {% endif %}
         </div>
         <div>
+            {{ form.location.label }}
+            {{ form.location(size=32) }}
+            {% if form.location.errors %}
+                <ul class="errors">
+                {% for error in form.location.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        </div>              
+        <div>
             {{ form.bio.label }}
             {{ form.bio(rows=5) }}
             {% if form.bio.errors %}
@@ -75,7 +86,7 @@
                 {% endfor %}
                 </ul>
             {% endif %}
-        </div>  
+        </div>    
         <div>
             {{ form.submit() }}
         </div>

@@ -20,6 +20,7 @@ class Employee(db.Model):
     images = db.relationship('EmployeeImage', backref='employee', lazy=True)
     groups = db.relationship('Group', secondary=employee_group, backref=db.backref('members', lazy='dynamic'))
     bio = db.Column(db.String)
+    location = db.Column(db.String)
 
 class Department(db.Model):
     id = db.Column(db.Integer, primary_key=True)
