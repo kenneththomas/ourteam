@@ -5,6 +5,7 @@ from sqlalchemy import func, or_
 from markupsafe import Markup
 
 def nl2br(s):
+    #html doesnt do newlines so we need to convert them to <br> tags
     return Markup(s.replace('\n', '<br>\n'))
 
 xp_actions = {
@@ -112,6 +113,7 @@ def edit_employee(id):
     form = EmployeeForm(obj=employee)
 
     #get original values for actions
+    original_name = employee.name
     original_title = employee.title
     original_department = employee.department
     original_reports_to = employee.reports_to
@@ -143,6 +145,11 @@ def edit_employee(id):
         if form.reports_to.data != original_reports_to:
             manager = Employee.query.get(form.reports_to.data)
             action = Action(description=f"Manager changed from {original_mgr_name} to {manager.name}", from_id=employee.id)
+            db.session.add(action)
+            db.session.commit()
+        #action for name change
+        if form.name.data != original_name:
+            action = Action(description=f"Name changed from {original_name} to {form.name.data}", from_id=employee.id)
             db.session.add(action)
             db.session.commit()
         return redirect(url_for('view_employee', id=employee.id))
@@ -256,9 +263,10 @@ def view_group(id):
         return redirect(url_for('manage_groups'))
     return render_template('view_group.html', group=group)
 
+leaderboard_size = 50
 @app.route('/leaderboard')
 def leaderboard():
-    employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).limit(50).all()
+    employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).limit(leaderboard_size).all()
 
     # Render the leaderboard template
     return render_template('leaderboard.html', employees=employees)
@@ -267,7 +275,7 @@ previous_positions = {}
 
 @app.route('/get_leaderboard_data')
 def get_leaderboard_data():
-    employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).limit(100).all()
+    employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).limit(leaderboard_size).all()
     employee_data = []
     for i, e in enumerate(employees):
         previous_position = previous_positions.get(e.employee.id)

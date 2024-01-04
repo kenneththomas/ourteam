@@ -40,5 +40,5 @@ function updateLeaderboard() {
     });
 }
 
-// Update leaderboard every few seconds
-setInterval(updateLeaderboard, 10000); // 10 seconds
+// leaderboard update interval
+setInterval(updateLeaderboard, 30000); 
