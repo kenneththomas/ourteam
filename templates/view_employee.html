@@ -36,11 +36,11 @@
             <p><strong>Phone:</strong> {{ employee.phone or 'N/A' }}</p>
             <p><strong>Location: </strong> {{employee.location }} </p>
             <p><strong>XP:</strong> {{ employee_xp.xp }}</p>
+            <p><strong>Level:</strong> {{ employee_xp.level }}</p>
             <div class="xp-bar-container">
                 <div class="xp-bar" style="width: {{ progress / next_level_xp * 100 }}%;"></div>
                 <div class="xp-bar-label">{{ progress }} / {{ next_level_xp }}</div>
             </div>
-            <p><strong>Level:</strong> {{ employee_xp.level }}</p>
             <p><strong>Bio:</strong> {{ employee.bio|nl2br if employee.bio else 'N/A' }}</p>
             <h2>Recent Actions</h2>
             <ul>

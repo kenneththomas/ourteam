@@ -1,5 +1,7 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify
-from models import db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP
+from models import (
+    db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP
+)
 from forms import EmployeeForm, AddImageUrlForm
 from sqlalchemy import func, or_
 from markupsafe import Markup
