@@ -10,14 +10,14 @@
 <body>
     {% include 'navbar.html' %}
     <h1>XP Leaderboard</h1>
-    <table>
+    <table class="leaderboard">
         <tr>
             <th>Employee</th>
             <th>XP</th>
         </tr>
         {% for employee in employees %}
         <tr>
-            <td>{{ employee.employee.name }}</td>
+            <td><a href="{{ url_for('view_employee', id=employee.employee.id) }}">{{ employee.employee.name }}</a></td>
             <td>{{ employee.xp }}</td>
         </tr>
         {% endfor %}
