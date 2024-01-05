@@ -1,9 +1,23 @@
+let previousData = null;
+
 function updateLeaderboard() {
     $.ajax({
         url: '/get_leaderboard_data', // Flask route to get JSON data
         type: 'GET',
         dataType: 'json',
         success: function(data) {
+            // Convert data to a string for comparison
+            let currentData = JSON.stringify(data);
+
+            // Check if the data has changed
+            if (currentData === previousData) {
+                // If the data has not changed, dont do anything
+                return;
+            }
+
+            // Update previousData for the next comparison
+            previousData = currentData;
+
             // Clear existing table data
             $(".leaderboard tr:not(:first)").remove();
 
@@ -40,5 +54,43 @@ function updateLeaderboard() {
     });
 }
 
-// leaderboard update interval
-setInterval(updateLeaderboard, 30000); 
+// Define your interval time in milliseconds (30000ms = 30s)
+let leaderboardRefreshTime = 30000;
+
+// Use the variable in your setInterval function
+let leaderboardInterval = setInterval(updateLeaderboard, leaderboardRefreshTime);
+
+// Function to update the interval time
+function updateIntervalTime(newTime) {
+    // Enforce a minimum of 5 seconds
+    if (newTime < 5000) {
+        console.log("Interval time cannot be less than 5 seconds.");
+        return;
+    }
+
+    // Clear the existing interval
+    clearInterval(leaderboardInterval);
+
+    // Update the interval time
+    leaderboardRefreshTime = newTime;
+
+    // Set a new interval with the updated time
+    leaderboardInterval = setInterval(updateLeaderboard, leaderboardRefreshTime);
+}
+
+function updateRefreshTime() {
+    // Get the value from the input box
+    let newTime = document.getElementById('refreshTime').value;
+
+    // Multiply by 1000 to convert to milliseconds
+    newTime *= 1000;
+
+    // Check if the value is less than 5000
+    if (newTime < 5000) {
+        alert("Refresh time cannot be less than 5 seconds.");
+        return;
+    }
+
+    // Call the updateIntervalTime function with the new time
+    updateIntervalTime(newTime);
+}

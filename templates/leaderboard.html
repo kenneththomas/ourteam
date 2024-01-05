@@ -10,6 +10,8 @@
 <body>
     {% include 'navbar.html' %}
     <h1>XP Leaderboard</h1>
+    <input type="number" id="refreshTime" min="5" value="30">
+    <button onclick="updateRefreshTime()">Update Refresh Time</button>
     <table class="leaderboard">
         <tr>
             <th>Position</th>
