@@ -190,6 +190,9 @@ def edit_employee(id):
 def search():
     query = request.args.get('query')
     results = Employee.query.filter(Employee.name.contains(query)).all()
+    #also allow search by id
+    if not results:
+        results = Employee.query.filter(Employee.id.contains(query)).all()
     return render_template('search_results.html', results=results)
 
 @app.route('/employee/<int:id>/add_image', methods=['GET', 'POST'])
@@ -239,6 +242,52 @@ def add_comment(id):
     db.session.commit()
     return render_template('comment.html', comment=comment)
     #return redirect(url_for('view_employee', id=id))
+
+@app.route('/test_comment', methods=['GET', 'POST'])
+def comment():
+    from_name = None
+    to_name = None
+    comment = None
+    if request.method == 'POST':
+        from_employee_id = request.form.get('from')
+        to_employee_id = request.form.get('to')
+        content = request.form.get('comment')
+
+        from_employee = Employee.query.get(from_employee_id)
+        to_employee = Employee.query.get(to_employee_id)
+
+        if from_employee and to_employee:
+            from_name = from_employee.name
+            to_name = to_employee.name
+            comment = Comment(content=content, employee_id=to_employee_id, author_id=from_employee_id)
+            db.session.add(comment)
+            db.session.commit()
+
+            #award xp to recipient
+            recipient_xp = EmployeeXP.query.filter_by(employee_id=to_employee_id).first()
+            if recipient_xp is None:
+                recipient_xp = EmployeeXP(employee_id=to_employee_id, xp=0)
+                db.session.add(recipient_xp)
+            recipient_xp.xp += xp_actions['receive_comment']
+            recipient_xp.level = calculate_level(recipient_xp.xp)
+
+            #award xp to author
+            author_xp = EmployeeXP.query.filter_by(employee_id=from_employee_id).first()
+            if author_xp is None:
+                author_xp = EmployeeXP(employee_id=from_employee_id, xp=0)
+                db.session.add(author_xp)
+            author_xp.xp += xp_actions['send_comment']
+            author_xp.level = calculate_level(author_xp.xp)
+
+            action = Action(description=f"New comment by {from_name} to {to_name}: {content}", from_id=from_employee_id, to_id=to_employee_id)
+
+            db.session.add(action)
+            db.session.commit()
+
+            # redirect to the same page so that the user can submit another comment
+            flash('Comment submitted successfully')
+            return redirect(url_for('comment', from_name=from_name, to_name=to_name, comment=comment))
+    return render_template('test_comment.html', from_name=from_name, to_name=to_name, comment=comment)
 
 @app.route('/department/<department_name>', methods=['GET'])
 def list_employees_by_department(department_name):
@@ -316,6 +365,8 @@ def get_leaderboard_data():
         # Update the previous position
         previous_positions[e.employee.id] = i + 1
     return jsonify({"employees": employee_data})
+
+
 
 def get_management_chain(employee, levels=3):
     """Recursively fetches up to `levels` of managers for a given employee."""
