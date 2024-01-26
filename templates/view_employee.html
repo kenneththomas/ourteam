@@ -41,7 +41,7 @@
                 <div class="xp-bar" style="width: {{ progress / next_level_xp * 100 }}%;"></div>
                 <div class="xp-bar-label">{{ progress }} / {{ next_level_xp }}</div>
             </div>
-            <p><strong>Bio:</strong><br/></br> {{ employee.bio|nl2br if employee.bio else 'N/A' }}</p>
+            <p><strong>Bio:</strong><br/><br/> {{ employee.bio|nl2br if employee.bio else 'N/A' }}</p>
             <a class="button" href="{{ url_for('edit_employee', id=employee.id) }}">Edit this employee</a>
             <h2>Recent Actions</h2>
             <ul>

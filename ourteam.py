@@ -190,6 +190,9 @@ def edit_employee(id):
 def search():
     query = request.args.get('query')
     results = Employee.query.filter(Employee.name.contains(query)).all()
+    #also allow search by id
+    if not results:
+        results = Employee.query.filter(Employee.id.contains(query)).all()
     return render_template('search_results.html', results=results)
 
 @app.route('/employee/<int:id>/add_image', methods=['GET', 'POST'])

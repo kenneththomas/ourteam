@@ -4,3 +4,4 @@
 5. leveling
 6. leaderboard show how much xp gained since last update
 7. fix bug where new person on leaderboard shows as losing position instead of gaining position
+8. xp bar showing above navbar
