@@ -243,6 +243,47 @@ def add_comment(id):
     return render_template('comment.html', comment=comment)
     #return redirect(url_for('view_employee', id=id))
 
+@app.route('/test_comment', methods=['GET', 'POST'])
+def comment():
+    if request.method == 'POST':
+        from_employee = request.form.get('from')
+        to_employee = request.form.get('to')
+        content = request.form.get('comment')
+        comment = Comment(content=content, employee_id=to_employee, author_id=from_employee)
+        db.session.add(comment)
+        db.session.commit()
+
+        #award xp to recipient
+        recipient_xp = EmployeeXP.query.filter_by(employee_id=to_employee).first()
+        if recipient_xp is None:
+            recipient_xp = EmployeeXP(employee_id=to_employee, xp=0)
+            db.session.add(recipient_xp)
+        recipient_xp.xp += xp_actions['receive_comment']
+        recipient_xp.level = calculate_level(recipient_xp.xp)
+        #print recipient name and xp
+        print(f'recipient: {to_employee} xp: {recipient_xp.xp}')
+
+        #award xp to author
+        author_xp = EmployeeXP.query.filter_by(employee_id=from_employee).first()
+        if author_xp is None:
+            author_xp = EmployeeXP(employee_id=from_employee, xp=0)
+            db.session.add(author_xp)
+
+        author_xp.xp += xp_actions['send_comment']
+        author_xp.level = calculate_level(author_xp.xp)
+        #print author name and xp
+        print(f'author: {from_employee} xp: {author_xp.xp}')
+
+        action = Action(description=f"New comment by {from_employee} to {to_employee}: {content}", from_id=from_employee, to_id=to_employee)
+
+        db.session.add(action)
+        db.session.commit()
+
+        # redirect to the same page so that the user can submit another comment
+        flash('Comment submitted successfully')
+        return redirect(url_for('comment'))
+    return render_template('test_comment.html')
+
 @app.route('/department/<department_name>', methods=['GET'])
 def list_employees_by_department(department_name):
     employees = Employee.query.filter_by(department=department_name).all()
