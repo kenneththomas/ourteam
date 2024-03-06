@@ -274,7 +274,10 @@ def comment():
         #print author name and xp
         print(f'author: {from_employee} xp: {author_xp.xp}')
 
-        action = Action(description=f"New comment by {from_employee} to {to_employee}: {content}", from_id=from_employee, to_id=to_employee)
+        fromname = Employee.query.get(from_employee).name
+        toname = Employee.query.get(to_employee).name
+
+        action = Action(description=f"New comment by {fromname} to {toname}: {content}", from_id=from_employee, to_id=to_employee)
 
         db.session.add(action)
         db.session.commit()
