@@ -157,27 +157,43 @@
 {% if images %}
 <h1>Gallery</h1>
 <div class="gallery">
-    <div id="image-container" style="max-width: 500px; max-height: 500px; overflow: hidden;">
-        {% for image in images %}
-        <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" style="display: none; width: 100%; height: auto;">
-        {% endfor %}
+    {% for image in images %}
+    <div class="image-container">
+        <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" onclick="showModal('{{ image.image_url }}')">
     </div>
-{% endif %}
-    
-    <script>
-        let images = document.querySelectorAll('.employee-image');
-        let currentImageIndex = 0;
-    
-        function showNextImage() {
-            images[currentImageIndex].style.display = 'none';
-            currentImageIndex = (currentImageIndex + 1) % images.length;
-            images[currentImageIndex].style.display = 'block';
-        }
-    
-        images[0].style.display = 'block';  // Show the first image initially
-        setInterval(showNextImage, 5000);  // Change the image every 5 seconds
-    </script>
+    {% endfor %}
 </div>
+
+<!-- Modal for full-size image -->
+<div id="imageModal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="fullImage">
+</div>
+
+<script>
+    function showModal(imageUrl) {
+        document.getElementById('imageModal').style.display = 'block';
+        document.getElementById('fullImage').src = imageUrl;
+    }
+
+    function closeModal() {
+        document.getElementById('imageModal').style.display = 'none';
+    }
+
+    // Close the modal when clicking anywhere outside the image
+    window.onclick = function(event) {
+        let modal = document.getElementById('imageModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+</script>
+
+<style>
+
+</style>
+{% endif %}
+
 
 <h1>Wall</h1>
 <div class="wall">
