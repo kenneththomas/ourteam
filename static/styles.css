@@ -441,6 +441,11 @@ table.leaderboard {
     font-weight: bold;
     cursor: pointer;
 }
+#caption {
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
 
 .addedit {
     max-width: 600px;

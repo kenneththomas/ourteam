@@ -199,7 +199,7 @@ def search():
 def add_image(id):
     form = AddImageUrlForm()
     if form.validate_on_submit():
-        image = EmployeeImage(image_url=form.image_url.data, employee_id=id)
+        image = EmployeeImage(image_url=form.image_url.data, employee_id=id, caption=form.caption.data)
         db.session.add(image)
         db.session.commit()
         return redirect(url_for('view_employee', id=id))

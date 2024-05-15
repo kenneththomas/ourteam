@@ -31,6 +31,7 @@ class EmployeeImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     image_url = db.Column(db.String(500), nullable=False)
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
+    caption = db.Column(db.String(255), nullable=True)
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)

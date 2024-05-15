@@ -17,4 +17,5 @@ class EmployeeForm(FlaskForm):
 
 class AddImageUrlForm(FlaskForm):
     image_url = StringField('Image URL', validators=[DataRequired()])
+    caption = StringField('Caption', validators=[Optional()])
     submit = SubmitField('Add Image')
