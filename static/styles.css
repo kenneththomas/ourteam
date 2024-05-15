@@ -204,6 +204,71 @@ h1 {
     border: 1px solid #bdc7d8;
     font-size: 14px;
 }
+
+#comment-form {
+    max-width: 600px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#comment-form input[type="number"],
+#comment-form textarea {
+    width: calc(100% - 22px); /* Full width with padding and border consideration */
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 3px;
+    border: 1px solid #bdc7d8;
+    font-size: 14px;
+    font-family: 'Arial', sans-serif;
+    box-sizing: border-box;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#comment-form input[type="number"]:focus,
+#comment-form textarea:focus {
+    border-color: #88aaff;
+    box-shadow: 0 0 5px rgba(136, 170, 255, 0.5);
+    outline: none;
+}
+
+/* Styling for the submit button */
+#comment-form input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #4966a4;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Arial', sans-serif;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+#comment-form input[type="submit"]:hover {
+    background-color: #0037ae;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Styling for the text area container */
+.comment-poster {
+    margin-bottom: 20px;
+}
+
+.comment-poster textarea {
+    width: 100%;
+    height: 100px; /* Adjust height as needed */
+    resize: vertical; /* Allow vertical resizing */
+}
+
+/* Adding some margin below the form */
+#comment-form {
+    margin-bottom: 30px;
+}
+
 .id-section {
     font-size: 12px;
     font-style: italic;

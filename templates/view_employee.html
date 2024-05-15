@@ -212,7 +212,7 @@
 <form id="comment-form" action="{{ url_for('add_comment', id=employee.id) }}" method="post">
     <input type="number" name="author_id" placeholder="Author ID" required>
     <div class="comment-poster">
-        <textarea name="content" required></textarea>
+        <textarea name="content" placeholder="Write your comment here..." required></textarea>
     </div>
     <input type="submit" value="Post Comment">
 </form>
