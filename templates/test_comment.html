@@ -2,17 +2,112 @@
 <html>
 <head>
     <title>Comment Form</title>
+    <style>
+.form-container,
+.comments-container {
+    max-width: 600px;
+    margin: auto;
+}
+
+/* Form styling */
+.form-container form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.form-container label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.form-container input[type="text"],
+.form-container textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.form-container input[type="submit"] {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.form-container input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Comment box styling */
+.comments-container .comment {
+    display: flex;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.comments-container .comment:last-child {
+    border-bottom: none;
+}
+
+.comments-container .comment img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.comments-container .comment-content {
+    flex: 1;
+}
+
+.comments-container .comment-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.comments-container .comment-body {
+    font-size: 14px;
+    line-height: 1.4;
+}
+    </style>
 </head>
 <body>
     {% include 'navbar.html' %}
-    <form method="POST">
-        <label for="from">From:</label><br>
-        <input type="text" id="from" name="from"><br>
-        <label for="to">To:</label><br>
-        <input type="text" id="to" name="to"><br>
-        <label for="comment">Comment:</label><br>
-        <textarea id="comment" name="comment"></textarea><br>
-        <input type="submit" value="Submit">
-    </form>
+    <div class="form-container">
+        <form method="POST">
+            <label for="from">From:</label><br>
+            <input type="text" id="from" name="from"><br>
+            <label for="to">To:</label><br>
+            <input type="text" id="to" name="to"><br>
+            <label for="comment">Comment:</label><br>
+            <textarea id="comment" name="comment"></textarea><br>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+    
+    <!-- Comments Section -->
+    <div class="comments-container">
+        {% for comment in comments %}
+        <div class="comment">
+            <img src="{{ comment.from_employee.picture_url }}" alt="From Employee">
+            <div class="comment-content">
+                <div class="comment-header"><a href="{{ url_for('view_employee', id=comment.from_employee.id) }}">{{ comment.from_employee.name }}</a> to <a href="{{ url_for('view_employee', id=comment.to_employee.id) }}">{{ comment.to_employee.name }}</a></div>
+                <div class="comment-body">{{ comment.content }}</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 </body>
 </html>

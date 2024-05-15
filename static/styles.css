@@ -441,3 +441,88 @@ table.leaderboard {
     font-weight: bold;
     cursor: pointer;
 }
+
+.addedit {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+}
+
+.addedit h1 {
+    text-align: center;
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.addedit form div {
+    margin-bottom: 15px;
+}
+
+.addedit label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.addedit input[type="text"],
+.addedit input[type="email"],
+.addedit input[type="tel"],
+.addedit input[type="url"],
+.addedit textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    transition: border-color 0.3s;
+}
+
+.addedit input[type="text"]:focus,
+.addedit input[type="email"]:focus,
+.addedit input[type="tel"]:focus,
+.addedit input[type="url"]:focus,
+.addedit textarea:focus {
+    border-color: #88aaff;
+    outline: none;
+}
+
+.addedit input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.addedit input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+.addedit .errors {
+    margin-top: 5px;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    color: #721c24;
+}
+
+.addedit .errors li {
+    list-style-type: none;
+}
+
+.addedit textarea {
+    resize: vertical; /* Allow vertical resizing */
+}
