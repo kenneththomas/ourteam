@@ -396,19 +396,18 @@ table.leaderboard {
 .gallery {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
     justify-content: center;  /* Center the images */
+    background-color: #000;
 }
 .image-container {
     flex: 0 1 calc(33.333% - 20px);  /* Adjust for three images per row */
-    width: 150px;  /* Set a fixed width for the container */
-    height: 150px;  /* Set a fixed height for the container to make it square */
-    margin: 10px;
+    width: 300px;  /* Set a fixed width for the container */
+    height: 300px;  /* Set a fixed height for the container to make it square */
     box-sizing: border-box;
     display: flex;
     justify-content: center;  /* Center the image horizontally */
     align-items: center;  /* Center the image vertically */
-    border: 1px solid #ccc;  /* Add a border around the container */
+    border: 1px solid #443e3e;  /* Add a border around the container */
 }
 .employee-image {
     max-width: 100%;

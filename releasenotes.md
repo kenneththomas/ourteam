@@ -1,5 +1,8 @@
 # releasenotes
 
+## 1.0.3
+- black background and bigger pictures in gallery
+
 ## 1.0.2
 - captions on images
 
