@@ -160,7 +160,11 @@ def edit_employee(id):
         #action for reports_to change but get name of manager
         if form.reports_to.data != original_reports_to:
             manager = Employee.query.get(form.reports_to.data)
-            action = Action(description=f"Manager changed from {original_mgr_name} to {manager.name}", from_id=employee.id)
+            try:
+                action = Action(description=f"Manager changed from {original_mgr_name} to {manager.name}", from_id=employee.id)
+            except AttributeError:
+                print('manager not found')
+                return
             db.session.add(action)
             db.session.commit()
         #action for name change

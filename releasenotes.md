@@ -2,6 +2,7 @@
 
 ## 1.0.4
 - add id to test_comment
+- fix bug where you couldnt make someone have no manager
 
 ## 1.0.3
 - black background and bigger pictures in gallery
