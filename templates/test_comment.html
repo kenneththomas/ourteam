@@ -3,6 +3,7 @@
 <head>
     <title>Comment Form</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='test_comment.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
@@ -12,14 +13,20 @@
             <label for="from">From:</label><br>
             <input type="text" id="from" name="from"><br>
             <label for="to">To:</label><br>
-            <input type="text" id="to" name="to"><br>
+            <br>
+            <div style="display: flex; align-items: center;">
+                <input type="text" id="to" name="to">
+                <button type="button" id="swapButton" title="Swap">
+                    <i class="fas fa-exchange-alt"></i>
+                </button>
+            </div><br>
             <label for="comment">Comment:</label><br>
             <textarea id="comment" name="comment"></textarea><br>
+            <input type="submit" value="Submit">
             <label for="context">Context:</label><br>
             <textarea id="context" name="context"></textarea><br>
             <button type="button" id="generateContext">Autofill Context</button>
             <button type="button" id="generateComment">Generate Comment</button>
-            <input type="submit" value="Submit">
         </form>
     </div>
     
@@ -38,6 +45,13 @@
 
     <script>
         $(document).ready(function() {
+            $('#swapButton').click(function() {
+                var from = $('#from').val();
+                var to = $('#to').val();
+                $('#from').val(to);
+                $('#to').val(from);
+            });
+
             $('#generateContext').click(function() {
                 var from = $('#from').val();
                 var to = $('#to').val();

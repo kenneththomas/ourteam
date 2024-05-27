@@ -110,3 +110,22 @@
 .form-container button#generateContext:hover {
     background-color: #007B9E;
 }
+
+.form-container .swap-container {
+    display: flex;
+    align-items: center;
+}
+
+#swapButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    margin-left: 10px;
+    color: #555;
+    transition: color 0.3s;
+}
+
+#swapButton:hover {
+    color: #000;
+}

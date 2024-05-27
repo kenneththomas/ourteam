@@ -1,5 +1,9 @@
 # releasenotes
 
+## 1.0.5
+- add swap button on test_comment
+- reorder buttons
+
 ## 1.0.4
 - add id to test_comment
 - fix bug where you couldnt make someone have no manager
