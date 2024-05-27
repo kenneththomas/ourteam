@@ -1,5 +1,8 @@
 # releasenotes
 
+## 1.0.4
+- add id to test_comment
+
 ## 1.0.3
 - black background and bigger pictures in gallery
 

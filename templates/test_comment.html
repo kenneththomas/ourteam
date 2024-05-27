@@ -103,7 +103,7 @@
         <div class="comment">
             <img src="{{ comment.from_employee.picture_url }}" alt="From Employee">
             <div class="comment-content">
-                <div class="comment-header"><a href="{{ url_for('view_employee', id=comment.from_employee.id) }}">{{ comment.from_employee.name }}</a> to <a href="{{ url_for('view_employee', id=comment.to_employee.id) }}">{{ comment.to_employee.name }}</a></div>
+                <div class="comment-header"><a href="{{ url_for('view_employee', id=comment.from_employee.id) }}">{{ comment.from_employee.name }}</a> #{{comment.from_employee.id}} to <a href="{{ url_for('view_employee', id=comment.to_employee.id) }}">{{ comment.to_employee.name }}</a> #{{comment.to_employee.id}}</div>
                 <div class="comment-body">{{ comment.content }}</div>
             </div>
         </div>
