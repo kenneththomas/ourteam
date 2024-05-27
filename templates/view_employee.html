@@ -154,43 +154,66 @@
 </div>
 
 <!-- only show this section if there are images to show-->
-    {% if images %}
-    <h1>Gallery</h1>
-    <div class="gallery">
-        {% for image in images %}
-        <div class="image-container">
-            <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" onclick="showModal('{{ image.image_url }}', '{{ image.caption }}')">
-        </div>
-        {% endfor %}
+{% if images %}
+<h1>Gallery</h1>
+<div class="gallery">
+    {% for image in images %}
+    <div class="image-container">
+        <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" onclick="showModal('{{ image.image_url }}', '{{ image.caption }}')">
     </div>
+    {% endfor %}
+</div>
 
-    <!-- Modal for full-size image -->
-    <div id="imageModal" class="modal">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="fullImage">
-        <div id="caption"></div>
-    </div>
+<!-- Modal for full-size image -->
+<div id="imageModal" class="modal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="fullImage">
+    <div id="caption"></div>
+    <button id="setProfilePictureButton" onclick="setProfilePicture()">Set as Profile Picture</button>
+</div>
 
-    <script>
-        function showModal(imageUrl, caption) {
-            document.getElementById('imageModal').style.display = 'block';
-            document.getElementById('fullImage').src = imageUrl;
-            document.getElementById('caption').textContent = caption;
+<script>
+    function showModal(imageUrl, caption) {
+        document.getElementById('imageModal').style.display = 'block';
+        document.getElementById('fullImage').src = imageUrl;
+        document.getElementById('caption').textContent = caption;
+        currentImageUrl = imageUrl;
+        document.getElementById('setProfilePictureButton').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('imageModal').style.display = 'none';
+        document.getElementById('setProfilePictureButton').style.display = 'none';
+    }
+
+    // Close the modal when clicking anywhere outside the image
+    window.onclick = function(event) {
+        let modal = document.getElementById('imageModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
+            document.getElementById('setProfilePictureButton').style.display = 'none';
         }
+    }
 
-        function closeModal() {
-            document.getElementById('imageModal').style.display = 'none';
-        }
-
-        // Close the modal when clicking anywhere outside the image
-        window.onclick = function(event) {
-            let modal = document.getElementById('imageModal');
-            if (event.target == modal) {
-                modal.style.display = 'none';
+    function setProfilePicture() {
+        $.ajax({
+            type: 'POST',
+            url: '/set_profile_picture',
+            data: {
+                'employee_id': {{ employee.id }},
+                'image_url': currentImageUrl
+            },
+            success: function(response) {
+                alert('Profile picture updated successfully.');
+                location.reload();
+            },
+            error: function(error) {
+                alert('An error occurred while updating the profile picture.');
             }
-        }
-    </script>
-    {% endif %}
+        });
+    }
+</script>
+{% endif %}
 
 
 <h1>Wall</h1>

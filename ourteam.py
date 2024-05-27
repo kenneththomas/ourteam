@@ -417,6 +417,19 @@ def generate_context():
 
     return jsonify({'context': context})
 
+@app.route('/set_profile_picture', methods=['POST'])
+def set_profile_picture():
+    employee_id = request.form.get('employee_id')
+    image_url = request.form.get('image_url')
+
+    employee = Employee.query.get(employee_id)
+    if employee:
+        employee.picture_url = image_url
+        db.session.commit()
+        return jsonify({'success': True}), 200
+    else:
+        return jsonify({'error': 'Employee not found'}), 404
+
 def calculate_level(xp):
     # Define the XP requirement for each level
     level = 1
