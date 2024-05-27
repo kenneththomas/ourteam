@@ -5,6 +5,7 @@ from models import (
 from forms import EmployeeForm, AddImageUrlForm
 from sqlalchemy import func, or_
 from markupsafe import Markup
+import squawk
 
 def nl2br(s):
     #html doesnt do newlines so we need to convert them to <br> tags
@@ -383,6 +384,38 @@ def get_management_chain(employee, levels=3):
         else:
             break
     return chain
+
+@app.route('/generate_comment', methods=['POST'])
+def generate_comment():
+    from_employee = request.form.get('from')
+    to_employee = request.form.get('to')
+    context = request.form.get('context')
+
+    prompt = f"From: {from_employee}\nTo: {to_employee}\nContext: {context}"
+    generated_comment = squawk.generate_text(prompt)
+
+    return jsonify({'generated_comment': generated_comment})
+
+
+@app.route('/generate_context', methods=['POST'])
+def generate_context():
+    from_employee_id = request.form.get('from')
+    to_employee_id = request.form.get('to')
+
+    from_employee = Employee.query.get(from_employee_id)
+    to_employee = Employee.query.get(to_employee_id)
+
+    if from_employee and to_employee:
+        context = (
+            f"From Employee: {from_employee.name}, {from_employee.title}, {from_employee.department}, "
+            f"{from_employee.bio}, {from_employee.location}\n"
+            f"To Employee: {to_employee.name}, {to_employee.title}, {to_employee.department}, "
+            f"{to_employee.bio}, {to_employee.location}"
+        )
+    else:
+        context = "Invalid employee IDs provided."
+
+    return jsonify({'context': context})
 
 def calculate_level(xp):
     # Define the XP requirement for each level

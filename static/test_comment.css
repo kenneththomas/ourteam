@@ -76,3 +76,37 @@
     font-size: 14px;
     line-height: 1.4;
 }
+
+.form-container button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.form-container input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.form-container button {
+    background-color: #008CBA;
+    color: white;
+}
+
+.form-container input[type="submit"]:hover,
+.form-container button:hover {
+    background-color: #45a049;
+}
+
+.form-container button {
+    margin-bottom: 10px;
+}
+
+.form-container button#generateContext:hover {
+    background-color: #007B9E;
+}

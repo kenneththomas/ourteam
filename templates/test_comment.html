@@ -2,7 +2,8 @@
 <html>
 <head>
     <title>Comment Form</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='test_comment.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='test_comment.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     {% include 'navbar.html' %}
@@ -14,6 +15,10 @@
             <input type="text" id="to" name="to"><br>
             <label for="comment">Comment:</label><br>
             <textarea id="comment" name="comment"></textarea><br>
+            <label for="context">Context:</label><br>
+            <textarea id="context" name="context"></textarea><br>
+            <button type="button" id="generateContext">Autofill Context</button>
+            <button type="button" id="generateComment">Generate Comment</button>
             <input type="submit" value="Submit">
         </form>
     </div>
@@ -30,5 +35,45 @@
         </div>
         {% endfor %}
     </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#generateContext').click(function() {
+                var from = $('#from').val();
+                var to = $('#to').val();
+                
+                $.ajax({
+                    type: 'POST',
+                    url: '/generate_context',
+                    data: {
+                        'from': from,
+                        'to': to
+                    },
+                    success: function(response) {
+                        $('#context').val(response.context);
+                    }
+                });
+            });
+
+            $('#generateComment').click(function() {
+                var from = $('#from').val();
+                var to = $('#to').val();
+                var context = $('#context').val();
+                
+                $.ajax({
+                    type: 'POST',
+                    url: '/generate_comment',
+                    data: {
+                        'from': from,
+                        'to': to,
+                        'context': context
+                    },
+                    success: function(response) {
+                        $('#comment').val(response.generated_comment);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
