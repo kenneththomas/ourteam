@@ -441,10 +441,20 @@ table.leaderboard {
     cursor: pointer;
 }
 #caption {
-    color: white;
+    color: #333; /* A softer, modern color */
     text-align: center;
-    padding: 10px;
+    padding: 20px;
+    width: 80%;
+    max-width: 700px;
+    height: auto; /* Adjust height to fit content */
+    margin: 0 auto; /* Center the caption */
+    border: 1px solid #ddd; /* Add a subtle border */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    font-family: 'Arial', sans-serif; /* Modern, clean font */
+    background-color: #f9f9f9; /* Light background for contrast */
 }
+
 
 .addedit {
     max-width: 600px;

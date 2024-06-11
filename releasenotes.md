@@ -1,5 +1,13 @@
 # releasenotes
 
+## 1.0.7
+- remove duplicate actions from recent actions (normally occurs for self commenting)
+- fix bug where the caption box for image upload had invisible text
+- improve add_image
+
+## 1.0.6
+- easy change profile picture from image gallery
+
 ## 1.0.5
 - add swap button on test_comment
 - reorder buttons

@@ -1,17 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Image</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='add_image.css') }}">
 </head>
-{% include 'navbar.html' %}
-{% block content %}
-<h1>Add Image</h1>
-<form method="POST">
-    {{ form.hidden_tag() }}
-    {{ form.image_url.label }} {{ form.image_url() }}
-    {{ form.caption.label }} {{ form.caption() }}
-    {{ form.submit() }}
-</form>
-{% endblock %}
+<body>
+    {% include 'navbar.html' %}
+    <div class="container">
+        {% block content %}
+        <h1>Add Image</h1>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                {{ form.image_url.label }} {{ form.image_url() }}
+            </div>
+            <div class="form-group">
+                {{ form.caption.label }} {{ form.caption() }}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+        {% endblock %}
+    </div>
+</body>
 </html>
