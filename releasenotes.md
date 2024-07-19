@@ -1,5 +1,9 @@
 # releasenotes
 
+## 1.0.8
+- gpt version bump
+- increase max tokens in squawk from 200 to 250
+
 ## 1.0.7
 - remove duplicate actions from recent actions (normally occurs for self commenting)
 - fix bug where the caption box for image upload had invisible text

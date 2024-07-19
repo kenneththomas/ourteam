@@ -8,8 +8,8 @@ def generate_text(prompt):
 
     full_prompt = [ {"role": "system", "content": f"{system_prompt}"},{"role": "user", "content": f"{prompt}"}]
 
-    response = client.chat.completions.create(model="gpt-3.5-turbo",
-    max_tokens=200,
+    response = client.chat.completions.create(model="gpt-4o-mini",
+    max_tokens=250,
     temperature=0.8,
     messages = full_prompt)
 
