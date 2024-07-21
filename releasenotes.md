@@ -1,9 +1,10 @@
 # releasenotes
 
-## 1.0.9
+## 1.1
 - merge duplicate relation-item in css
 - employee box animation
 - comment box beautification
+- containerize view_employee
 
 ## 1.0.8
 - gpt version bump
