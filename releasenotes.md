@@ -1,5 +1,9 @@
 # releasenotes
 
+## 1.0.9
+- merge duplicate relation-item in css
+- employee box animation
+
 ## 1.0.8
 - gpt version bump
 - increase max tokens in squawk from 200 to 250

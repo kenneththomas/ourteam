@@ -5,7 +5,7 @@ body {
     color: #333;
     background-color: #F7F7F7;
     margin: 0;
-    margin-top: 60px; /* Adjust this value to match your navbar's height */
+    padding-top: 60px; /* Adjust this value to match your navbar's height */
 }
 
 nav {
@@ -102,12 +102,18 @@ h1 {
     align-items: center;
     gap: 10px;
     margin-bottom: 10px;
-    border : 1px solid #ddd;
+    border: 1px solid #ddd;
     max-width: 400px;
     min-width: 400px;
     word-wrap: break-word;
     padding: 5px;
     background-color: #dae4ec;
+    transition: background-color 0.3s, transform 0.3s; /* Add transition */
+}
+
+.relation-item:hover {
+    background-color: #c8d6e5; /* Change background on hover */
+    transform: scale(1.02); /* Slightly enlarge on hover */
 }
 
 .name-section {
@@ -117,19 +123,24 @@ h1 {
 .name-section a {
     text-decoration: none;
     font-weight: bold;
+    color: #3B5998; /* Ensure link color is consistent */
+    transition: color 0.3s; /* Add transition */
+}
+
+.name-section a:hover {
+    color: #0056b3; /* Change color on hover */
 }
 
 .info-section {
     display: flex;
     flex-direction: column;
+    gap: 5px; /* Add gap between sections */
 }
 
-.title-section {
+.title-section, .department-section {
     flex-basis: 40%;
-}
-
-.department-section {
-    flex-basis: 40%;
+    font-size: 14px; 
+    color: #555; 
 }
 
 .relation-section ul {
@@ -139,13 +150,6 @@ h1 {
     list-style-type: none; /* Remove bullet points */
 }
 
-.relation-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-right: 20px; /* Spacing between items */
-    margin-bottom: 10px; /* Spacing between rows when they wrap */
-}
 
 .button {
     display: inline-block;
@@ -278,6 +282,7 @@ h1 {
     position: fixed;
     top: 0;
     width: 100%;
+    z-index: 1000; /* Ensure the navbar is on top */
     /* other styles as needed */
 }
 
@@ -371,6 +376,7 @@ table.leaderboard {
     overflow: hidden; /* Hide anything that goes outside the container */
     position: relative; /* Make this a positioning context for absolute positioning */
     max-width: 600px; /* Limit the width to 600px */
+    z-index: 500; /* Ensure the XP bar is below the navbar */
 }
 
 .xp-bar {
