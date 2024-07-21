@@ -4,6 +4,7 @@
     <title>{{ employee.name }} - @{{employee.email}}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='common.js') }}"></script>
     <script src="{{ url_for('static', filename='view_employee.js') }}"></script>
     <script src="{{ url_for('static', filename='comment.js') }}"></script>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='resources/ourteam_icon.ico') }}">
@@ -18,7 +19,6 @@
     <h1>{{ employee.name }}</h1>
     <h2>@{{ employee.email }} - #{{ employee.id }}</h2>
 
-
     <div class="employee-profile">
         <div class="fade-in">
             {% if employee.picture_url %}
@@ -30,7 +30,7 @@
         <div class="employee-info">
             <p><strong>Name:</strong> {{ employee.name }}</p>
             <p><strong>Title:</strong> {{ employee.title }}</p>
-            <p><strong>Department:</strong>     <a href="{{ url_for('list_employees_by_department', department_name=employee.department) }}">
+            <p><strong>Department:</strong> <a href="{{ url_for('list_employees_by_department', department_name=employee.department) }}">
                 {{ employee.department }}
             </a></p>
             <p><strong>Phone:</strong> {{ employee.phone or 'N/A' }}</p>
@@ -52,7 +52,6 @@
             </ul>
         </div>
     </div>
-
 
     {% if manager_chain %}
     <div class="relation-section">
@@ -79,32 +78,32 @@
     </div>
     {% else %}
     <p>This employee does not report to anyone.</p>
-{% endif %}
+    {% endif %}
 
-{% if co_manager %}
-<div class="relation-section">
-    <h2>Co-Manager</h2>
-    <div class="relation-item">
-        <div class="small-employee-picture-container fade-in" style="background-image: url('{{ co_manager.picture_url }}');"></div>
-        <div class="info-section">
-            <div class="name-section">
-                <a href="{{ url_for('view_employee', id=co_manager.id) }}">{{ co_manager.name }}</a>
-            </div>
-            <div class="title-section">
-                {{ co_manager.title }}
-            </div>
-            <div class="department-section">
-                {{ co_manager.department }}
-            </div>
-            <div class="id-section">
-                #{{ co_manager.id }}
+    {% if co_manager %}
+    <div class="relation-section">
+        <h2>Co-Manager</h2>
+        <div class="relation-item">
+            <div class="small-employee-picture-container fade-in" style="background-image: url('{{ co_manager.picture_url }}');"></div>
+            <div class="info-section">
+                <div class="name-section">
+                    <a href="{{ url_for('view_employee', id=co_manager.id) }}">{{ co_manager.name }}</a>
+                </div>
+                <div class="title-section">
+                    {{ co_manager.title }}
+                </div>
+                <div class="department-section">
+                    {{ co_manager.department }}
+                </div>
+                <div class="id-section">
+                    #{{ co_manager.id }}
+                </div>
             </div>
         </div>
     </div>
-</div>
-{% endif %}
+    {% endif %}
 
-<div class="relation-section">
+    <div class="relation-section">
         <div class="relation-item">
             <div class="small-employee-picture-container fade-in" style="background-image: url('{{ employee.picture_url }}');"></div>
             <div class="info-section">
@@ -122,156 +121,159 @@
                 </div>
             </div>
         </div>
-</div>
-
-<div class="relation-section">
-    <h2>Direct Reports</h2>
-    {% if subordinates %}
-        <ul>
-            {% for subordinate in subordinates %}
-            <li class="relation-item">
-                <div class="small-employee-picture-container fade-in" style="background-image: url('{{ subordinate.picture_url }}');"></div>
-                <div class="info-section">
-                    <div class="name-section">
-                        <a href="{{ url_for('view_employee', id=subordinate.id) }}">{{ subordinate.name }}</a>
-                    </div>
-                    <div class="title-section">
-                        {{ subordinate.title }}
-                    </div>
-                    <div class="department-section">
-                        {{ subordinate.department }}
-                    </div>
-                    <div class="id-section">
-                        #{{ subordinate.id }}
-                    </div>
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>{{ employee.name }} does not have any direct reports.</p>
-    {% endif %}
-</div>
-
-<!-- only show this section if there are images to show-->
-{% if images %}
-<h1>Gallery</h1>
-<div class="gallery">
-    {% for image in images %}
-    <div class="image-container">
-        <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" onclick="showModal('{{ image.image_url }}', '{{ image.caption }}')">
     </div>
-    {% endfor %}
-</div>
 
-<!-- Modal for full-size image -->
-<div id="imageModal" class="modal">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <img class="modal-content" id="fullImage">
-    <div id="caption"></div>
-    <button id="setProfilePictureButton" onclick="setProfilePicture()">Set as Profile Picture</button>
-</div>
+    <div class="relation-section">
+        <h2>Direct Reports</h2>
+        {% if subordinates %}
+            <ul>
+                {% for subordinate in subordinates %}
+                <li class="relation-item">
+                    <div class="small-employee-picture-container fade-in" style="background-image: url('{{ subordinate.picture_url }}');"></div>
+                    <div class="info-section">
+                        <div class="name-section">
+                            <a href="{{ url_for('view_employee', id=subordinate.id) }}">{{ subordinate.name }}</a>
+                        </div>
+                        <div class="title-section">
+                            {{ subordinate.title }}
+                        </div>
+                        <div class="department-section">
+                            {{ subordinate.department }}
+                        </div>
+                        <div class="id-section">
+                            #{{ subordinate.id }}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>{{ employee.name }} does not have any direct reports.</p>
+        {% endif %}
+    </div>
 
-<script>
-    function showModal(imageUrl, caption) {
-        document.getElementById('imageModal').style.display = 'block';
-        document.getElementById('fullImage').src = imageUrl;
-        document.getElementById('caption').textContent = caption;
-        currentImageUrl = imageUrl;
-        document.getElementById('setProfilePictureButton').style.display = 'block';
-    }
+    <!-- only show this section if there are images to show-->
+    {% if images %}
+    <h1>Gallery</h1>
+    <div class="gallery">
+        {% for image in images %}
+        <div class="image-container">
+            <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" onclick="showModal('{{ image.image_url }}', '{{ image.caption }}')">
+        </div>
+        {% endfor %}
+    </div>
 
-    function closeModal() {
-        document.getElementById('imageModal').style.display = 'none';
-        document.getElementById('setProfilePictureButton').style.display = 'none';
-    }
+    <!-- Modal for full-size image -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="fullImage">
+        <div id="caption"></div>
+        <button id="setProfilePictureButton" onclick="setProfilePicture()">Set as Profile Picture</button>
+    </div>
 
-    // Close the modal when clicking anywhere outside the image
-    window.onclick = function(event) {
-        let modal = document.getElementById('imageModal');
-        if (event.target == modal) {
-            modal.style.display = 'none';
+    <script>
+        function showModal(imageUrl, caption) {
+            document.getElementById('imageModal').style.display = 'block';
+            document.getElementById('fullImage').src = imageUrl;
+            document.getElementById('caption').textContent = caption;
+            currentImageUrl = imageUrl;
+            document.getElementById('setProfilePictureButton').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
             document.getElementById('setProfilePictureButton').style.display = 'none';
         }
-    }
 
-    function setProfilePicture() {
-        $.ajax({
-            type: 'POST',
-            url: '/set_profile_picture',
-            data: {
-                'employee_id': {{ employee.id }},
-                'image_url': currentImageUrl
-            },
-            success: function(response) {
-                alert('Profile picture updated successfully.');
-                location.reload();
-            },
-            error: function(error) {
-                alert('An error occurred while updating the profile picture.');
+        // Close the modal when clicking anywhere outside the image
+        window.onclick = function(event) {
+            let modal = document.getElementById('imageModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+                document.getElementById('setProfilePictureButton').style.display = 'none';
             }
-        });
-    }
-</script>
-{% endif %}
+        }
 
-
-<h1>Wall</h1>
-<div class="wall">
-{% for comment in comments.items %}
-    {% include 'comment.html' %}
-{% endfor %}
-</div>
-
-<!-- Pagination Links -->
-<div class="pagination">
-    {% if comments.has_prev %}
-        <a href="{{ url_for('view_employee', id=employee.id, comments_page=comments.prev_num) }}">Previous</a>
+        function setProfilePicture() {
+            $.ajax({
+                type: 'POST',
+                url: '/set_profile_picture',
+                data: {
+                    'employee_id': {{ employee.id }},
+                    'image_url': currentImageUrl
+                },
+                success: function(response) {
+                    alert('Profile picture updated successfully.');
+                    location.reload();
+                },
+                error: function(error) {
+                    alert('An error occurred while updating the profile picture.');
+                }
+            });
+        }
+    </script>
     {% endif %}
-    {% if comments.has_next %}
-        <a href="{{ url_for('view_employee', id=employee.id, comments_page=comments.next_num) }}">Next</a>
-    {% endif %}
-</div>
 
-<h1>Post a Comment</h1>
-<form id="comment-form" action="{{ url_for('add_comment', id=employee.id) }}" method="post">
-    <input type="number" name="author_id" placeholder="Author ID" required>
-    <div class="comment-poster">
-        <textarea name="content" placeholder="Write your comment here..." required></textarea>
+    <h1>Wall</h1>
+    <div class="wall">
+    {% for comment in comments.items %}
+        {% include 'comment.html' %}
+    {% endfor %}
     </div>
-    <input type="submit" value="Post Comment">
-</form>
-<br/>
 
-<a class="button" href="{{ url_for('add_image', id=employee.id) }}">Add Image</a>
-<a class="button" href="{{ url_for('list_employees') }}">Back to employee list</a>
+    <!-- Pagination Links -->
+    <div class="pagination">
+        {% if comments.has_prev %}
+            <a href="{{ url_for('view_employee', id=employee.id, comments_page=comments.prev_num) }}">Previous</a>
+        {% endif %}
+        {% if comments.has_next %}
+            <a href="{{ url_for('view_employee', id=employee.id, comments_page=comments.next_num) }}">Next</a>
+        {% endif %}
+    </div>
+
+    <h1>Post a Comment</h1>
+    <form id="comment-form" action="{{ url_for('add_comment', id=employee.id) }}" method="post">
+        <input type="number" name="author_id" placeholder="Author ID" required>
+        <div class="comment-poster">
+            <textarea name="content" placeholder="Write your comment here..." required></textarea>
+        </div>
+        <input type="submit" value="Post Comment">
+    </form>
+    <br/>
+
+    <a class="button" href="{{ url_for('add_image', id=employee.id) }}">Add Image</a>
+    <a class="button" href="{{ url_for('list_employees') }}">Back to employee list</a>
+
+    <!-- Back to top button -->
+    <button onclick="topFunction()" id="backToTopBtn" title="Go to top">Top</button>
+
+    <!-- Loading spinner -->
+    <div id="loadingSpinner" class="spinner"></div>
+
+    <h2>Groups</h2>
+    <ul>
+        {% for group in employee.groups %}
+            <li>
+                <a href="{{ url_for('view_group', id=group.id) }}">{{ group.groupname }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Form to add the employee to a group -->
+    <h2>Add to Group</h2>
+    <form action="{{ url_for('add_to_group', id=employee.id) }}" method="post">
+        <input type="text" name="groupname" placeholder="Group Name" required>
+        <input type="submit" value="Add to Group">
+    </form>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
 </body>
-
-<h2>Groups</h2>
-<ul>
-    {% for group in employee.groups %}
-        <li>
-            <a href="{{ url_for('view_group', id=group.id) }}">{{ group.groupname }}</a>
-        </li>
-    {% endfor %}
-    </ul>
-
-<!-- Form to add the employee to a group -->
-<h2>Add to Group</h2>
-<form action="{{ url_for('add_to_group', id=employee.id) }}" method="post">
-    <input type="text" name="groupname" placeholder="Group Name" required>
-    <input type="submit" value="Add to Group">
-</form>
-
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
-
 </html>

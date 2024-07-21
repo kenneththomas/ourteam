@@ -3,6 +3,7 @@
 ## 1.0.9
 - merge duplicate relation-item in css
 - employee box animation
+- comment box beautification
 
 ## 1.0.8
 - gpt version bump
