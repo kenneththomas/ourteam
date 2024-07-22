@@ -1,5 +1,8 @@
 # releasenotes
 
+## 1.1.1
+- visual improvements in manage groups, homepage, and recent actions
+
 ## 1.1
 - merge duplicate relation-item in css
 - employee box animation

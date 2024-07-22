@@ -171,59 +171,34 @@ h1 {
 
 .comment-container {
     display: flex;
-    align-items: flex-start;
-    margin-bottom: 15px;
+    align-items: start;
+    margin-bottom: 5px;
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 5px;
     background-color: #f9f9f9;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-    transition: box-shadow 0.3s ease;
-}
-
-.comment-container:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    width: 1000px;
+    padding: 10px;
 }
 
 .comment-container img {
     width: 100px;
     height: 100px;
     object-fit: cover;
-    margin-right: 15px;
+    margin-right: 10px;
     border-radius: 50%;
 }
 
-.comment-content {
+.comment-container .comment-content {
     flex-grow: 1;
 }
 
-.comment-header {
-    margin: 0 0 5px;
-    font-size: 14px;
-    color: #333;
-}
-
-.comment-header a {
-    color: #007BFF;
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-.comment-header a:hover {
-    color: #0056b3;
-}
-
-.comment-timestamp {
+.comment-container .comment-content p {
     margin: 0 0 10px;
-    font-size: 12px;
-    color: #777;
 }
 
-.comment-text {
-    margin: 0;
-    font-size: 14px;
-    color: #333;
-    line-height: 1.5;
+.comment-container .comment-content p:last-child {
+    margin-bottom: 0;
 }
 
 .comment-poster textarea {
@@ -571,45 +546,4 @@ table.leaderboard {
 
 .addedit textarea {
     resize: vertical; /* Allow vertical resizing */
-}
-
-/* Back to top button */
-#backToTopBtn {
-    display: none; /* Hidden by default */
-    position: fixed; /* Fixed/sticky position */
-    bottom: 20px; /* Place the button at the bottom of the page */
-    right: 30px; /* Place the button 30px from the right */
-    z-index: 99; /* Make sure it does not overlap */
-    border: none; /* Remove borders */
-    outline: none; /* Remove outline */
-    background-color: #007BFF; /* Set a background color */
-    color: white; /* Text color */
-    cursor: pointer; /* Add a mouse pointer on hover */
-    padding: 15px; /* Some padding */
-    border-radius: 10px; /* Rounded corners */
-    font-size: 18px; /* Increase font size */
-}
-
-#backToTopBtn:hover {
-    background-color: #555; /* Add a dark-grey background on hover */
-}
-
-/* Loading spinner */
-.spinner {
-    display: none; /* Hidden by default */
-    position: fixed; /* Fixed/sticky position */
-    z-index: 999; /* Make sure it does not overlap */
-    top: 50%; /* Center the spinner */
-    left: 50%; /* Center the spinner */
-    width: 50px; /* Set a width */
-    height: 50px; /* Set a height */
-    border: 8px solid #f3f3f3; /* Light grey border */
-    border-top: 8px solid #007BFF; /* Blue border */
-    border-radius: 50%; /* Rounded corners */
-    animation: spin 1s linear infinite; /* Spin animation */
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
