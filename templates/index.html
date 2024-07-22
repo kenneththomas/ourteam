@@ -3,19 +3,19 @@
 <head>
     <title>Welcome to OurTeam</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='resources/ourteam_icon.ico') }}">
 </head>
 <body>
     {% include 'navbar.html' %}
-    <h1>Welcome to OurTeam!</h1>
-    <!--link to logo-->
-    <div class="logo-container">
-        <img src="{{ url_for('static', filename='resources/logo.png') }}" alt="OurTeam Logo">
-    </div>
-    <h2>Featured Team Members</h2>
-    <div class="featured-employees">
-    {% for employee in featured_employees %}
-    <div class="relation-section">
+    <div class="container">
+        <div class="hero">
+            <h1>Welcome to OurTeam!</h1>
+            <p>Meet our amazing team members</p>
+        </div>
+        <h2>Featured Team Members</h2>
+        <div class="featured-employees">
+        {% for employee in featured_employees %}
         <div class="relation-item">
             <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
             <div class="info-section">
@@ -30,8 +30,8 @@
                 </div>
             </div>
         </div>
-</div>
-    {% endfor %}
+        {% endfor %}
+        </div>
     </div>
 </body>
 </html>
