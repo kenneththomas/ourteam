@@ -13,5 +13,6 @@
         </p>
         <p class="comment-timestamp">{{ comment.timestamp.strftime('%B %d, %Y at %I:%M %p') }}</p>
         <p class="comment-text">{{ comment.content|nl2br }}</p>
+        <button class="delete-comment" data-comment-id="{{ comment.id }}">x</button>
     </div>
 </div>

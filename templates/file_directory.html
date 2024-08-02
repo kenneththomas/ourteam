@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File List</title>
+</head>
+<body>
+    <h1>Files in {{ subpath or 'static' }}</h1>
+    <ul>
+        {% if subpath %}
+            <li><a href="{{ url_for('list_files', subpath=subpath.rsplit('/', 1)[0]) }}">.. (Parent Directory)</a></li>
+        {% endif %}
+        {% for directory in directories %}
+            <li><a href="{{ url_for('list_files', subpath=(subpath + '/' + directory).strip('/')) }}">{{ directory }}/</a></li>
+        {% endfor %}
+        {% for file in files %}
+            <li><a href="{{ url_for('serve_static_files', filename=(subpath + '/' + file).strip('/')) }}">{{ file }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

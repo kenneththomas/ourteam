@@ -1,5 +1,9 @@
 # releasenotes
 
+## 1.1.2
+- built-in fileshare
+- delete comment button
+
 ## 1.1.1
 - visual improvements in manage groups, homepage, and recent actions
 

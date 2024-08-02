@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify
+from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify, send_from_directory
 from models import (
     db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP
 )
@@ -6,6 +6,7 @@ from forms import EmployeeForm, AddImageUrlForm
 from sqlalchemy import func, or_
 from markupsafe import Markup
 import squawk
+import os
 
 def nl2br(s):
     #html doesnt do newlines so we need to convert them to <br> tags
@@ -431,6 +432,28 @@ def set_profile_picture():
         return jsonify({'success': True}), 200
     else:
         return jsonify({'error': 'Employee not found'}), 404
+    
+@app.route('/files/<path:filename>')
+def serve_static_files(filename):
+    return send_from_directory(app.static_folder, filename)
+
+@app.route('/files')
+@app.route('/files/<path:subpath>')
+def list_files(subpath=''):
+    directory = os.path.join(app.static_folder, subpath)
+    if not os.path.exists(directory):
+        return "Directory not found", 404
+
+    files = []
+    directories = []
+    for item in os.listdir(directory):
+        item_path = os.path.join(directory, item)
+        if os.path.isdir(item_path):
+            directories.append(item)
+        else:
+            files.append(item)
+
+    return render_template('file_directory.html', files=files, directories=directories, subpath=subpath)
 
 def calculate_level(xp):
     # Define the XP requirement for each level
@@ -439,6 +462,13 @@ def calculate_level(xp):
         xp -= level * 100
         level += 1
     return level
+
+@app.route('/delete_comment/<int:comment_id>', methods=['POST'])
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    db.session.delete(comment)
+    db.session.commit()
+    return jsonify({'success': True}), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5002)
