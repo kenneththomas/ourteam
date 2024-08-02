@@ -171,47 +171,7 @@
             <button id="setProfilePictureButton" onclick="setProfilePicture()">Set as Profile Picture</button>
         </div>
 
-        <script>
-            function showModal(imageUrl, caption) {
-                document.getElementById('imageModal').style.display = 'block';
-                document.getElementById('fullImage').src = imageUrl;
-                document.getElementById('caption').textContent = caption;
-                currentImageUrl = imageUrl;
-                document.getElementById('setProfilePictureButton').style.display = 'block';
-            }
-
-            function closeModal() {
-                document.getElementById('imageModal').style.display = 'none';
-                document.getElementById('setProfilePictureButton').style.display = 'none';
-            }
-
-            // Close the modal when clicking anywhere outside the image
-            window.onclick = function(event) {
-                let modal = document.getElementById('imageModal');
-                if (event.target == modal) {
-                    modal.style.display = 'none';
-                    document.getElementById('setProfilePictureButton').style.display = 'none';
-                }
-            }
-
-            function setProfilePicture() {
-                $.ajax({
-                    type: 'POST',
-                    url: '/set_profile_picture',
-                    data: {
-                        'employee_id': {{ employee.id }},
-                        'image_url': currentImageUrl
-                    },
-                    success: function(response) {
-                        alert('Profile picture updated successfully.');
-                        location.reload();
-                    },
-                    error: function(error) {
-                        alert('An error occurred while updating the profile picture.');
-                    }
-                });
-            }
-        </script>
+        <script src="{{ url_for('static', filename='view_employee.js') }}"></script>
         {% endif %}
 
         <h1>Wall</h1>
@@ -266,6 +226,23 @@
             <input type="submit" value="Add to Group">
         </form>
 
+        <!-- New Friends Section -->
+        <h2>Friends</h2>
+        <ul id="friends-list">
+            {% for friend in employee.friends %}
+                <li>
+                    <a href="{{ url_for('view_employee', id=friend.id) }}">{{ friend.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Add Friend Form -->
+        <h3>Add Friend</h3>
+        <form id="add-friend-form">
+            <input type="number" id="friend-id" placeholder="Enter friend's ID" required>
+            <button type="submit">Add Friend</button>
+        </form>
+
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             <ul class=flashes>
@@ -278,23 +255,8 @@
     </div> <!-- End of container -->
 
     <script>
-        $(document).ready(function() {
-            $('.delete-comment').click(function() {
-                var commentId = $(this).data('comment-id');
-                if (confirm('Are you sure you want to delete this comment?')) {
-                    $.ajax({
-                        url: '/delete_comment/' + commentId,
-                        type: 'POST',
-                        success: function(result) {
-                            $('#comment-' + commentId).remove();
-                        },
-                        error: function(error) {
-                            console.log('Error:', error);
-                        }
-                    });
-                }
-            });
-        });
+        var employeeId = {{ employee.id }};
     </script>
+    <script src="{{ url_for('static', filename='view_employee.js') }}"></script>
 </body>
 </html>

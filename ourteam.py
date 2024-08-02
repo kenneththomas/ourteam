@@ -470,6 +470,32 @@ def delete_comment(comment_id):
     db.session.commit()
     return jsonify({'success': True}), 200
 
+from sqlalchemy.exc import IntegrityError
+
+@app.route('/employee/<int:id>/add_friend', methods=['POST'])
+def add_friend(id):
+    employee = Employee.query.get_or_404(id)
+    friend_id = request.form.get('friend_id', type=int)
+    friend = Employee.query.get(friend_id)
+
+    if friend is None:
+        return jsonify({'success': False, 'message': 'Friend not found.'})
+
+    if employee.is_friend_with(friend):
+        return jsonify({'success': False, 'message': 'Already friends.'})
+
+    try:
+        employee.add_friend(friend)
+        friend.add_friend(employee)
+        db.session.commit()
+        return jsonify({'success': True, 'friend_name': friend.name})
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': 'Friendship already exists.'})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': f'Error adding friend: {str(e)}'})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5002)
 

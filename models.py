@@ -1,11 +1,17 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
 
 employee_group = db.Table('employee_group',
     db.Column('employee_id', db.Integer, db.ForeignKey('employee.id'), primary_key=True),
     db.Column('group_id', db.Integer, db.ForeignKey('group.id'), primary_key=True)
+)
+
+employee_friends = db.Table('employee_friends',
+    db.Column('employee_id', db.Integer, db.ForeignKey('employee.id'), primary_key=True),
+    db.Column('friend_id', db.Integer, db.ForeignKey('employee.id'), primary_key=True)
 )
 
 class Employee(db.Model):
@@ -21,6 +27,28 @@ class Employee(db.Model):
     groups = db.relationship('Group', secondary=employee_group, backref=db.backref('members', lazy='dynamic'))
     bio = db.Column(db.String)
     location = db.Column(db.String)
+    friends = relationship(
+        'Employee', 
+        secondary=employee_friends,
+        primaryjoin=(employee_friends.c.employee_id == id),
+        secondaryjoin=(employee_friends.c.friend_id == id),
+        backref=db.backref('befriended_by', lazy='dynamic'),
+        lazy='dynamic'
+    )
+
+    def add_friend(self, friend):
+        if friend not in self.friends and self != friend:
+            self.friends.append(friend)
+            return True
+        return False
+
+    def is_friend_with(self, friend):
+        return friend in self.friends or self in friend.friends
+
+    def remove_friend(self, friend):
+        if friend in self.friends:
+            self.friends.remove(friend)
+            friend.friends.remove(self)
 
 class Department(db.Model):
     id = db.Column(db.Integer, primary_key=True)

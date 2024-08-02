@@ -1,5 +1,9 @@
 # releasenotes
 
+## 1.1.3
+- move js in html into its own file
+- add friend functionality
+
 ## 1.1.2
 - built-in fileshare
 - delete comment button
