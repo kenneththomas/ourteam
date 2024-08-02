@@ -1,5 +1,8 @@
 # releasenotes
 
+## 1.1.4
+- remove duplicate js files
+
 ## 1.1.3
 - move js in html into its own file
 - add friend functionality

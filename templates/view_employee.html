@@ -171,7 +171,6 @@
             <button id="setProfilePictureButton" onclick="setProfilePicture()">Set as Profile Picture</button>
         </div>
 
-        <script src="{{ url_for('static', filename='view_employee.js') }}"></script>
         {% endif %}
 
         <h1>Wall</h1>
@@ -257,6 +256,5 @@
     <script>
         var employeeId = {{ employee.id }};
     </script>
-    <script src="{{ url_for('static', filename='view_employee.js') }}"></script>
 </body>
 </html>
