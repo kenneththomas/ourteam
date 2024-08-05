@@ -1,5 +1,8 @@
 # releasenotes
 
+## 1.2
+- status function
+
 ## 1.1.4
 - remove duplicate js files
 

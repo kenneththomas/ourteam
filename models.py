@@ -95,3 +95,11 @@ class EmployeeXP(db.Model):
 
     # Define a relationship to the Employee model
     employee = db.relationship('Employee', backref='xp')
+
+class Status(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
+    content = db.Column(db.String(280), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    employee = db.relationship('Employee', backref=db.backref('statuses', lazy=True))

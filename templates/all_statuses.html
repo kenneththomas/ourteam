@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Statuses</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='resources/ourteam_icon.ico') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container">
+        <h1>All Statuses</h1>
+        
+        {% for status in statuses.items %}
+            <div class="status">
+                <div class="status-header">
+                    <img src="{{ status.employee.picture_url }}" alt="{{ status.employee.name }}'s picture" class="status-employee-picture">
+                    <strong><a href="{{ url_for('view_employee', id=status.employee.id) }}">{{ status.employee.name }}</a></strong> 
+                    ({{ status.timestamp.strftime('%Y-%m-%d %H:%M:%S') }})
+                </div>
+                <p>{{ status.content }}</p>
+            </div>
+        {% endfor %}
+
+        <!-- Pagination Links -->
+        <div class="pagination">
+            {% if statuses.has_prev %}
+                <a href="{{ url_for('view_all_statuses', page=statuses.prev_num) }}">Previous</a>
+            {% endif %}
+            
+            {% for page_num in statuses.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                    {% if statuses.page == page_num %}
+                        <strong>{{ page_num }}</strong>
+                    {% else %}
+                        <a href="{{ url_for('view_all_statuses', page=page_num) }}">{{ page_num }}</a>
+                    {% endif %}
+                {% else %}
+                    ...
+                {% endif %}
+            {% endfor %}
+            
+            {% if statuses.has_next %}
+                <a href="{{ url_for('view_all_statuses', page=statuses.next_num) }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <h2>Post a Status</h2>
+    <form action="{{ url_for('post_status') }}" method="post">
+        <label for="employee_id">Employee ID:</label>
+        <input type="number" name="employee_id" required>
+        <br>
+        <label for="content">Status:</label>
+        <textarea name="content" maxlength="280" required></textarea>
+        <br>
+        <input type="submit" value="Post Status">
+    </form>
+    
+</body>
+</html>

@@ -1,9 +1,9 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify, send_from_directory
 from models import (
-    db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP
+    db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP, Status
 )
 from forms import EmployeeForm, AddImageUrlForm
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, desc
 from markupsafe import Markup
 import squawk
 import os
@@ -82,8 +82,35 @@ def view_employee(id):
     form = EmployeeForm(obj=employee)
     form.id.data = id
     recent_actions = Action.query.filter_by(from_id=id).order_by(Action.timestamp.desc()).limit(5).all()
+
+    # Get recent statuses for this employee
+    recent_statuses = Status.query.filter_by(employee_id=id).order_by(Status.timestamp.desc()).limit(5).all()
+
     return render_template('view_employee.html', employee=employee, recent_actions=recent_actions, 
-                           subordinates=subordinates, manager_chain=manager_chain, images=images, comments=comments, co_manager=co_manager, employee_xp=employee_xp, next_level_xp=next_level_xp, progress=progress)
+                           subordinates=subordinates, manager_chain=manager_chain, images=images, 
+                           comments=comments, co_manager=co_manager, employee_xp=employee_xp, 
+                           next_level_xp=next_level_xp, progress=progress, recent_statuses=recent_statuses)
+
+@app.route('/post_status_from_profile', methods=['POST'])
+def post_status_from_profile():
+    employee_id = request.form.get('employee_id')
+    content = request.form.get('content')
+    
+    if not employee_id or not content:
+        flash('Employee ID and content are required.')
+        return redirect(url_for('view_employee', id=employee_id))
+    
+    employee = Employee.query.get(employee_id)
+    if not employee:
+        flash('Employee not found.')
+        return redirect(url_for('view_employee', id=employee_id))
+    
+    status = Status(employee_id=employee_id, content=content)
+    db.session.add(status)
+    db.session.commit()
+    
+    flash('Status posted successfully.')
+    return redirect(url_for('view_employee', id=employee_id))
 
 @app.route('/employee/add', methods=['GET', 'POST'])
 def add_employee():
@@ -292,6 +319,8 @@ def comment():
     for comment in comments:
         comment.from_employee = Employee.query.get(comment.author_id)
         comment.to_employee = Employee.query.get(comment.employee_id)
+
+    statuses = Status.query.order_by(Status.timestamp.desc()).limit(5).all()
     return render_template('test_comment.html', comments=comments)
 
 
@@ -495,6 +524,37 @@ def add_friend(id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': f'Error adding friend: {str(e)}'})
+    
+@app.route('/post_status', methods=['POST'])
+def post_status():
+    employee_id = request.form.get('employee_id')
+    content = request.form.get('content')
+    
+    if not employee_id or not content:
+        flash('Employee ID and content are required.')
+        return redirect(url_for('view_all_statuses'))
+    
+    employee = Employee.query.get(employee_id)
+    if not employee:
+        flash('Employee not found.')
+        return redirect(url_for('view_all_statuses'))
+    
+    status = Status(employee_id=employee_id, content=content)
+    db.session.add(status)
+    db.session.commit()
+    
+    flash('Status posted successfully.')
+    return redirect(url_for('view_all_statuses'))
+
+@app.route('/statuses')
+def view_all_statuses():
+    page = request.args.get('page', 1, type=int)
+    per_page = 10  # Number of statuses per page
+    
+    statuses = Status.query.order_by(desc(Status.timestamp)).paginate(page=page, per_page=per_page, error_out=False)
+    
+    return render_template('all_statuses.html', statuses=statuses)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5002)
