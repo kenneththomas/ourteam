@@ -10,14 +10,34 @@
     <div class="container">
         <h1>All Statuses</h1>
         
+        <div class="post-status-section">
+            <h2>Post a Status</h2>
+            <form action="{{ url_for('post_status') }}" method="post" class="status-form">
+                <div class="form-group">
+                    <label for="employee_id">Employee ID:</label>
+                    <input type="number" id="employee_id" name="employee_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">Status:</label>
+                    <textarea id="content" name="content" maxlength="280" required></textarea>
+                    <div class="char-count"><span id="char-count">0</span>/280</div>
+                </div>
+                <button type="submit" class="submit-btn">Post Status</button>
+            </form>
+        </div>
+
         {% for status in statuses.items %}
             <div class="status">
                 <div class="status-header">
                     <img src="{{ status.employee.picture_url }}" alt="{{ status.employee.name }}'s picture" class="status-employee-picture">
-                    <strong><a href="{{ url_for('view_employee', id=status.employee.id) }}">{{ status.employee.name }}</a></strong> 
-                    ({{ status.timestamp.strftime('%Y-%m-%d %H:%M:%S') }})
+                    <div class="status-content">
+                        <div class="status-name">
+                            <a href="{{ url_for('view_employee', id=status.employee.id) }}">{{ status.employee.name }}</a>
+                        </div>
+                        <div class="status-timestamp">{{ status.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+                        <p>{{ status.content }}</p>
+                    </div>
                 </div>
-                <p>{{ status.content }}</p>
             </div>
         {% endfor %}
 
@@ -45,16 +65,10 @@
         </div>
     </div>
 
-    <h2>Post a Status</h2>
-    <form action="{{ url_for('post_status') }}" method="post">
-        <label for="employee_id">Employee ID:</label>
-        <input type="number" name="employee_id" required>
-        <br>
-        <label for="content">Status:</label>
-        <textarea name="content" maxlength="280" required></textarea>
-        <br>
-        <input type="submit" value="Post Status">
-    </form>
-    
+    <script>
+        document.getElementById('content').addEventListener('input', function() {
+            document.getElementById('char-count').textContent = this.value.length;
+        });
+    </script>
 </body>
 </html>
