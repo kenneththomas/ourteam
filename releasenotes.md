@@ -1,5 +1,8 @@
 # releasenotes
 
+## 1.2.2
+- cleanup
+
 ## 1.2.1
 - status message shows to the right of the profile picture
 
