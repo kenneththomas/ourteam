@@ -11,26 +11,56 @@
     <div class="container">
         <div class="hero">
             <h1>Welcome to OurTeam!</h1>
-            <p>Meet our amazing team members</p>
+            <p>Connect, collaborate, and celebrate with your colleagues</p>
         </div>
-        <h2>Featured Team Members</h2>
-        <div class="featured-employees">
-        {% for employee in featured_employees %}
-        <div class="relation-item">
-            <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
-            <div class="info-section">
-                <div class="name-section">
-                    <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>
-                </div>
-                <div class="title-section">
-                    {{ employee.title }}
-                </div>
-                <div class="department-section">
-                    {{ employee.department }}
-                </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_employees }}</div>
+                <div class="stat-label">Team Members</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_departments }}</div>
+                <div class="stat-label">Departments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_comments }}</div>
+                <div class="stat-label">Interactions</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_actions }}</div>
+                <div class="stat-label">Activities</div>
             </div>
         </div>
-        {% endfor %}
+
+        <h2 class="section-header">Top Contributors</h2>
+        <div class="featured-employees">
+            {% for employee in featured_employees %}
+            <div class="relation-item">
+                <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
+                <div class="info-section">
+                    <div class="name-section">
+                        <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>
+                    </div>
+                    <div class="title-section">
+                        {{ employee.title }}
+                    </div>
+                    <div class="department-section">
+                        {{ employee.department }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <h2 class="section-header">Recent Activities</h2>
+        <div class="recent-activities">
+            {% for action in recent_actions %}
+            <div class="status fade-in">
+                <div class="status-content">{{ action.description }}</div>
+                <div class="status-timestamp">{{ action.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</div>
+            </div>
+            {% endfor %}
         </div>
     </div>
 </body>

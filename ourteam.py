@@ -27,8 +27,29 @@ db.init_app(app)
 
 @app.route('/')
 def index():
-    featured_employees = Employee.query.order_by(func.random()).limit(5).all()
-    return render_template('index.html', featured_employees=featured_employees)
+    # Get featured employees (most active based on XP)
+    featured_employees = db.session.query(Employee, EmployeeXP)\
+        .join(EmployeeXP)\
+        .order_by(EmployeeXP.xp.desc())\
+        .limit(6)\
+        .all()
+    
+    # Get some statistics
+    total_employees = Employee.query.count()
+    total_departments = db.session.query(Employee.department).distinct().count()
+    total_comments = Comment.query.count()
+    total_actions = Action.query.count()
+    
+    # Get recent activities
+    recent_actions = Action.query.order_by(Action.timestamp.desc()).limit(5).all()
+    
+    return render_template('index.html',
+                         featured_employees=[emp for emp, _ in featured_employees],
+                         total_employees=total_employees,
+                         total_departments=total_departments,
+                         total_comments=total_comments,
+                         total_actions=total_actions,
+                         recent_actions=recent_actions)
 
 @app.route('/employees')
 def list_employees():
