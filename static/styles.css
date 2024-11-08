@@ -115,16 +115,17 @@ h1 {
 
 .relation-item {
     display: flex;
-    align-items: center;
-    gap: 20px; /* Increased gap between elements */
-    padding: 20px;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
     background-color: white;
     border: 1px solid rgba(0, 0, 0, 0.05);
     border-radius: 12px;
     transition: all 0.3s ease;
-    max-width: none; /* Remove fixed width constraint */
-    min-width: 0; /* Remove minimum width */
-    margin: 0; /* Reset margins */
+    width: calc(50% - 32px); /* Make cards take up roughly half the width */
+    min-height: 120px; /* Reduced minimum height */
+    box-sizing: border-box;
+    margin: 8px;
 }
 
 .relation-item:hover {
@@ -133,8 +134,9 @@ h1 {
 }
 
 .name-section {
-    flex-basis: auto; /* Remove fixed width */
-    font-size: 1.1rem;
+    font-size: 1rem;
+    line-height: 1.3;
+    margin-bottom: 2px;
 }
 
 .name-section a {
@@ -151,21 +153,24 @@ h1 {
 .info-section {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px; /* Reduced gap */
     flex: 1;
+    min-width: 0;
+    padding: 4px 0; /* Add slight padding */
 }
 
 .title-section, .department-section {
-    flex-basis: auto; /* Remove fixed width */
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    margin-bottom: 1px;
 }
 
 .relation-section ul {
-    display: flex; /* Use flexbox for the container */
-    flex-wrap: wrap; /* Allow items to wrap to the next line */
-    padding: 0; /* Reset padding */
-    list-style-type: none; /* Remove bullet points */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 0;
+    list-style-type: none;
+    justify-content: flex-start; /* Align items to the start */
 }
 
 
@@ -1135,11 +1140,13 @@ h1, h2, h3 {
 }
 
 .small-employee-picture-container {
-    width: 100%;
-    height: 200px;
-    background-size: cover;
+    width: 100px; /* Slightly smaller width */
+    height: 100px; /* Keep it square */
+    min-width: 100px;
+    border-radius: 8px;
+    background-size: cover; /* Show more of the image */
     background-position: center;
-    background-color: #e9ecef;
+    flex-shrink: 0;
 }
 
 .info-section {
