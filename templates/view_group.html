@@ -1,44 +1,45 @@
+<!DOCTYPE html>
+<html>
 <head>
-    <title>Recent Actions</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>{{ group.groupname }} - Team View</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='group_view.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='resources/ourteam_icon.ico') }}">
 </head>
-{% include 'navbar.html' %}
-<h1>{{ group.groupname }}</h1>
-
-<h2>Members</h2>
-<ul>
-    {% for member in group.members %}
-    <li class="relation-item">
-        <div class="small-employee-picture-container" style="background-image: url('{{ member.picture_url }}');"></div>
-        <div class="info-section">
-            <div class="name-section">
-                <a href="{{ url_for('view_employee', id=member.id) }}">{{ member.name }}</a>
-            </div>
-            <div class="title-section">
-                {{ member.title }}
-            </div>
-            <div class="department-section">
-                {{ member.department }}
-            </div>
-            <div class="id-section">
-                #{{ member.id }}
-            </div>
+<body>
+    {% include 'navbar.html' %}
+    
+    <div class="container">
+        <div class="header-section">
+            <a href="{{ url_for('manage_groups') }}" class="back-button">
+                <span>←</span> Back to Groups
+            </a>
+            <h1>{{ group.groupname }}</h1>
+            <p class="member-count">{{ members|length }} members</p>
         </div>
-    </li>
-    {% endfor %}
-</ul>
 
+        <div class="members-grid">
+            {% for member in members %}
+            <div class="member-card">
+                <div class="member-image" style="background-image: url('{{ member.picture_url }}');"></div>
+                <div class="member-info">
+                    <a href="{{ url_for('view_employee', id=member.id) }}" class="member-name">{{ member.name }}</a>
+                    <div class="member-title">{{ member.title }}</div>
+                    <div class="member-department">{{ member.department }}</div>
+                    <div class="member-id">#{{ member.id }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
 
-
-<a href="{{ url_for('manage_groups') }}">Back to Group Management</a>
-
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class=flashes>
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>

@@ -440,7 +440,10 @@ def view_group(id):
     if group is None:
         flash('Group not found.')
         return redirect(url_for('manage_groups'))
-    return render_template('view_group.html', group=group)
+    
+    # Execute the query to get the actual members
+    members = group.members.all()
+    return render_template('view_group.html', group=group, members=members)
 
 leaderboard_size = 50
 @app.route('/leaderboard')
