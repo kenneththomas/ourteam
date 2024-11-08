@@ -1,5 +1,8 @@
 # releasenotes
 
+## 1.2.4
+- filtering and visual improvements in list_employees
+
 ## 1.2.2
 - cleanup
 

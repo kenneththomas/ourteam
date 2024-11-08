@@ -7,31 +7,92 @@
 </head>
 <body class="search-results-body">
     {% include 'navbar.html' %}
-    <h1>Employees</h1>
-    <ul>
-        {% for employee in employees.items %}
-        <div class="relation-item">
-            <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
-            <div class="info-section">
-                <div class="name-section">
-                    <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>
-                </div>
-                <div class="title-section">
-                    {{ employee.title }}
-                </div>
-                <div class="department-section">
-                    {{ employee.department }}
-                </div>
+    <div class="container">
+        <h1>Employees</h1>
+
+        <!-- Filter and Sort Controls -->
+        <div class="controls-section">
+            <div class="filter-section">
+                <label for="department-filter">Filter by Department:</label>
+                <select id="department-filter" onchange="updateFilters()">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept[0] }}" {% if current_department == dept[0] %}selected{% endif %}>
+                        {{ dept[0] }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="sort-section">
+                <label for="sort-by">Sort by:</label>
+                <select id="sort-by" onchange="updateFilters()">
+                    <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Name</option>
+                    <option value="department" {% if current_sort == 'department' %}selected{% endif %}>Department</option>
+                    <option value="title" {% if current_sort == 'title' %}selected{% endif %}>Title</option>
+                    <option value="level" {% if current_sort == 'level' %}selected{% endif %}>Level</option>
+                </select>
+                
+                <select id="sort-order" onchange="updateFilters()">
+                    <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Ascending</option>
+                    <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Descending</option>
+                </select>
             </div>
         </div>
-        {% endfor %}
-        </ul>
+
+        <!-- Employee List -->
+        <div class="employee-grid">
+            {% for employee in employees.items %}
+            <div class="employee-card">
+                <div class="employee-header">
+                    <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
+                    <div class="info-section">
+                        <div class="name-section">
+                            <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>
+                        </div>
+                        <div class="title-section">{{ employee.title }}</div>
+                        <div class="department-section">{{ employee.department }}</div>
+                        {% if employee.employeexp %}
+                        <div class="level-section">Level {{ calculate_level(employee.employeexp.xp) }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            {% if employees.has_prev %}
+            <a class="button" href="{{ url_for('list_employees', page=employees.prev_num, department=current_department, sort=current_sort, order=current_order) }}">Previous</a>
+            {% endif %}
+            
+            {% for page_num in employees.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                    {% if employees.page == page_num %}
+                        <strong>{{ page_num }}</strong>
+                    {% else %}
+                        <a href="{{ url_for('list_employees', page=page_num, department=current_department, sort=current_sort, order=current_order) }}">{{ page_num }}</a>
+                    {% endif %}
+                {% else %}
+                    ...
+                {% endif %}
+            {% endfor %}
+            
+            {% if employees.has_next %}
+            <a class="button" href="{{ url_for('list_employees', page=employees.next_num, department=current_department, sort=current_sort, order=current_order) }}">Next</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+    function updateFilters() {
+        const department = document.getElementById('department-filter').value;
+        const sortBy = document.getElementById('sort-by').value;
+        const order = document.getElementById('sort-order').value;
         
-        {% if employees.has_prev %}
-        <a class="button" href="{{ url_for('list_employees', page=employees.prev_num) }}">Previous</a>
-    {% endif %}
-    {% if employees.has_next %}
-        <a class="button" href="{{ url_for('list_employees', page=employees.next_num) }}">Next</a>
-    {% endif %}
+        window.location.href = `{{ url_for('list_employees') }}?department=${department}&sort=${sortBy}&order=${order}`;
+    }
+    </script>
 </body>
 </html>

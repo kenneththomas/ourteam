@@ -33,8 +33,47 @@ def index():
 @app.route('/employees')
 def list_employees():
     page = request.args.get('page', 1, type=int)
-    employees = Employee.query.paginate(page=page, per_page=5)
-    return render_template('list_employees.html', employees=employees)
+    per_page = 10  # Increased from 5 to show more employees
+    
+    # Add sorting options
+    sort_by = request.args.get('sort', 'name')  # Default sort by name
+    order = request.args.get('order', 'asc')
+    
+    # Add department filter
+    department = request.args.get('department')
+    
+    # Base query
+    query = Employee.query
+    
+    # Apply department filter if specified
+    if department:
+        query = query.filter_by(department=department)
+    
+    # Apply sorting
+    if sort_by == 'name':
+        query = query.order_by(Employee.name.asc() if order == 'asc' else Employee.name.desc())
+    elif sort_by == 'department':
+        query = query.order_by(Employee.department.asc() if order == 'asc' else Employee.department.desc())
+    elif sort_by == 'title':
+        query = query.order_by(Employee.title.asc() if order == 'asc' else Employee.title.desc())
+    elif sort_by == 'level':
+        query = query.join(EmployeeXP).order_by(
+            EmployeeXP.xp.desc() if order == 'desc' else EmployeeXP.xp.asc()
+        )
+    
+    # Get all unique departments for the filter dropdown
+    departments = db.session.query(Employee.department).distinct().all()
+    
+    employees = query.paginate(page=page, per_page=per_page)
+    
+    return render_template(
+        'list_employees.html',
+        employees=employees,
+        departments=departments,
+        current_department=department,
+        current_sort=sort_by,
+        current_order=order
+    )
 
 @app.route('/employee/<int:id>')
 def view_employee(id):
