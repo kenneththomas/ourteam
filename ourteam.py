@@ -389,8 +389,7 @@ def comment():
 
 @app.route('/department/<department_name>', methods=['GET'])
 def list_employees_by_department(department_name):
-    employees = Employee.query.filter_by(department=department_name).all()
-    return render_template('department_employees.html', employees=employees, department_name=department_name)
+    return redirect(url_for('list_employees', department=department_name))
 
 @app.route('/recent_actions', methods=['GET'])
 def recent_actions():
@@ -621,6 +620,32 @@ def view_all_statuses():
     
     return render_template('all_statuses.html', statuses=statuses)
 
+@app.route('/employee/delete/<int:id>', methods=['POST'])
+def delete_employee(id):
+    employee = Employee.query.get_or_404(id)
+    
+    # Delete associated records first
+    Comment.query.filter((Comment.employee_id == id) | (Comment.author_id == id)).delete()
+    Action.query.filter((Action.from_id == id) | (Action.to_id == id)).delete()
+    EmployeeImage.query.filter_by(employee_id=id).delete()
+    EmployeeXP.query.filter_by(employee_id=id).delete()
+    Status.query.filter_by(employee_id=id).delete()
+    
+    # Remove from groups
+    for group in employee.groups:
+        group.members.remove(employee)
+    
+    # Remove friendships - replace clear() with proper relationship removal
+    for friend in employee.friends:
+        employee.friends.remove(friend)
+        friend.friends.remove(employee)
+    
+    # Delete the employee
+    db.session.delete(employee)
+    db.session.commit()
+    
+    flash('Employee deleted successfully')
+    return redirect(url_for('list_employees'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5002)

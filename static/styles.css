@@ -1192,3 +1192,32 @@ h1, h2, h3 {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
+
+.delete-button {
+    background-color: #dc3545;
+    color: white;
+    margin-left: 10px;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
+
+.employee-actions {
+    margin: 10px 0;
+}
+
+.button.small {
+    padding: 5px 10px;
+    font-size: 0.9em;
+}
+
+.delete-button {
+    background-color: #dc3545;
+    color: white;
+    margin-left: 10px;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
