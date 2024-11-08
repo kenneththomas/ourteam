@@ -5,24 +5,22 @@
     </head>
     <body>
         {% include 'navbar.html' %}
-        <h1>Employees in {{ department_name }}</h1>
-        <ul>
-            {% for employee in employees %}
-                <li class="relation-item">
-                    <div class="small-employee-picture-container" style="background-image: url('{{ employee.picture_url }}');"></div>
-                    <div class="info-section">
-                        <div class="name-section">
-                            <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>
-                        </div>
-                        <div class="title-section">
-                            {{ employee.title }}
-                        </div>
-                        <div class="department-section">
-                            {{ employee.department }}
+        <div class="container">
+            <h1 class="department-title">Employees in {{ department_name }}</h1>
+            <div class="employee-grid">
+                {% for employee in employees %}
+                    <div class="employee-card">
+                        <div class="employee-picture" style="background-image: url('{{ employee.picture_url or url_for('static', filename='images/default-user.png') }}');"></div>
+                        <div class="employee-info">
+                            <h2 class="employee-name">
+                                <a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a>
+                            </h2>
+                            <p class="employee-title">{{ employee.title }}</p>
+                            <p class="employee-department">{{ employee.department }}</p>
                         </div>
                     </div>
-                </li>
-            {% endfor %}
-        </ul>
+                {% endfor %}
+            </div>
+        </div>
     </body>
 </html>

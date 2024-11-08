@@ -82,8 +82,11 @@ def list_employees():
             EmployeeXP.xp.desc() if order == 'desc' else EmployeeXP.xp.asc()
         )
     
-    # Get all unique departments for the filter dropdown
-    departments = db.session.query(Employee.department).distinct().all()
+    # Get all unique departments for the filter dropdown, sorted alphabetically
+    departments = db.session.query(Employee.department)\
+        .distinct()\
+        .order_by(Employee.department)\
+        .all()
     
     employees = query.paginate(page=page, per_page=per_page)
     
