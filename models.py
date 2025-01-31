@@ -81,6 +81,16 @@ class Action(db.Model):
     from_employee = db.relationship('Employee', foreign_keys=[from_id])
     to_employee = db.relationship('Employee', foreign_keys=[to_id])
 
+class GroupComment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
+
+    group = db.relationship('Group', backref=db.backref('comments', lazy=True, order_by='desc(GroupComment.timestamp)'))
+    author = db.relationship('Employee', backref=db.backref('group_comments', lazy=True))
+
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     groupname = db.Column(db.String(200), nullable=False)

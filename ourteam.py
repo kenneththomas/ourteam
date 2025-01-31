@@ -1,6 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify, send_from_directory
 from models import (
-    db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP, Status
+    db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP, Status, GroupComment
 )
 from forms import EmployeeForm, AddImageUrlForm
 from sqlalchemy import func, or_, desc
@@ -443,9 +443,47 @@ def view_group(id):
         flash('Group not found.')
         return redirect(url_for('manage_groups'))
     
-    # Execute the query to get the actual members
     members = group.members.all()
-    return render_template('view_group.html', group=group, members=members)
+    comments = group.comments  # This will get comments in descending order
+    return render_template('view_group.html', group=group, members=members, comments=comments)
+
+@app.route('/group/<int:id>/add_comment', methods=['POST'])
+def add_group_comment(id):
+    content = request.form.get('content')
+    author_id = request.form.get('author_id')
+    
+    if not content or not author_id:
+        return jsonify({'error': 'Missing required fields'}), 400
+    
+    # Validate author exists
+    author = Employee.query.get(author_id)
+    if not author:
+        return jsonify({'error': 'Invalid author ID'}), 400
+    
+    # Get group first
+    group = Group.query.get(id)
+    if not group:
+        return jsonify({'error': 'Invalid group ID'}), 400
+    
+    comment = GroupComment(
+        content=content,
+        group_id=id,
+        author_id=author_id
+    )
+    
+    db.session.add(comment)
+    
+    # Add an action for the group comment
+    action = Action(
+        description=f"New group comment by {author.name} in {group.groupname}: {content}", 
+        from_id=author_id
+    )
+    db.session.add(action)
+    
+    db.session.commit()
+    
+    # Return the HTML for the new comment
+    return render_template('_group_comment.html', comment=comment)
 
 leaderboard_size = 50
 @app.route('/leaderboard')

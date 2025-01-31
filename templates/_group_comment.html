@@ -1,0 +1,12 @@
+<div class="comment">
+    <div class="comment-avatar">
+        <img src="{{ comment.author.picture_url }}" alt="{{ comment.author.name }}">
+    </div>
+    <div class="comment-content">
+        <div class="comment-header">
+            <a href="{{ url_for('view_employee', id=comment.author.id) }}" class="comment-author">{{ comment.author.name }}</a>
+            <span class="comment-timestamp">{{ comment.timestamp.strftime('%B %d, %Y %I:%M %p') }}</span>
+        </div>
+        <div class="comment-text">{{ comment.content | safe }}</div>
+    </div>
+</div> 
