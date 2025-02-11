@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IM Conversation Simulation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='test_message.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f0f0; }
+        .container { width: 80%; margin: auto; padding: 20px; background: #fff; }
+        .form-group { margin-bottom: 15px; }
+        label { font-weight: bold; }
+        select, textarea { width: 100%; padding: 8px; }
+        .conversation-window {
+            border: 1px solid #ccc;
+            background: #fafafa;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .message strong {
+            color: #333;
+            margin-right: 5px;
+        }
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .simulate-section, .manual-section {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #eee;
+        }
+        button {
+            padding: 8px 12px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container">
+        <h1>IM Conversation Simulation</h1>
+        <div class="form-group">
+            <label for="coworkerA">Coworker A:</label>
+            <select id="coworkerA" name="coworkerA">
+                {% for employee in employees %}
+                <option value="{{ employee.id }}" data-picture="{{ employee.picture_url }}">
+                    {{ employee.name }} ({{ employee.title }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="coworkerB">Coworker B:</label>
+            <select id="coworkerB" name="coworkerB">
+                {% for employee in employees %}
+                <option value="{{ employee.id }}" data-picture="{{ employee.picture_url }}">
+                    {{ employee.name }} ({{ employee.title }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="situationContext">Situation Context:</label>
+            <textarea id="situationContext" name="situationContext" rows="4" placeholder="Enter a brief context of the conversation..."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="gptPrompt">GPT Prompt (Editable):</label>
+            <textarea id="gptPrompt" name="gptPrompt" rows="8" placeholder="Preview and edit the GPT prompt here..."></textarea>
+            <button id="previewPrompt" type="button">Preview GPT Prompt</button>
+        </div>
+        
+        <div class="conversation-window" id="conversationWindow">
+            <!-- Chat messages will appear here -->
+        </div>
+        
+        <div class="simulate-section">
+            <h2>Simulate Reply</h2>
+            <button id="simulateReplyA">Simulate Reply as Coworker A</button>
+            <button id="simulateReplyB">Simulate Reply as Coworker B</button>
+        </div>
+        
+        <div class="manual-section">
+            <h2>Manual Message</h2>
+            <div class="form-group">
+                <label for="manualSender">Sender:</label>
+                <select id="manualSender" name="manualSender">
+                    <option value="A">Coworker A</option>
+                    <option value="B">Coworker B</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="manualMessage">Message:</label>
+                <textarea id="manualMessage" name="manualMessage" rows="2" placeholder="Type your message here..."></textarea>
+            </div>
+            <button id="sendManualMessage">Send Manual Message</button>
+        </div>
+    </div>
+    
+    <script>
+        function appendMessage(senderName, senderImage, messageText) {
+            var messageHtml = '<div class="message">';
+            if (senderImage) {
+                messageHtml += '<img class="profile-img" src="' + senderImage + '" alt="Profile Image">';
+            }
+            messageHtml += '<div>';
+            messageHtml += '<strong>' + senderName + ':</strong> <span class="text">' + messageText + '</span>';
+            messageHtml += '</div></div>';
+            $("#conversationWindow").append(messageHtml);
+            $("#conversationWindow").scrollTop($("#conversationWindow")[0].scrollHeight);
+        }
+
+        $(document).ready(function() {
+            $("#previewPrompt").click(function() {
+                var coworkerAId = $("#coworkerA").val();
+                var coworkerBId = $("#coworkerB").val();
+                var context = $("#situationContext").val();
+                var conversation = $("#conversationWindow").text();
+                $.ajax({
+                    type: "POST",
+                    url: "/get_im_prompt_preview",
+                    data: {
+                        'from': coworkerAId,
+                        'to': coworkerBId,
+                        'context': context,
+                        'conversation': conversation
+                    },
+                    success: function(response) {
+                        $("#gptPrompt").val(response.prompt);
+                    },
+                    error: function() {
+                        alert("Error generating prompt preview.");
+                    }
+                });
+            });
+
+            $("#simulateReplyA").click(function() {
+                var coworkerAId = $("#coworkerA").val();
+                var coworkerBId = $("#coworkerB").val();
+                var context = $("#situationContext").val();
+                var conversation = $("#conversationWindow").text();
+                var customPrompt = $("#gptPrompt").val();
+                $.ajax({
+                    type: "POST",
+                    url: "/generate_im_message",
+                    data: {
+                        'from': coworkerAId,
+                        'to': coworkerBId,
+                        'context': context,
+                        'conversation': conversation,
+                        'custom_prompt': customPrompt
+                    },
+                    success: function(response) {
+                        var senderImg = $("#coworkerA option:selected").data("picture");
+                        appendMessage($("#coworkerA option:selected").text(), senderImg, response.generated_message);
+                    },
+                    error: function() {
+                        alert("Error generating message.");
+                    }
+                });
+            });
+
+            $("#simulateReplyB").click(function() {
+                var coworkerAId = $("#coworkerA").val();
+                var coworkerBId = $("#coworkerB").val();
+                var context = $("#situationContext").val();
+                var conversation = $("#conversationWindow").text();
+                var customPrompt = $("#gptPrompt").val();
+                $.ajax({
+                    type: "POST",
+                    url: "/generate_im_message",
+                    data: {
+                        'from': coworkerBId,
+                        'to': coworkerAId,
+                        'context': context,
+                        'conversation': conversation,
+                        'custom_prompt': customPrompt
+                    },
+                    success: function(response) {
+                        var senderImg = $("#coworkerB option:selected").data("picture");
+                        appendMessage($("#coworkerB option:selected").text(), senderImg, response.generated_message);
+                    },
+                    error: function() {
+                        alert("Error generating message.");
+                    }
+                });
+            });
+
+            $("#sendManualMessage").click(function() {
+                var senderType = $("#manualSender").val();
+                var message = $("#manualMessage").val();
+                var senderName = "";
+                var senderImage = "";
+                if (senderType == "A") {
+                    senderName = $("#coworkerA option:selected").text();
+                    senderImage = $("#coworkerA option:selected").data("picture");
+                } else {
+                    senderName = $("#coworkerB option:selected").text();
+                    senderImage = $("#coworkerB option:selected").data("picture");
+                }
+                if (message.trim() !== "") {
+                    appendMessage(senderName, senderImage, message);
+                    $("#manualMessage").val("");
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

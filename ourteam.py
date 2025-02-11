@@ -685,6 +685,94 @@ def delete_employee(id):
     flash('Employee deleted successfully')
     return redirect(url_for('list_employees'))
 
+@app.route('/test_message')
+def test_message():
+    # Get all employees to populate the coworker dropdowns on the conversation simulation page
+    employees = Employee.query.all()
+    return render_template('test_message.html', employees=employees)
+
+@app.route('/get_im_prompt_preview', methods=['POST'])
+def get_im_prompt_preview():
+    from_id = request.form.get('from')
+    to_id = request.form.get('to')
+    context = request.form.get('context')
+    conversation_history = request.form.get('conversation', '')
+    from_employee = Employee.query.get(from_id)
+    to_employee = Employee.query.get(to_id)
+
+    if not from_employee or not to_employee:
+        return jsonify({'error': 'Invalid employee IDs'}), 400
+
+    prompt = f"""Simulate an instant messaging conversation between two coworkers with distinct personalities.
+
+Coworker 1:
+Name: {from_employee.name}
+Title: {from_employee.title}
+Department: {from_employee.department}
+Bio: {from_employee.bio}
+Location: {from_employee.location}
+
+Coworker 2:
+Name: {to_employee.name}
+Title: {to_employee.title}
+Department: {to_employee.department}
+Bio: {to_employee.bio}
+Location: {to_employee.location}
+
+Situation Context: {context}
+
+Conversation history:
+{conversation_history}
+
+Generate the next succinct message from {from_employee.name} replying to {to_employee.name} in an informal, chat-style tone. Do not include extra commentary.
+"""
+    return jsonify({'prompt': prompt})
+
+@app.route('/generate_im_message', methods=['POST'])
+def generate_im_message():
+    from_id = request.form.get('from')
+    to_id = request.form.get('to')
+    context = request.form.get('context')
+    conversation_history = request.form.get('conversation', '')
+    custom_prompt = request.form.get('custom_prompt', '').strip()
+
+    from_employee = Employee.query.get(from_id)
+    to_employee = Employee.query.get(to_id)
+
+    if not from_employee or not to_employee:
+        return jsonify({'error': 'Invalid employee IDs'}), 400
+
+    # If a custom prompt is given (edited by the user), use it; otherwise construct it
+    if custom_prompt:
+        prompt = custom_prompt
+    else:
+        prompt = f"""Simulate an instant messaging conversation between two coworkers with distinct personalities.
+
+Coworker 1:
+Name: {from_employee.name}
+Title: {from_employee.title}
+Department: {from_employee.department}
+Bio: {from_employee.bio}
+Location: {from_employee.location}
+
+Coworker 2:
+Name: {to_employee.name}
+Title: {to_employee.title}
+Department: {to_employee.department}
+Bio: {to_employee.bio}
+Location: {to_employee.location}
+
+Situation Context: {context}
+
+Conversation history:
+{conversation_history}
+
+Generate the next succinct message from {from_employee.name} replying to {to_employee.name} in an informal, chat-style tone. Do not include extra commentary.
+"""
+
+    generated_message = squawk.generate_text(prompt)
+    return jsonify({'generated_message': generated_message})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5002)
 
