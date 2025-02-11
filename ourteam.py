@@ -783,8 +783,8 @@ Situation Context: {context}
 Conversation history:
 {conversation_history}
 
-Generate only the next succinct message content as a reply from {from_employee.name} to {to_employee.name} in an informal, chat-style tone.
-Do not include the sender's name, any signature, or extra commentary.
+Generate only the next message content as a reply from {from_employee.name} to {to_employee.name} in an informal, chat-style tone (copy style you see in history if there is any).
+Do not include the sender's name,or any signature.
 """
     generated_message = generate_text_from_prompt(prompt)
     return jsonify({'generated_message': generated_message})

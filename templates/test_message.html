@@ -6,55 +6,113 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f0f0; }
-        .container { width: 80%; margin: auto; padding: 20px; background: #fff; }
-        .form-group { margin-bottom: 15px; }
-        label { font-weight: bold; }
-        input[type="text"], textarea { width: 100%; padding: 8px; }
-        .conversation-window {
-            border: 1px solid #ccc;
-            background: #fafafa;
+        /* Global Styles */
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            background: #f6f6f6;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 960px;
+            margin: 30px auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .container h1 {
+            background: #4A154B; /* Slack purple */
+            color: #FFF;
+            margin: 0;
+            padding: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+        }
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
             padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        textarea {
+            resize: vertical;
+        }
+        button {
+            background: #007A5A; /* Slack green */
+            border: none;
+            color: #fff;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #005d48;
+        }
+        /* Conversation Window & Message Bubbles */
+        .conversation-window {
+            background: #f2f2f2;
+            padding: 15px;
             height: 300px;
-            overflow-y: scroll;
+            overflow-y: auto;
+            border-radius: 8px;
             margin-bottom: 20px;
         }
         .message {
-            margin-bottom: 10px;
             display: flex;
-            align-items: center;
+            margin-bottom: 15px;
         }
-        .message strong {
-            color: #333;
-            margin-right: 5px;
-        }
-        .profile-img {
+        .message .profile-img {
             width: 40px;
             height: 40px;
-            object-fit: cover;
             border-radius: 50%;
             margin-right: 10px;
+            flex-shrink: 0;
         }
+        .message .message-content {
+            background: #fff;
+            border-radius: 8px;
+            padding: 10px 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            max-width: 70%;
+            position: relative;
+        }
+        .message .message-content:after {
+            content: "";
+            position: absolute;
+            top: 10px;
+            left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: transparent #fff transparent transparent;
+        }
+        /* Section Cards */
         .simulate-section, .manual-section {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
             margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            background: #eee;
-        }
-        button {
-            padding: 8px 12px;
-            margin-right: 10px;
-            cursor: pointer;
-        }
-        select {
-            padding: 8px;
-            margin-bottom: 10px;
-            width: 200px;
-        }
-        #gptEngine {
-            background-color: #f8f8f8;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
     </style>
 </head>
@@ -62,62 +120,63 @@
     {% include 'navbar.html' %}
     <div class="container">
         <h1>IM Conversation Simulation</h1>
-        
-        <!-- Add the GPT engine selector -->
-        <div class="form-group">
-            <label for="gptEngine">GPT Engine:</label>
-            <select id="gptEngine" name="gptEngine">
-                <option value="gpt-4o-mini">GPT-4O Mini (Faster)</option>
-                <option value="gpt-4o">GPT-4O (Higher Quality)</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="coworkerA_input">Coworker A:</label>
-            <input type="text" id="coworkerA_input" placeholder="Type to search coworker A">
-            <input type="hidden" id="coworkerA" name="coworkerA">
-            <input type="hidden" id="coworkerA_picture" name="coworkerA_picture">
-        </div>
-        <div class="form-group">
-            <label for="coworkerB_input">Coworker B:</label>
-            <input type="text" id="coworkerB_input" placeholder="Type to search coworker B">
-            <input type="hidden" id="coworkerB" name="coworkerB">
-            <input type="hidden" id="coworkerB_picture" name="coworkerB_picture">
-        </div>
-        <div class="form-group">
-            <label for="situationContext">Situation Context:</label>
-            <textarea id="situationContext" name="situationContext" rows="4" placeholder="Enter a brief context of the conversation..."></textarea>
-        </div>
-        <div class="form-group">
-            <label for="gptPrompt">GPT Prompt (Editable):</label>
-            <textarea id="gptPrompt" name="gptPrompt" rows="8" placeholder="Preview and edit the GPT prompt here..."></textarea>
-            <button id="previewPrompt" type="button">Preview GPT Prompt</button>
-        </div>
-        
-        <div class="conversation-window" id="conversationWindow">
-            <!-- Chat messages will appear here -->
-        </div>
-        
-        <div class="simulate-section">
-            <h2>Simulate Reply</h2>
-            <button id="simulateReplyA">Simulate Reply as Coworker A</button>
-            <button id="simulateReplyB">Simulate Reply as Coworker B</button>
-        </div>
-        
-        <div class="manual-section">
-            <h2>Manual Message</h2>
+        <div class="content">
+            <!-- GPT Engine Selector -->
             <div class="form-group">
-                <label for="manualSender">Sender:</label>
-                <select id="manualSender" name="manualSender">
-                    <option value="A">Coworker A</option>
-                    <option value="B">Coworker B</option>
+                <label for="gptEngine">GPT Engine:</label>
+                <select id="gptEngine" name="gptEngine">
+                    <option value="gpt-4o-mini">GPT-4O Mini (Faster)</option>
+                    <option value="gpt-4o">GPT-4O (Higher Quality)</option>
                 </select>
             </div>
+            
             <div class="form-group">
-                <label for="manualMessage">Message:</label>
-                <textarea id="manualMessage" name="manualMessage" rows="2" placeholder="Type your message here..."></textarea>
+                <label for="coworkerA_input">Coworker A:</label>
+                <input type="text" id="coworkerA_input" placeholder="Type to search coworker A">
+                <input type="hidden" id="coworkerA" name="coworkerA">
+                <input type="hidden" id="coworkerA_picture" name="coworkerA_picture">
             </div>
-            <button id="sendManualMessage">Send Manual Message</button>
+            <div class="form-group">
+                <label for="coworkerB_input">Coworker B:</label>
+                <input type="text" id="coworkerB_input" placeholder="Type to search coworker B">
+                <input type="hidden" id="coworkerB" name="coworkerB">
+                <input type="hidden" id="coworkerB_picture" name="coworkerB_picture">
+            </div>
+            <div class="form-group">
+                <label for="situationContext">Situation Context:</label>
+                <textarea id="situationContext" name="situationContext" rows="4" placeholder="Enter a brief context of the conversation..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="gptPrompt">GPT Prompt (Editable):</label>
+                <textarea id="gptPrompt" name="gptPrompt" rows="8" placeholder="Preview and edit the GPT prompt here..."></textarea>
+                <button id="previewPrompt" type="button">Preview GPT Prompt</button>
+            </div>
+            
+            <div class="conversation-window" id="conversationWindow">
+                <!-- Chat messages will appear here -->
+            </div>
+            
+            <div class="simulate-section">
+                <h2>Simulate Reply</h2>
+                <button id="simulateReplyA">Simulate Reply as Coworker A</button>
+                <button id="simulateReplyB">Simulate Reply as Coworker B</button>
+            </div>
+            
+            <div class="manual-section">
+                <h2>Manual Message</h2>
+                <div class="form-group">
+                    <label for="manualSender">Sender:</label>
+                    <select id="manualSender" name="manualSender">
+                        <option value="A">Coworker A</option>
+                        <option value="B">Coworker B</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="manualMessage">Message:</label>
+                    <textarea id="manualMessage" name="manualMessage" rows="2" placeholder="Type your message here... (Press Enter to send; Shift+Enter for newline)"></textarea>
+                </div>
+                <button id="sendManualMessage">Send Manual Message</button>
+            </div>
         </div>
     </div>
     
@@ -127,8 +186,8 @@
             if (senderImage) {
                 messageHtml += '<img class="profile-img" src="' + senderImage + '" alt="Profile Image">';
             }
-            messageHtml += '<div>';
-            messageHtml += '<strong>' + senderName + ':</strong> <span class="text">' + messageText + '</span>';
+            messageHtml += '<div class="message-content">';
+            messageHtml += '<strong>' + senderName + '</strong><br>' + messageText;
             messageHtml += '</div></div>';
             $("#conversationWindow").append(messageHtml);
             $("#conversationWindow").scrollTop($("#conversationWindow")[0].scrollHeight);
@@ -249,6 +308,15 @@
                 if (message.trim() !== "") {
                     appendMessage(senderName, senderImg, message);
                     $("#manualMessage").val("");
+                }
+            });
+
+            // Improved: send message on Enter key press in the manual message textarea
+            $("#manualMessage").on("keydown", function(event) {
+                // Check for Enter key press without Shift (to allow Shift+Enter for newlines)
+                if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault(); // Prevent new line insertion
+                    $("#sendManualMessage").click();
                 }
             });
         });
