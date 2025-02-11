@@ -2,14 +2,15 @@
 <html>
 <head>
     <title>IM Conversation Simulation</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='test_message.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background: #f0f0f0; }
         .container { width: 80%; margin: auto; padding: 20px; background: #fff; }
         .form-group { margin-bottom: 15px; }
         label { font-weight: bold; }
-        select, textarea { width: 100%; padding: 8px; }
+        input[type="text"], textarea { width: 100%; padding: 8px; }
         .conversation-window {
             border: 1px solid #ccc;
             background: #fafafa;
@@ -45,31 +46,43 @@
             margin-right: 10px;
             cursor: pointer;
         }
+        select {
+            padding: 8px;
+            margin-bottom: 10px;
+            width: 200px;
+        }
+        #gptEngine {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     {% include 'navbar.html' %}
     <div class="container">
         <h1>IM Conversation Simulation</h1>
+        
+        <!-- Add the GPT engine selector -->
         <div class="form-group">
-            <label for="coworkerA">Coworker A:</label>
-            <select id="coworkerA" name="coworkerA">
-                {% for employee in employees %}
-                <option value="{{ employee.id }}" data-picture="{{ employee.picture_url }}">
-                    {{ employee.name }} ({{ employee.title }})
-                </option>
-                {% endfor %}
+            <label for="gptEngine">GPT Engine:</label>
+            <select id="gptEngine" name="gptEngine">
+                <option value="gpt-4o-mini">GPT-4O Mini (Faster)</option>
+                <option value="gpt-4o">GPT-4O (Higher Quality)</option>
             </select>
         </div>
+        
         <div class="form-group">
-            <label for="coworkerB">Coworker B:</label>
-            <select id="coworkerB" name="coworkerB">
-                {% for employee in employees %}
-                <option value="{{ employee.id }}" data-picture="{{ employee.picture_url }}">
-                    {{ employee.name }} ({{ employee.title }})
-                </option>
-                {% endfor %}
-            </select>
+            <label for="coworkerA_input">Coworker A:</label>
+            <input type="text" id="coworkerA_input" placeholder="Type to search coworker A">
+            <input type="hidden" id="coworkerA" name="coworkerA">
+            <input type="hidden" id="coworkerA_picture" name="coworkerA_picture">
+        </div>
+        <div class="form-group">
+            <label for="coworkerB_input">Coworker B:</label>
+            <input type="text" id="coworkerB_input" placeholder="Type to search coworker B">
+            <input type="hidden" id="coworkerB" name="coworkerB">
+            <input type="hidden" id="coworkerB_picture" name="coworkerB_picture">
         </div>
         <div class="form-group">
             <label for="situationContext">Situation Context:</label>
@@ -122,6 +135,28 @@
         }
 
         $(document).ready(function() {
+            $("#coworkerA_input").autocomplete({
+                source: "/autocomplete_employee",
+                minLength: 2,
+                select: function(event, ui) {
+                    $("#coworkerA_input").val(ui.item.label);
+                    $("#coworkerA").val(ui.item.value);
+                    $("#coworkerA_picture").val(ui.item.picture);
+                    return false;
+                }
+            });
+            
+            $("#coworkerB_input").autocomplete({
+                source: "/autocomplete_employee",
+                minLength: 2,
+                select: function(event, ui) {
+                    $("#coworkerB_input").val(ui.item.label);
+                    $("#coworkerB").val(ui.item.value);
+                    $("#coworkerB_picture").val(ui.item.picture);
+                    return false;
+                }
+            });
+
             $("#previewPrompt").click(function() {
                 var coworkerAId = $("#coworkerA").val();
                 var coworkerBId = $("#coworkerB").val();
@@ -162,8 +197,9 @@
                         'custom_prompt': customPrompt
                     },
                     success: function(response) {
-                        var senderImg = $("#coworkerA option:selected").data("picture");
-                        appendMessage($("#coworkerA option:selected").text(), senderImg, response.generated_message);
+                        var senderImg = $("#coworkerA_picture").val();
+                        var senderName = $("#coworkerA_input").val();
+                        appendMessage(senderName, senderImg, response.generated_message);
                     },
                     error: function() {
                         alert("Error generating message.");
@@ -188,8 +224,9 @@
                         'custom_prompt': customPrompt
                     },
                     success: function(response) {
-                        var senderImg = $("#coworkerB option:selected").data("picture");
-                        appendMessage($("#coworkerB option:selected").text(), senderImg, response.generated_message);
+                        var senderImg = $("#coworkerB_picture").val();
+                        var senderName = $("#coworkerB_input").val();
+                        appendMessage(senderName, senderImg, response.generated_message);
                     },
                     error: function() {
                         alert("Error generating message.");
@@ -201,16 +238,16 @@
                 var senderType = $("#manualSender").val();
                 var message = $("#manualMessage").val();
                 var senderName = "";
-                var senderImage = "";
+                var senderImg = "";
                 if (senderType == "A") {
-                    senderName = $("#coworkerA option:selected").text();
-                    senderImage = $("#coworkerA option:selected").data("picture");
+                    senderName = $("#coworkerA_input").val();
+                    senderImg = $("#coworkerA_picture").val();
                 } else {
-                    senderName = $("#coworkerB option:selected").text();
-                    senderImage = $("#coworkerB option:selected").data("picture");
+                    senderName = $("#coworkerB_input").val();
+                    senderImg = $("#coworkerB_picture").val();
                 }
                 if (message.trim() !== "") {
-                    appendMessage(senderName, senderImage, message);
+                    appendMessage(senderName, senderImg, message);
                     $("#manualMessage").val("");
                 }
             });

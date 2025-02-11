@@ -18,6 +18,22 @@ xp_actions = {
     'update_bio' : 10,
 }
 
+# Global configuration for GPT engine selection
+DEFAULT_GPT_ENGINE = 'gpt-4o-mini'
+ALLOWED_GPT_ENGINES = ['gpt-4o-mini', 'gpt-4o']
+
+def generate_text_from_prompt(prompt):
+    """
+    Wrapper that checks the current session for the desired GPT engine.
+    By default, uses 'gpt-4o-mini'. If the user has selected 'gpt-4o',
+    calls squawk.generate_text() with the engine parameter set to 'gpt-4o'.
+    """
+    engine = session.get('gpt_engine', DEFAULT_GPT_ENGINE)
+    if engine == 'gpt-4o':
+        return squawk.generate_text(prompt, engine='gpt-4o')
+    # Default or fallback uses gpt-4o-mini
+    return squawk.generate_text(prompt)
+
 app = Flask(__name__)
 app.jinja_env.filters['nl2br'] = nl2br
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ourteam.db'
@@ -527,7 +543,7 @@ def generate_comment():
     context = request.form.get('context')
 
     prompt = f"From: {from_employee}\nTo: {to_employee}\nContext: {context}"
-    generated_comment = squawk.generate_text(prompt)
+    generated_comment = generate_text_from_prompt(prompt)
 
     return jsonify({'generated_comment': generated_comment})
 
@@ -742,7 +758,7 @@ def generate_im_message():
     if not from_employee or not to_employee:
         return jsonify({'error': 'Invalid employee IDs'}), 400
 
-    # Use custom prompt if the user provided one; otherwise, build the default prompt
+    # Build the prompt
     if custom_prompt:
         prompt = custom_prompt
     else:
@@ -770,8 +786,35 @@ Conversation history:
 Generate only the next succinct message content as a reply from {from_employee.name} to {to_employee.name} in an informal, chat-style tone.
 Do not include the sender's name, any signature, or extra commentary.
 """
-    generated_message = squawk.generate_text(prompt)
+    generated_message = generate_text_from_prompt(prompt)
     return jsonify({'generated_message': generated_message})
+
+@app.route('/autocomplete_employee', methods=['GET'])
+def autocomplete_employee():
+    term = request.args.get('term', '')
+    # Filter employees whose name contains the search term (case-insensitive)
+    employees = Employee.query.filter(Employee.name.ilike(f'%{term}%')).limit(10).all()
+    suggestions = []
+    for emp in employees:
+        suggestions.append({
+            'label': f"{emp.name} ({emp.title})",
+            'value': emp.id,
+            'picture': emp.picture_url
+        })
+    return jsonify(suggestions)
+
+@app.route('/set_gpt_engine', methods=['POST'])
+def set_gpt_engine():
+    """
+    Set the GPT engine to use for generating messages.
+    Accepts a POST parameter 'engine' which must be either 'gpt-4o-mini' or 'gpt-4o'.
+    """
+    engine = request.form.get('engine')
+    if engine in ALLOWED_GPT_ENGINES:
+        session['gpt_engine'] = engine
+        return jsonify({'success': True, 'engine': engine}), 200
+    else:
+        return jsonify({'success': False, 'message': 'Invalid engine value.'}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True, port=5002)
