@@ -742,7 +742,7 @@ def generate_im_message():
     if not from_employee or not to_employee:
         return jsonify({'error': 'Invalid employee IDs'}), 400
 
-    # If a custom prompt is given (edited by the user), use it; otherwise construct it
+    # Use custom prompt if the user provided one; otherwise, build the default prompt
     if custom_prompt:
         prompt = custom_prompt
     else:
@@ -767,9 +767,9 @@ Situation Context: {context}
 Conversation history:
 {conversation_history}
 
-Generate the next succinct message from {from_employee.name} replying to {to_employee.name} in an informal, chat-style tone. Do not include extra commentary.
+Generate only the next succinct message content as a reply from {from_employee.name} to {to_employee.name} in an informal, chat-style tone.
+Do not include the sender's name, any signature, or extra commentary.
 """
-
     generated_message = squawk.generate_text(prompt)
     return jsonify({'generated_message': generated_message})
 
