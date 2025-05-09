@@ -19,19 +19,19 @@ xp_actions = {
 }
 
 # Global configuration for GPT engine selection
-DEFAULT_GPT_ENGINE = 'gpt-4o-mini'
-ALLOWED_GPT_ENGINES = ['gpt-4o-mini', 'gpt-4o']
+DEFAULT_GPT_ENGINE = 'gpt-4.1-mini'
+ALLOWED_GPT_ENGINES = ['gpt-4.1-mini', 'gpt-4.1']
 
 def generate_text_from_prompt(prompt):
     """
     Wrapper that checks the current session for the desired GPT engine.
-    By default, uses 'gpt-4o-mini'. If the user has selected 'gpt-4o',
-    calls squawk.generate_text() with the engine parameter set to 'gpt-4o'.
+    By default, uses 'gpt-4.1-mini'. If the user has selected 'gpt-4.1',
+    calls squawk.generate_text() with the engine parameter set to 'gpt-4.1'.
     """
     engine = session.get('gpt_engine', DEFAULT_GPT_ENGINE)
-    if engine == 'gpt-4o':
-        return squawk.generate_text(prompt, engine='gpt-4o')
-    # Default or fallback uses gpt-4o-mini
+    if engine == 'gpt-4.1':
+        return squawk.generate_text(prompt, engine='gpt-4.1')
+    # Default or fallback uses gpt-4.1-mini
     return squawk.generate_text(prompt)
 
 app = Flask(__name__)
@@ -169,6 +169,49 @@ def view_employee(id):
                            subordinates=subordinates, manager_chain=manager_chain, images=images, 
                            comments=comments, co_manager=co_manager, employee_xp=employee_xp, 
                            next_level_xp=next_level_xp, progress=progress, recent_statuses=recent_statuses)
+
+@app.route('/org_tree/<int:id>')
+def org_tree(id):
+    employee = Employee.query.get_or_404(id)
+    
+    # Get 2 levels of managers above
+    managers = []
+    current = employee
+    for _ in range(2):
+        if current.reports_to:
+            manager = Employee.query.get(current.reports_to)
+            if manager:
+                managers.append(manager)
+                current = manager
+            else:
+                break
+        else:
+            break
+    
+    # Get 2 levels of reports below
+    def get_reports(emp_id, depth=0, max_depth=2):
+        if depth >= max_depth:
+            return []
+        
+        reports = Employee.query.filter_by(reports_to=emp_id).all()
+        result = []
+        for report in reports:
+            result.append({
+                'employee': report,
+                'reports': get_reports(report.id, depth + 1, max_depth)
+            })
+        return result
+    
+    reports = get_reports(id)
+    
+    # Get department members for context
+    department_members = Employee.query.filter_by(department=employee.department).all()
+    
+    return render_template('org_tree.html',
+                         employee=employee,
+                         managers=managers,
+                         reports=reports,
+                         department_members=department_members)
 
 @app.route('/post_status_from_profile', methods=['POST'])
 def post_status_from_profile():
@@ -807,7 +850,7 @@ def autocomplete_employee():
 def set_gpt_engine():
     """
     Set the GPT engine to use for generating messages.
-    Accepts a POST parameter 'engine' which must be either 'gpt-4o-mini' or 'gpt-4o'.
+    Accepts a POST parameter 'engine' which must be either 'gpt-4.1-mini' or 'gpt-4.1'.
     """
     engine = request.form.get('engine')
     if engine in ALLOWED_GPT_ENGINES:

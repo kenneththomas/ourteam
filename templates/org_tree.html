@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Organization Tree - {{ employee.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='org_tree.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='resources/ourteam_icon.ico') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='org_tree.js') }}"></script>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container">
+        <h1>Organization Tree</h1>
+        
+        <!-- Search Section -->
+        <div class="search-section">
+            <input type="text" id="employeeSearch" placeholder="Search for an employee..." autocomplete="off">
+            <div id="searchResults" class="search-results"></div>
+        </div>
+
+        <div class="org-tree">
+            <!-- Managers Section -->
+            <div class="managers-section">
+                {% for manager in managers|reverse %}
+                <div class="employee-card manager-card" data-employee-id="{{ manager.id }}">
+                    <div class="employee-picture-container">
+                        {% if manager.picture_url %}
+                            <img src="{{ manager.picture_url }}" alt="{{ manager.name }}" class="employee-picture">
+                        {% else %}
+                            <div class="no-picture">No Photo</div>
+                        {% endif %}
+                    </div>
+                    <div class="employee-info">
+                        <h3><a href="{{ url_for('view_employee', id=manager.id) }}">{{ manager.name }}</a></h3>
+                        <p class="title">{{ manager.title }}</p>
+                        <p class="department">{{ manager.department }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Current Employee Section -->
+            <div class="current-employee-section">
+                <div class="employee-card current-card" data-employee-id="{{ employee.id }}">
+                    <div class="employee-picture-container">
+                        {% if employee.picture_url %}
+                            <img src="{{ employee.picture_url }}" alt="{{ employee.name }}" class="employee-picture">
+                        {% else %}
+                            <div class="no-picture">No Photo</div>
+                        {% endif %}
+                    </div>
+                    <div class="employee-info">
+                        <h3><a href="{{ url_for('view_employee', id=employee.id) }}">{{ employee.name }}</a></h3>
+                        <p class="title">{{ employee.title }}</p>
+                        <p class="department">{{ employee.department }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div class="reports-section">
+                {% for report in reports %}
+                <div class="report-group">
+                    <div class="employee-card report-card" data-employee-id="{{ report.employee.id }}">
+                        <div class="employee-picture-container">
+                            {% if report.employee.picture_url %}
+                                <img src="{{ report.employee.picture_url }}" alt="{{ report.employee.name }}" class="employee-picture">
+                            {% else %}
+                                <div class="no-picture">No Photo</div>
+                            {% endif %}
+                        </div>
+                        <div class="employee-info">
+                            <h3><a href="{{ url_for('view_employee', id=report.employee.id) }}">{{ report.employee.name }}</a></h3>
+                            <p class="title">{{ report.employee.title }}</p>
+                            <p class="department">{{ report.employee.department }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if report.reports %}
+                    <div class="sub-reports">
+                        {% for sub_report in report.reports %}
+                        <div class="employee-card sub-report-card" data-employee-id="{{ sub_report.employee.id }}">
+                            <div class="employee-picture-container">
+                                {% if sub_report.employee.picture_url %}
+                                    <img src="{{ sub_report.employee.picture_url }}" alt="{{ sub_report.employee.name }}" class="employee-picture">
+                                {% else %}
+                                    <div class="no-picture">No Photo</div>
+                                {% endif %}
+                            </div>
+                            <div class="employee-info">
+                                <h3><a href="{{ url_for('view_employee', id=sub_report.employee.id) }}">{{ sub_report.employee.name }}</a></h3>
+                                <p class="title">{{ sub_report.employee.title }}</p>
+                                <p class="department">{{ sub_report.employee.department }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Department Members Section -->
+            <div class="department-section">
+                <h2>Department Members ({{ employee.department }})</h2>
+                <div class="department-members">
+                    {% for member in department_members %}
+                        {% if member.id != employee.id %}
+                        <div class="employee-card department-card" data-employee-id="{{ member.id }}">
+                            <div class="employee-picture-container">
+                                {% if member.picture_url %}
+                                    <img src="{{ member.picture_url }}" alt="{{ member.name }}" class="employee-picture">
+                                {% else %}
+                                    <div class="no-picture">No Photo</div>
+                                {% endif %}
+                            </div>
+                            <div class="employee-info">
+                                <h3><a href="{{ url_for('view_employee', id=member.id) }}">{{ member.name }}</a></h3>
+                                <p class="title">{{ member.title }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

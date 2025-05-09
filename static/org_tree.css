@@ -1,0 +1,304 @@
+.org-tree {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* Search Section */
+.search-section {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto 2rem;
+}
+
+#employeeSearch {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+#employeeSearch:focus {
+    border-color: #007bff;
+}
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 1000;
+}
+
+.search-result-item {
+    padding: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.search-result-item:hover {
+    background: #f8f9fa;
+}
+
+.search-result-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Employee Cards */
+.employee-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0.75rem;
+    display: flex;
+    gap: 0.75rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    width: 250px;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+}
+
+.employee-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.employee-picture-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #f8f9fa;
+    position: relative;
+}
+
+.employee-picture {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.no-picture {
+    width: 100%;
+    height: 100%;
+    background: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 0.7rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.employee-info {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.employee-info h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.employee-info h3 a {
+    color: #333;
+    text-decoration: none;
+}
+
+.employee-info h3 a:hover {
+    color: #007bff;
+}
+
+.employee-info .title {
+    color: #666;
+    margin: 0 0 0.15rem 0;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.employee-info .department {
+    color: #888;
+    margin: 0;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Tree Structure */
+.managers-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+}
+
+.managers-section::after {
+    content: '';
+    position: absolute;
+    bottom: -1rem;
+    left: 50%;
+    width: 2px;
+    height: 1rem;
+    background: #007bff;
+}
+
+.current-employee-section {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+    position: relative;
+}
+
+.current-employee-section::before {
+    content: '';
+    position: absolute;
+    top: -1rem;
+    left: 50%;
+    width: 2px;
+    height: 1rem;
+    background: #28a745;
+}
+
+.current-card {
+    border: 2px solid #28a745;
+    transform: scale(1.05);
+}
+
+.reports-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    position: relative;
+    padding-top: 1rem;
+}
+
+.reports-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 1rem;
+    background: #ffc107;
+}
+
+.report-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+}
+
+.report-group::before {
+    content: '';
+    position: absolute;
+    top: -1rem;
+    left: 50%;
+    width: 2px;
+    height: 1rem;
+    background: #ffc107;
+}
+
+.report-card {
+    border-left: 3px solid #ffc107;
+}
+
+.sub-reports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    position: relative;
+    padding-top: 1rem;
+}
+
+.sub-reports::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 1rem;
+    background: #17a2b8;
+}
+
+.sub-report-card {
+    border-left: 3px solid #17a2b8;
+}
+
+/* Department Section */
+.department-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+    width: 100%;
+}
+
+.department-section h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.department-members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.department-card {
+    border-left: 3px solid #6c757d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .org-tree {
+        padding: 1rem;
+    }
+
+    .employee-card {
+        width: 100%;
+        max-width: 250px;
+    }
+
+    .current-card {
+        transform: scale(1);
+    }
+
+    .sub-reports {
+        margin-left: 0;
+    }
+} 

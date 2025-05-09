@@ -2,3 +2,4 @@
 *.db*
 maricon.py
 .venv/
+static/qa.css

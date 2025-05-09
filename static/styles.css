@@ -77,13 +77,14 @@ h1 {
     height: 120px;
     min-width: 120px;
     border-radius: 4px;
-    background-size: 160% auto; /* Increase the size to zoom in */
-    background-position: center 12%;
     display: inline-block;
 }
 
 .small-employee-picture-container img {
-    display: none; /* Hide the actual img element */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
 }
 
 .employee-profile {
