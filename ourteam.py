@@ -24,7 +24,7 @@ ALLOWED_GPT_ENGINES = ['gpt-4.1-mini', 'gpt-4.1']
 
 def generate_text_from_prompt(prompt):
     """
-    Wrapper that checks the current session for the desired GPT engine.
+    Wrapper that checks the current session for the desired GPT engine.m
     By default, uses 'gpt-4.1-mini'. If the user has selected 'gpt-4.1',
     calls squawk.generate_text() with the engine parameter set to 'gpt-4.1'.
     """
@@ -283,8 +283,11 @@ def edit_employee(id):
     original_bio = employee.bio
     original_location = employee.location
     #get original name of manager
+    original_mgr_name = None
     if employee.reports_to:
-        original_mgr_name = Employee.query.get(employee.reports_to).name
+        original_manager = Employee.query.get(employee.reports_to)
+        if original_manager:
+            original_mgr_name = original_manager.name
 
     if form.validate_on_submit():
         employee.name = form.name.data
@@ -310,14 +313,20 @@ def edit_employee(id):
             db.session.commit()
         #action for reports_to change but get name of manager
         if form.reports_to.data != original_reports_to:
-            manager = Employee.query.get(form.reports_to.data)
-            try:
-                action = Action(description=f"Manager changed from {original_mgr_name} to {manager.name}", from_id=employee.id)
-            except AttributeError:
-                print('manager not found')
-                return
-            db.session.add(action)
-            db.session.commit()
+            new_manager = None
+            if form.reports_to.data:
+                new_manager = Employee.query.get(form.reports_to.data)
+            
+            if original_mgr_name and new_manager:
+                action = Action(description=f"Manager changed from {original_mgr_name} to {new_manager.name}", from_id=employee.id)
+            elif original_mgr_name:
+                action = Action(description=f"Manager removed (was {original_mgr_name})", from_id=employee.id)
+            elif new_manager:
+                action = Action(description=f"Manager set to {new_manager.name}", from_id=employee.id)
+            
+            if action:
+                db.session.add(action)
+                db.session.commit()
         #action for name change
         if form.name.data != original_name:
             action = Action(description=f"Name changed from {original_name} to {form.name.data}", from_id=employee.id)
