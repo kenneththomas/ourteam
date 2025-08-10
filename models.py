@@ -24,6 +24,7 @@ class Employee(db.Model):
     picture_url = db.Column(db.String)
     reports_to = db.Column(db.Integer, db.ForeignKey('employee.id'))
     images = db.relationship('EmployeeImage', backref='employee', lazy=True)
+    videos = db.relationship('EmployeeVideo', backref='employee', lazy=True)
     groups = db.relationship('Group', secondary=employee_group, backref=db.backref('members', lazy='dynamic'))
     bio = db.Column(db.String)
     location = db.Column(db.String)
@@ -60,6 +61,13 @@ class EmployeeImage(db.Model):
     image_url = db.Column(db.String(500), nullable=False)
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
     caption = db.Column(db.String(255), nullable=True)
+
+class EmployeeVideo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    video_url = db.Column(db.String(500), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.id'), nullable=False)
+    caption = db.Column(db.String(255), nullable=True)
+    thumbnail_url = db.Column(db.String(500), nullable=True)
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)

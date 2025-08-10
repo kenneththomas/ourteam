@@ -16,7 +16,7 @@ $(document).ready(function() {
     });
 
     // Image modal functions
-    function showModal(imageUrl, caption) {
+    function showImageModal(imageUrl, caption) {
         $('#imageModal').css('display', 'block');
         $('#fullImage').attr('src', imageUrl);
         $('#caption').text(caption);
@@ -24,16 +24,37 @@ $(document).ready(function() {
         $('#setProfilePictureButton').css('display', 'block');
     }
 
+    function showModal(imageUrl, caption) {
+        showImageModal(imageUrl, caption);
+    }
+
     function closeModal() {
         $('#imageModal').css('display', 'none');
         $('#setProfilePictureButton').css('display', 'none');
     }
 
-    // Close the modal when clicking anywhere outside the image
+    // Video modal functions
+    function showVideoModal(videoUrl, caption) {
+        $('#videoModal').css('display', 'block');
+        $('#videoSource').attr('src', videoUrl);
+        $('#fullVideo')[0].load();
+        $('#videoCaption').text(caption);
+    }
+
+    function closeVideoModal() {
+        $('#videoModal').css('display', 'none');
+        $('#fullVideo')[0].pause();
+        $('#videoSource').attr('src', '');
+    }
+
+    // Close the modal when clicking anywhere outside the image or video
     $(window).click(function(event) {
         if (event.target.id === 'imageModal') {
             $('#imageModal').css('display', 'none');
             $('#setProfilePictureButton').css('display', 'none');
+        }
+        if (event.target.id === 'videoModal') {
+            closeVideoModal();
         }
     });
 
@@ -82,5 +103,8 @@ $(document).ready(function() {
     // Expose functions to global scope
     window.showModal = showModal;
     window.closeModal = closeModal;
+    window.showImageModal = showImageModal;
+    window.showVideoModal = showVideoModal;
+    window.closeVideoModal = closeVideoModal;
     window.setProfilePicture = setProfilePicture;
 });

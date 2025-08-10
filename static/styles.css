@@ -576,6 +576,66 @@ table.leaderboard {
     max-height: 100%;
     cursor: pointer;
 }
+
+.video-container {
+    flex: 0 1 calc(33.333% - 20px);
+    width: 300px;
+    height: 300px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #443e3e;
+    position: relative;
+}
+
+.employee-video-thumbnail {
+    max-width: 100%;
+    max-height: 100%;
+    cursor: pointer;
+    object-fit: cover;
+}
+
+.video-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #2a2a2a;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: white;
+}
+
+.play-icon {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.video-label {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.video-modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 800px;
+    text-align: center;
+}
+
+.video-modal-content video {
+    width: 100%;
+    max-height: 70vh;
+}
+
+#videoCaption {
+    color: white;
+    margin-top: 10px;
+    font-size: 16px;
+}
 .modal {
     display: none;
     position: fixed;

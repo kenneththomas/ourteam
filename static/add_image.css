@@ -68,3 +68,44 @@ input:focus, textarea:focus {
 .btn:hover {
     background-color: #0056b3;
 }
+
+.upload-options {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+.upload-option {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.upload-option input[type="radio"] {
+    width: auto;
+    margin: 0;
+}
+
+.upload-option label {
+    margin: 0;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+small {
+    display: block;
+    color: #666;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+input[type="file"] {
+    padding: 8px;
+    border: 2px dashed #ddd;
+    background-color: #f9f9f9;
+}
+
+input[type="file"]:hover {
+    border-color: #007bff;
+    background-color: #f0f8ff;
+}

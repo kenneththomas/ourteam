@@ -1,12 +1,15 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify, send_from_directory
 from models import (
-    db, Employee, EmployeeImage, Comment, Action, Group, EmployeeXP, Status, GroupComment
+    db, Employee, EmployeeImage, EmployeeVideo, Comment, Action, Group, EmployeeXP, Status, GroupComment
 )
-from forms import EmployeeForm, AddImageUrlForm
+from forms import EmployeeForm, AddImageUrlForm, AddVideoUrlForm
 from sqlalchemy import func, or_, desc
 from markupsafe import Markup
 import squawk
 import os
+import uuid
+from werkzeug.utils import secure_filename
+import cv2
 
 def nl2br(s):
     #html doesnt do newlines so we need to convert them to <br> tags
@@ -34,11 +37,133 @@ def generate_text_from_prompt(prompt):
     # Default or fallback uses gpt-4.1-mini
     return squawk.generate_text(prompt)
 
+def save_uploaded_file(file, folder):
+    """Save an uploaded file and return the filename"""
+    if file and file.filename:
+        # Generate a unique filename to prevent conflicts
+        filename = secure_filename(file.filename)
+        unique_filename = f"{uuid.uuid4().hex}_{filename}"
+        
+        # Ensure the upload directory exists
+        upload_path = os.path.join(app.config['UPLOAD_FOLDER'], folder)
+        os.makedirs(upload_path, exist_ok=True)
+        
+        # Save the file
+        file_path = os.path.join(upload_path, unique_filename)
+        file.save(file_path)
+        
+        # Return the relative path for database storage
+        return f"uploads/{folder}/{unique_filename}"
+    return None
+
+def generate_video_thumbnail(video_path, thumbnail_path):
+    """Generate a thumbnail from a video file using OpenCV"""
+    print(f"DEBUG: Starting thumbnail generation for {video_path}")
+    print(f"DEBUG: Target thumbnail path: {thumbnail_path}")
+    
+    try:
+        # Check if video file exists
+        if not os.path.exists(video_path):
+            print(f"ERROR: Video file does not exist: {video_path}")
+            return False
+            
+        # Open the video file
+        cap = cv2.VideoCapture(video_path)
+        
+        if not cap.isOpened():
+            print(f"ERROR: Could not open video file {video_path}")
+            return False
+        
+        print(f"DEBUG: Successfully opened video file")
+        
+        # Get video properties
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        
+        print(f"DEBUG: Video properties - Frames: {total_frames}, FPS: {fps}, Size: {width}x{height}")
+        
+        if total_frames == 0:
+            print(f"ERROR: Video file {video_path} has no frames")
+            cap.release()
+            return False
+        
+        # Seek to 25% of the video (usually a good point for thumbnails)
+        frame_position = int(total_frames * 0.25)
+        print(f"DEBUG: Seeking to frame {frame_position} (25% of {total_frames})")
+        cap.set(cv2.CAP_PROP_POS_FRAMES, frame_position)
+        
+        # Read the frame
+        ret, frame = cap.read()
+        
+        if not ret:
+            print(f"DEBUG: Could not read frame at 25%, trying first frame")
+            # If we can't read at 25%, try the first frame
+            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+            ret, frame = cap.read()
+            
+        if not ret:
+            print(f"ERROR: Could not read any frame from video {video_path}")
+            cap.release()
+            return False
+        
+        print(f"DEBUG: Successfully read frame, shape: {frame.shape}")
+        
+        # Resize the frame to a reasonable thumbnail size (e.g., 320x240)
+        height, width = frame.shape[:2]
+        aspect_ratio = width / height
+        
+        if aspect_ratio > 1:  # Landscape
+            new_width = 320
+            new_height = int(320 / aspect_ratio)
+        else:  # Portrait
+            new_height = 240
+            new_width = int(240 * aspect_ratio)
+        
+        print(f"DEBUG: Resizing frame from {width}x{height} to {new_width}x{new_height}")
+        frame = cv2.resize(frame, (new_width, new_height))
+        
+        # Ensure thumbnail directory exists
+        thumbnail_dir = os.path.dirname(thumbnail_path)
+        if not os.path.exists(thumbnail_dir):
+            print(f"DEBUG: Creating thumbnail directory: {thumbnail_dir}")
+            os.makedirs(thumbnail_dir, exist_ok=True)
+        
+        # Save the thumbnail
+        print(f"DEBUG: Saving thumbnail to {thumbnail_path}")
+        success = cv2.imwrite(thumbnail_path, frame)
+        
+        # Release the video capture
+        cap.release()
+        
+        if success:
+            print(f"SUCCESS: Generated thumbnail: {thumbnail_path}")
+            # Verify file was created
+            if os.path.exists(thumbnail_path):
+                file_size = os.path.getsize(thumbnail_path)
+                print(f"DEBUG: Thumbnail file created successfully, size: {file_size} bytes")
+                return True
+            else:
+                print(f"ERROR: Thumbnail file was not created despite success flag")
+                return False
+        else:
+            print(f"ERROR: Could not save thumbnail to {thumbnail_path}")
+            return False
+            
+    except Exception as e:
+        print(f"ERROR generating thumbnail: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return False
+
 app = Flask(__name__)
 app.jinja_env.filters['nl2br'] = nl2br
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ourteam.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your-secret-key'
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
 db.init_app(app)
 
 @app.route('/')
@@ -119,6 +244,7 @@ def list_employees():
 def view_employee(id):
     employee = Employee.query.get_or_404(id)
     images = EmployeeImage.query.filter_by(employee_id=id).all()
+    videos = EmployeeVideo.query.filter_by(employee_id=id).all()
     employee_xp = EmployeeXP.query.filter_by(employee_id=id).first()
 
     if not employee_xp:
@@ -167,7 +293,7 @@ def view_employee(id):
 
     return render_template('view_employee.html', employee=employee, recent_actions=recent_actions, 
                            subordinates=subordinates, manager_chain=manager_chain, images=images, 
-                           comments=comments, co_manager=co_manager, employee_xp=employee_xp, 
+                           videos=videos, comments=comments, co_manager=co_manager, employee_xp=employee_xp, 
                            next_level_xp=next_level_xp, progress=progress, recent_statuses=recent_statuses)
 
 @app.route('/org_tree/<int:id>')
@@ -363,11 +489,96 @@ def search():
 def add_image(id):
     form = AddImageUrlForm()
     if form.validate_on_submit():
-        image = EmployeeImage(image_url=form.image_url.data, employee_id=id, caption=form.caption.data)
+        # Determine the image URL - either from uploaded file or URL field
+        image_url = form.image_url.data
+        if form.image_file.data:
+            saved_path = save_uploaded_file(form.image_file.data, 'images')
+            if saved_path:
+                image_url = f"/static/{saved_path}"
+            else:
+                flash('Error saving uploaded file.')
+                return render_template('add_image.html', form=form)
+        
+        image = EmployeeImage(image_url=image_url, employee_id=id, caption=form.caption.data)
         db.session.add(image)
         db.session.commit()
+        flash('Image added successfully!')
         return redirect(url_for('view_employee', id=id))
     return render_template('add_image.html', form=form)
+
+@app.route('/employee/<int:id>/add_video', methods=['GET', 'POST'])
+def add_video(id):
+    form = AddVideoUrlForm()
+    if form.validate_on_submit():
+        # Determine the video URL - either from uploaded file or URL field
+        video_url = form.video_url.data
+        video_file_path = None  # Store the actual file path for thumbnail generation
+        
+        if form.video_file.data:
+            print(f"DEBUG: Video file uploaded: {form.video_file.data.filename}")
+            saved_path = save_uploaded_file(form.video_file.data, 'videos')
+            if saved_path:
+                video_url = f"/static/{saved_path}"
+                # Store the full path for thumbnail generation
+                # saved_path is "uploads/videos/filename", so we need to construct the full path correctly
+                # Extract just the filename from the saved_path
+                filename = os.path.basename(saved_path)
+                video_file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'videos', filename)
+                print(f"DEBUG: Video saved to: {video_file_path}")
+            else:
+                print(f"ERROR: Failed to save video file")
+                flash('Error saving uploaded video file.')
+                return render_template('add_video.html', form=form)
+        
+        # Handle thumbnail - either from URL, uploaded file, or auto-generated
+        thumbnail_url = form.thumbnail_url.data
+        if form.thumbnail_file.data:
+            saved_thumbnail_path = save_uploaded_file(form.thumbnail_file.data, 'thumbnails')
+            if saved_thumbnail_path:
+                thumbnail_url = f"/static/{saved_thumbnail_path}"
+            else:
+                flash('Error saving uploaded thumbnail file.')
+                return render_template('add_video.html', form=form)
+        elif not thumbnail_url and video_file_path:
+            # Auto-generate thumbnail from video if no thumbnail provided
+            print(f"DEBUG: Attempting to auto-generate thumbnail for video: {video_file_path}")
+            try:
+                # Generate a unique thumbnail filename
+                thumbnail_filename = f"{uuid.uuid4().hex}_auto_thumb.jpg"
+                thumbnail_path = os.path.join(app.config['UPLOAD_FOLDER'], 'thumbnails', thumbnail_filename)
+                
+                print(f"DEBUG: Generated thumbnail path: {thumbnail_path}")
+                
+                # Ensure thumbnails directory exists
+                os.makedirs(os.path.dirname(thumbnail_path), exist_ok=True)
+                print(f"DEBUG: Ensured thumbnail directory exists")
+                
+                # Generate the thumbnail
+                print(f"DEBUG: Calling generate_video_thumbnail...")
+                if generate_video_thumbnail(video_file_path, thumbnail_path):
+                    thumbnail_url = f"/static/uploads/thumbnails/{thumbnail_filename}"
+                    print(f"DEBUG: Thumbnail generation successful, URL: {thumbnail_url}")
+                    flash('Video thumbnail generated automatically!')
+                else:
+                    print(f"DEBUG: Thumbnail generation failed")
+                    flash('Warning: Could not generate automatic thumbnail. Video will be displayed without a thumbnail.')
+            except Exception as e:
+                print(f"ERROR generating automatic thumbnail: {str(e)}")
+                import traceback
+                traceback.print_exc()
+                flash('Warning: Could not generate automatic thumbnail. Video will be displayed without a thumbnail.')
+        
+        video = EmployeeVideo(
+            video_url=video_url, 
+            employee_id=id, 
+            caption=form.caption.data,
+            thumbnail_url=thumbnail_url
+        )
+        db.session.add(video)
+        db.session.commit()
+        flash('Video added successfully!')
+        return redirect(url_for('view_employee', id=id))
+    return render_template('add_video.html', form=form)
 
 @app.route('/add_comment/<id>', methods=['POST'])
 def add_comment(id):
@@ -734,6 +945,7 @@ def delete_employee(id):
     Comment.query.filter((Comment.employee_id == id) | (Comment.author_id == id)).delete()
     Action.query.filter((Action.from_id == id) | (Action.to_id == id)).delete()
     EmployeeImage.query.filter_by(employee_id=id).delete()
+    EmployeeVideo.query.filter_by(employee_id=id).delete()
     EmployeeXP.query.filter_by(employee_id=id).delete()
     Status.query.filter_by(employee_id=id).delete()
     

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Video</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='add_video.css') }}">
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <div class="container">
+        {% block content %}
+        <h1>Add Video</h1>
+        <form method="POST" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="form-group">
+                <label>Choose Upload Method:</label>
+                <div class="upload-options">
+                    <div class="upload-option">
+                        <input type="radio" name="upload_method" value="url" id="url_method" checked>
+                        <label for="url_method">Video URL</label>
+                    </div>
+                    <div class="upload-option">
+                        <input type="radio" name="upload_method" value="file" id="file_method">
+                        <label for="file_method">Upload File</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="url-section">
+                {{ form.video_url.label }} {{ form.video_url() }}
+                <small>Enter a video URL (YouTube, Vimeo, or direct video link)</small>
+            </div>
+            <div class="form-group" id="file-section" style="display: none;">
+                {{ form.video_file.label }} {{ form.video_file() }}
+                <small>Supported formats: MP4, AVI, MOV, WMV, FLV, WebM (Max 100MB). If you don't provide a thumbnail, one will be automatically generated from the video.</small>
+            </div>
+            <div class="form-group">
+                {{ form.caption.label }} {{ form.caption() }}
+                <small>Optional: Add a caption for the video</small>
+            </div>
+            <div class="form-group">
+                <label>Thumbnail (Optional):</label>
+                <div class="upload-options">
+                    <div class="upload-option">
+                        <input type="radio" name="thumbnail_method" value="url" id="thumb_url_method" checked>
+                        <label for="thumb_url_method">Thumbnail URL</label>
+                    </div>
+                    <div class="upload-option">
+                        <input type="radio" name="thumbnail_method" value="file" id="thumb_file_method">
+                        <label for="thumb_file_method">Upload Thumbnail</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="thumb-url-section">
+                {{ form.thumbnail_url.label }} {{ form.thumbnail_url() }}
+                <small>Optional: Enter a thumbnail image URL for the video. If left empty and you upload a video file, a thumbnail will be automatically generated.</small>
+            </div>
+            <div class="form-group" id="thumb-file-section" style="display: none;">
+                {{ form.thumbnail_file.label }} {{ form.thumbnail_file() }}
+                <small>Supported formats: JPG, JPEG, PNG, GIF, WebP. If left empty and you upload a video file, a thumbnail will be automatically generated.</small>
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+        {% endblock %}
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Video upload method toggle
+            const urlMethod = document.getElementById('url_method');
+            const fileMethod = document.getElementById('file_method');
+            const urlSection = document.getElementById('url-section');
+            const fileSection = document.getElementById('file-section');
+            
+            function toggleVideoSections() {
+                if (urlMethod.checked) {
+                    urlSection.style.display = 'block';
+                    fileSection.style.display = 'none';
+                } else {
+                    urlSection.style.display = 'none';
+                    fileSection.style.display = 'block';
+                }
+            }
+            
+            urlMethod.addEventListener('change', toggleVideoSections);
+            fileMethod.addEventListener('change', toggleVideoSections);
+            
+            // Thumbnail upload method toggle
+            const thumbUrlMethod = document.getElementById('thumb_url_method');
+            const thumbFileMethod = document.getElementById('thumb_file_method');
+            const thumbUrlSection = document.getElementById('thumb-url-section');
+            const thumbFileSection = document.getElementById('thumb-file-section');
+            
+            function toggleThumbnailSections() {
+                if (thumbUrlMethod.checked) {
+                    thumbUrlSection.style.display = 'block';
+                    thumbFileSection.style.display = 'none';
+                } else {
+                    thumbUrlSection.style.display = 'none';
+                    thumbFileSection.style.display = 'block';
+                }
+            }
+            
+            thumbUrlMethod.addEventListener('change', toggleThumbnailSections);
+            thumbFileMethod.addEventListener('change', toggleThumbnailSections);
+        });
+    </script>
+</body>
+</html>

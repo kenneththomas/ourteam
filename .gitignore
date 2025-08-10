@@ -3,3 +3,6 @@
 maricon.py
 .venv/
 static/qa.css
+static/uploads/images/*
+static/uploads/thumbnails/*
+static/uploads/videos/*

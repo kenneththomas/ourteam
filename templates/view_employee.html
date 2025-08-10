@@ -130,12 +130,24 @@
             {% endif %}
         </div>
 
-        {% if images %}
+        {% if images or videos %}
             <h1>Gallery</h1>
             <div class="gallery">
                 {% for image in images %}
                     <div class="image-container">
-                <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" onclick="showModal('{{ image.image_url }}', '{{ image.caption }}')">
+                        <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" onclick="showImageModal('{{ image.image_url }}', '{{ image.caption }}')">
+                    </div>
+                {% endfor %}
+                {% for video in videos %}
+                    <div class="video-container">
+                        {% if video.thumbnail_url %}
+                            <img class="employee-video-thumbnail" src="{{ video.thumbnail_url }}" alt="Video thumbnail" onclick="showVideoModal('{{ video.video_url }}', '{{ video.caption }}')">
+                        {% else %}
+                            <div class="video-placeholder" onclick="showVideoModal('{{ video.video_url }}', '{{ video.caption }}')">
+                                <span class="play-icon">▶</span>
+                                <span class="video-label">Video</span>
+                            </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
@@ -146,6 +158,18 @@
                 <img class="modal-content" id="fullImage">
                 <div id="caption"></div>
                 <button id="setProfilePictureButton" onclick="setProfilePicture()">Set as Profile Picture</button>
+            </div>
+
+            <!-- Modal for video -->
+            <div id="videoModal" class="modal">
+                <span class="close" onclick="closeVideoModal()">&times;</span>
+                <div class="video-modal-content">
+                    <video id="fullVideo" controls>
+                        <source id="videoSource" src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div id="videoCaption"></div>
+                </div>
             </div>
         {% endif %}
 
@@ -177,6 +201,7 @@
         <br>
 
         <a class="button" href="{{ url_for('add_image', id=employee.id) }}">Add Image</a>
+        <a class="button" href="{{ url_for('add_video', id=employee.id) }}">Add Video</a>
         <a class="button" href="{{ url_for('list_employees') }}">Back to employee list</a>
 
         <!-- Back to top button -->
