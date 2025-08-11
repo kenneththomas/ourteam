@@ -881,6 +881,52 @@ def delete_comment(comment_id):
     db.session.commit()
     return jsonify({'success': True}), 200
 
+@app.route('/delete_image/<int:image_id>', methods=['POST'])
+def delete_image(image_id):
+    image = EmployeeImage.query.get_or_404(image_id)
+    
+    # Delete the actual file if it's an uploaded file
+    if image.image_url and image.image_url.startswith('/static/uploads/'):
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], image.image_url.replace('/static/', ''))
+        try:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                print(f"Deleted image file: {file_path}")
+        except Exception as e:
+            print(f"Error deleting image file {file_path}: {str(e)}")
+    
+    db.session.delete(image)
+    db.session.commit()
+    return jsonify({'success': True}), 200
+
+@app.route('/delete_video/<int:video_id>', methods=['POST'])
+def delete_video(video_id):
+    video = EmployeeVideo.query.get_or_404(video_id)
+    
+    # Delete the actual video file if it's an uploaded file
+    if video.video_url and video.video_url.startswith('/static/uploads/'):
+        video_file_path = os.path.join(app.config['UPLOAD_FOLDER'], video.video_url.replace('/static/', ''))
+        try:
+            if os.path.exists(video_file_path):
+                os.remove(video_file_path)
+                print(f"Deleted video file: {video_file_path}")
+        except Exception as e:
+            print(f"Error deleting video file {video_file_path}: {str(e)}")
+    
+    # Delete the thumbnail file if it's an uploaded file
+    if video.thumbnail_url and video.thumbnail_url.startswith('/static/uploads/'):
+        thumbnail_file_path = os.path.join(app.config['UPLOAD_FOLDER'], video.thumbnail_url.replace('/static/', ''))
+        try:
+            if os.path.exists(thumbnail_file_path):
+                os.remove(thumbnail_file_path)
+                print(f"Deleted thumbnail file: {thumbnail_file_path}")
+        except Exception as e:
+            print(f"Error deleting thumbnail file {thumbnail_file_path}: {str(e)}")
+    
+    db.session.delete(video)
+    db.session.commit()
+    return jsonify({'success': True}), 200
+
 from sqlalchemy.exc import IntegrityError
 
 @app.route('/employee/<int:id>/add_friend', methods=['POST'])

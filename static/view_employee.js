@@ -16,11 +16,12 @@ $(document).ready(function() {
     });
 
     // Image modal functions
-    function showImageModal(imageUrl, caption) {
+    function showImageModal(imageUrl, caption, imageId) {
         $('#imageModal').css('display', 'block');
         $('#fullImage').attr('src', imageUrl);
         $('#caption').text(caption);
         window.currentImageUrl = imageUrl;
+        window.currentImageId = imageId;
         $('#setProfilePictureButton').css('display', 'block');
     }
 
@@ -34,11 +35,12 @@ $(document).ready(function() {
     }
 
     // Video modal functions
-    function showVideoModal(videoUrl, caption) {
+    function showVideoModal(videoUrl, caption, videoId) {
         $('#videoModal').css('display', 'block');
         $('#videoSource').attr('src', videoUrl);
         $('#fullVideo')[0].load();
         $('#videoCaption').text(caption);
+        window.currentVideoId = videoId;
     }
 
     function closeVideoModal() {
@@ -100,6 +102,59 @@ $(document).ready(function() {
         });
     });
 
+    // Delete functions
+    function deleteImage(imageId) {
+        if (confirm('Are you sure you want to delete this image?')) {
+            $.ajax({
+                url: '/delete_image/' + imageId,
+                type: 'POST',
+                success: function(result) {
+                    // Remove the image container from the gallery
+                    $('.image-container').each(function() {
+                        if ($(this).find('img').attr('onclick').includes('showImageModal') && 
+                            $(this).find('img').attr('onclick').includes(imageId.toString())) {
+                            $(this).remove();
+                        }
+                    });
+                    // If no more images or videos, hide the gallery section
+                    if ($('.gallery .image-container, .gallery .video-container').length === 0) {
+                        $('.gallery').parent().hide();
+                    }
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                    alert('An error occurred while deleting the image.');
+                }
+            });
+        }
+    }
+
+    function deleteVideo(videoId) {
+        if (confirm('Are you sure you want to delete this video?')) {
+            $.ajax({
+                url: '/delete_video/' + videoId,
+                type: 'POST',
+                success: function(result) {
+                    // Remove the video container from the gallery
+                    $('.video-container').each(function() {
+                        if ($(this).find('img, .video-placeholder').attr('onclick').includes('showVideoModal') && 
+                            $(this).find('img, .video-placeholder').attr('onclick').includes(videoId.toString())) {
+                            $(this).remove();
+                        }
+                    });
+                    // If no more images or videos, hide the gallery section
+                    if ($('.gallery .image-container, .gallery .video-container').length === 0) {
+                        $('.gallery').parent().hide();
+                    }
+                },
+                error: function(error) {
+                    console.log('Error:', error);
+                    alert('An error occurred while deleting the video.');
+                }
+            });
+        }
+    }
+
     // Expose functions to global scope
     window.showModal = showModal;
     window.closeModal = closeModal;
@@ -107,4 +162,6 @@ $(document).ready(function() {
     window.showVideoModal = showVideoModal;
     window.closeVideoModal = closeVideoModal;
     window.setProfilePicture = setProfilePicture;
+    window.deleteImage = deleteImage;
+    window.deleteVideo = deleteVideo;
 });

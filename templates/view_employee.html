@@ -135,19 +135,21 @@
             <div class="gallery">
                 {% for image in images %}
                     <div class="image-container">
-                        <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" onclick="showImageModal('{{ image.image_url }}', '{{ image.caption }}')">
+                        <img class="employee-image" src="{{ image.image_url }}" alt="Employee image" onclick="showImageModal('{{ image.image_url }}', '{{ image.caption }}', {{ image.id }})">
+                        <button class="delete-gallery-item" onclick="deleteImage({{ image.id }})" title="Delete image">×</button>
                     </div>
                 {% endfor %}
                 {% for video in videos %}
                     <div class="video-container">
                         {% if video.thumbnail_url %}
-                            <img class="employee-video-thumbnail" src="{{ video.thumbnail_url }}" alt="Video thumbnail" onclick="showVideoModal('{{ video.video_url }}', '{{ video.caption }}')">
+                            <img class="employee-video-thumbnail" src="{{ video.thumbnail_url }}" alt="Video thumbnail" onclick="showVideoModal('{{ video.video_url }}', '{{ video.caption }}', {{ video.id }})">
                         {% else %}
-                            <div class="video-placeholder" onclick="showVideoModal('{{ video.video_url }}', '{{ video.caption }}')">
+                            <div class="video-placeholder" onclick="showVideoModal('{{ video.video_url }}', '{{ video.caption }}', {{ video.id }})">
                                 <span class="play-icon">▶</span>
                                 <span class="video-label">Video</span>
                             </div>
                         {% endif %}
+                        <button class="delete-gallery-item" onclick="deleteVideo({{ video.id }})" title="Delete video">×</button>
                     </div>
                 {% endfor %}
             </div>

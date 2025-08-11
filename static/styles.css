@@ -570,6 +570,7 @@ table.leaderboard {
     justify-content: center;  /* Center the image horizontally */
     align-items: center;  /* Center the image vertically */
     border: 1px solid #443e3e;  /* Add a border around the container */
+    position: relative;  /* For positioning delete buttons */
 }
 .employee-image {
     max-width: 100%;
@@ -635,6 +636,30 @@ table.leaderboard {
     color: white;
     margin-top: 10px;
     font-size: 16px;
+}
+
+.delete-gallery-item {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background-color 0.2s ease;
+}
+
+.delete-gallery-item:hover {
+    background: rgba(255, 0, 0, 1);
 }
 .modal {
     display: none;
