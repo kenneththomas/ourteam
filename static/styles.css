@@ -20,34 +20,35 @@ body {
     background-color: #f9fafb;
     line-height: 1.5;
     margin: 0;
-    padding-top: 60px; /* Adjust this value to match your navbar's height */
+    padding-top: 70px; /* Adjust this value to match your navbar's height */
 }
 
-nav {
+/* Legacy nav styles - overridden by new navbar */
+nav.legacy-nav {
     background-color: #3B5998;
     padding: 10px 0;
 }
 
-nav ul {
+nav.legacy-nav ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
     overflow: hidden;
 }
 
-nav ul li {
+nav.legacy-nav ul li {
     display: inline;
     margin-right: 20px;
 }
 
-nav ul li a {
+nav.legacy-nav ul li a {
     font-weight: bold;
     color: white;
     text-decoration: none;
     padding: 5px 10px;
 }
 
-nav ul li a:hover {
+nav.legacy-nav ul li a:hover {
     text-decoration: underline;
 }
 
@@ -369,7 +370,8 @@ h1 {
     font-style: italic;
 }
 
-.navbar {
+/* Legacy navbar styles - overridden by new navbar */
+.navbar.legacy-navbar {
     position: fixed;
     top: 0;
     width: 100%;
@@ -378,44 +380,44 @@ h1 {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-nav {
+nav.legacy-nav {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
 }
 
-nav ul {
+nav.legacy-nav ul {
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 60px;
 }
 
-nav ul li {
+nav.legacy-nav ul li {
     margin: 0;
     padding: 0;
 }
 
-nav ul li a {
+nav.legacy-nav ul li a {
     display: block;
     padding: 8px 16px;
     border-radius: 4px;
     transition: all 0.2s ease;
 }
 
-nav ul li a:hover {
+nav.legacy-nav ul li a:hover {
     background-color: rgba(255, 255, 255, 0.1);
     text-decoration: none;
 }
 
-/* Search form styling */
-nav ul li form {
+/* Legacy Search form styling */
+nav.legacy-nav ul li form {
     display: flex;
     gap: 8px;
     align-items: center;
 }
 
-nav ul li form input[type="text"] {
+nav.legacy-nav ul li form input[type="text"] {
     padding: 8px 12px;
     border: none;
     border-radius: 4px;
@@ -424,11 +426,11 @@ nav ul li form input[type="text"] {
     min-width: 200px;
 }
 
-nav ul li form input[type="text"]::placeholder {
+nav.legacy-nav ul li form input[type="text"]::placeholder {
     color: rgba(255, 255, 255, 0.7);
 }
 
-nav ul li form input[type="submit"] {
+nav.legacy-nav ul li form input[type="submit"] {
     padding: 8px 16px;
     border: none;
     border-radius: 4px;
@@ -438,7 +440,7 @@ nav ul li form input[type="submit"] {
     transition: background-color 0.2s ease;
 }
 
-nav ul li form input[type="submit"]:hover {
+nav.legacy-nav ul li form input[type="submit"]:hover {
     background-color: #45a049;
 }
 
@@ -1129,14 +1131,14 @@ input:focus, textarea:focus {
     box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
-/* Modern navbar */
-.navbar {
+/* Modern navbar - overridden by inline styles in navbar.html */
+.navbar.modern-navbar {
     background: white;
     box-shadow: var(--shadow-sm);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-nav ul li a {
+nav.modern-nav ul li a {
     color: var(--text-primary);
     font-weight: 500;
     padding: 0.75rem 1rem;
@@ -1144,7 +1146,7 @@ nav ul li a {
     transition: all 0.2s ease;
 }
 
-nav ul li a:hover {
+nav.modern-nav ul li a:hover {
     background-color: var(--secondary-color);
     color: var(--primary-color);
 }

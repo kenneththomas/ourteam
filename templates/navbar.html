@@ -1,24 +1,450 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='qa.css') }}">
 <div class="navbar">
-<nav>
-    <ul>
-        <li><a href="{{ url_for('index') }}">Home</a></li>
-        <li><a href="{{ url_for('list_employees') }}">View Employee List</a></li>
-        <li><a href="{{ url_for('org_tree', id=1) }}">Org Tree</a></li>
-        <li><a href="{{ url_for('add_employee') }}">Create New Employee</a></li>
-        <li><a href="{{ url_for('recent_actions') }}">Recent Actions</a></li>
-        <li><a href="{{ url_for('manage_groups') }}">Manage Groups</a></li>
-        <li><a href="{{ url_for('leaderboard') }}">Leaderboard</a></li>
-        <li><a href="{{ url_for('comment') }}">Test Comment</a></li>
-        <li><a href="{{ url_for('test_message') }}">Test Message</a></li>
-        <li><a href="{{ url_for('view_all_statuses') }}">All Statuses</a></li>
-        <li>
-            <form action="/search" method="get" style="display: inline-block; vertical-align: middle; float: right;">
-                <input type="text" name="query" placeholder="Search employees...">
-                <input type="submit" value="Search">
-            </form>
-        </li>
-    </ul>
-</nav>
+    <nav class="navbar-container">
+        <div class="navbar-brand">
+            <a href="{{ url_for('index') }}" class="brand-link">
+                <img src="{{ url_for('static', filename='resources/logo.png') }}" alt="OurTeam Logo" class="navbar-logo">
+                <span class="brand-text">OurTeam</span>
+            </a>
+        </div>
+        
+        <div class="navbar-menu" id="navbar-menu">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a href="{{ url_for('index') }}" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="{{ url_for('list_employees') }}" class="nav-link">Employees</a></li>
+                <li class="nav-item"><a href="{{ url_for('org_tree', id=1) }}" class="nav-link">Org Tree</a></li>
+                <li class="nav-item"><a href="{{ url_for('add_employee') }}" class="nav-link">Add Employee</a></li>
+                <li class="nav-item"><a href="{{ url_for('recent_actions') }}" class="nav-link">Recent Actions</a></li>
+                <li class="nav-item"><a href="{{ url_for('manage_groups') }}" class="nav-link">Groups</a></li>
+                <li class="nav-item"><a href="{{ url_for('leaderboard') }}" class="nav-link">Leaderboard</a></li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">Tools</a>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('comment') }}" class="dropdown-item">Test Comment</a>
+                        <a href="{{ url_for('test_message') }}" class="dropdown-item">Test Message</a>
+                        <a href="{{ url_for('view_all_statuses') }}" class="dropdown-item">All Statuses</a>
+                    </div>
+                </li>
+            </ul>
+            
+            <div class="navbar-search">
+                <form action="/search" method="get" class="search-form">
+                    <div class="search-input-group">
+                        <input type="text" name="query" placeholder="Search employees..." class="search-input">
+                        <button type="submit" class="search-button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <button class="navbar-toggle" id="navbar-toggle" aria-label="Toggle navigation menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+    </nav>
 </div>
+
+<style>
+/* Modern Navbar Styles */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+}
+
+/* Brand Section */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #1f2937;
+    font-weight: 700;
+    font-size: 1.25rem;
+    transition: color 0.3s ease;
+}
+
+.brand-link:hover {
+    color: #4f46e5;
+    text-decoration: none;
+}
+
+.navbar-logo {
+    width: 32px;
+    height: 32px;
+    margin-right: 0.75rem;
+    border-radius: 6px;
+}
+
+.brand-text {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Navigation Menu */
+.navbar-menu {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex: 1;
+    justify-content: center;
+}
+
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    color: #6b7280;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    color: #4f46e5;
+    background-color: rgba(79, 70, 229, 0.08);
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+/* Dropdown Menu */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    content: '▼';
+    font-size: 0.6rem;
+    margin-left: 0.5rem;
+    transition: transform 0.2s ease;
+}
+
+.dropdown:hover .dropdown-toggle::after {
+    transform: rotate(180deg);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 0.5rem 0;
+    min-width: 180px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: block;
+    padding: 0.75rem 1rem;
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    color: #4f46e5;
+    background-color: rgba(79, 70, 229, 0.08);
+    text-decoration: none;
+}
+
+/* Search Section */
+.navbar-search {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.search-form {
+    position: relative;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    padding: 0.25rem;
+    transition: all 0.2s ease;
+    min-width: 280px;
+}
+
+.search-input-group:focus-within {
+    background: white;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    color: #1f2937;
+    outline: none;
+}
+
+.search-input::placeholder {
+    color: #9ca3af;
+}
+
+.search-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 36px;
+    height: 36px;
+}
+
+.search-button:hover {
+    background: #4338ca;
+    transform: scale(1.05);
+}
+
+/* Mobile Toggle */
+.navbar-toggle {
+    display: none;
+    flex-direction: column;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    gap: 4px;
+}
+
+.hamburger-line {
+    width: 24px;
+    height: 2px;
+    background: #6b7280;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.navbar-toggle:hover .hamburger-line {
+    background: #4f46e5;
+}
+
+/* Mobile Styles */
+@media (max-width: 1024px) {
+    .navbar-container {
+        padding: 0 1rem;
+    }
+    
+    .navbar-menu {
+        gap: 1rem;
+    }
+    
+    .search-input-group {
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-toggle {
+        display: flex;
+    }
+    
+    .navbar-menu {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        flex-direction: column;
+        padding: 1rem;
+        gap: 0.5rem;
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .navbar-menu.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .navbar-nav {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.25rem;
+    }
+    
+    .nav-link {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+    }
+    
+    .navbar-search {
+        width: 100%;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    
+    .search-input-group {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        border: none;
+        background: #f8fafc;
+        margin-top: 0.5rem;
+        border-radius: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-container {
+        padding: 0 0.75rem;
+    }
+    
+    .brand-text {
+        display: none;
+    }
+    
+    .navbar-logo {
+        margin-right: 0;
+    }
+}
+
+/* Animation for navbar scroll */
+.navbar.scrolled {
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 2px 30px rgba(0, 0, 0, 0.12);
+}
+</style>
+
+<script>
+// Mobile menu toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const toggle = document.getElementById('navbar-toggle');
+    const menu = document.getElementById('navbar-menu');
+    
+    if (toggle && menu) {
+        toggle.addEventListener('click', function() {
+            menu.classList.toggle('active');
+            
+            // Animate hamburger
+            const lines = toggle.querySelectorAll('.hamburger-line');
+            lines.forEach((line, index) => {
+                if (menu.classList.contains('active')) {
+                    if (index === 0) line.style.transform = 'rotate(45deg) translate(6px, 6px)';
+                    if (index === 1) line.style.opacity = '0';
+                    if (index === 2) line.style.transform = 'rotate(-45deg) translate(6px, -6px)';
+                } else {
+                    line.style.transform = '';
+                    line.style.opacity = '';
+                }
+            });
+        });
+    }
+    
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!toggle.contains(e.target) && !menu.contains(e.target)) {
+            menu.classList.remove('active');
+            const lines = toggle.querySelectorAll('.hamburger-line');
+            lines.forEach(line => {
+                line.style.transform = '';
+                line.style.opacity = '';
+            });
+        }
+    });
+    
+    // Navbar scroll effect
+    let lastScrollTop = 0;
+    const navbar = document.querySelector('.navbar');
+    
+    window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        if (scrollTop > 100) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+        
+        lastScrollTop = scrollTop;
+    });
+});
+</script>
