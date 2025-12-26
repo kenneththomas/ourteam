@@ -17,7 +17,7 @@ $(document).ready(function() {
 
     // Image modal functions
     function showImageModal(imageUrl, caption, imageId) {
-        $('#imageModal').css('display', 'block');
+        $('#imageModal').css('display', 'flex');
         $('#fullImage').attr('src', imageUrl);
         $('#caption').text(caption);
         window.currentImageUrl = imageUrl;
@@ -52,8 +52,7 @@ $(document).ready(function() {
     // Close the modal when clicking anywhere outside the image or video
     $(window).click(function(event) {
         if (event.target.id === 'imageModal') {
-            $('#imageModal').css('display', 'none');
-            $('#setProfilePictureButton').css('display', 'none');
+            closeModal();
         }
         if (event.target.id === 'videoModal') {
             closeVideoModal();

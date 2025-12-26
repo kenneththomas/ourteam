@@ -666,19 +666,56 @@ table.leaderboard {
 .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.9);
+    /* Use flexbox for proper centering */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px 20px;
+    box-sizing: border-box;
+    /* Smooth fade-in animation */
+    animation: fadeIn 0.3s ease-in-out;
 }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .modal-content {
-    margin: auto;
+    margin: 0 auto 20px;
     display: block;
-    width: 80%;
-    max-width: 700px;
+    max-width: 90%;
+    max-height: calc(90vh - 180px); /* Leave space for caption, button, and padding */
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    /* Ensure image maintains aspect ratio and fits within viewport */
+    /* Smooth scale-in animation */
+    animation: scaleIn 0.3s ease-in-out;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 .close {
     position: absolute;
@@ -688,20 +725,52 @@ table.leaderboard {
     font-size: 40px;
     font-weight: bold;
     cursor: pointer;
+    z-index: 1001;
+    transition: color 0.2s ease;
+    line-height: 1;
 }
+
+.close:hover {
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
 #caption {
-    color: #333; /* A softer, modern color */
+    color: #fff;
     text-align: center;
-    padding: 20px;
-    width: 80%;
-    max-width: 700px;
-    height: auto; /* Adjust height to fit content */
-    margin: 0 auto; /* Center the caption */
-    border: 1px solid #ddd; /* Add a subtle border */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-    font-family: 'Arial', sans-serif; /* Modern, clean font */
-    background-color: #f9f9f9; /* Light background for contrast */
+    padding: 15px 20px;
+    width: 90%;
+    max-width: 800px;
+    height: auto;
+    margin: 0 auto 15px;
+    border-radius: 8px;
+    font-family: 'Inter', 'Roboto', sans-serif;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    font-size: 16px;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+#setProfilePictureButton {
+    display: none;
+    margin: 0 auto 20px;
+    padding: 12px 24px;
+    background-color: #3B5998;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#setProfilePictureButton:hover {
+    background-color: #4c70ba;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 
