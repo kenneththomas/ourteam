@@ -118,6 +118,7 @@ def seed_demo():
         person = Employee(
             name=data["name"],
             title=data["title"],
+            company="OurTeam Industries",
             department=data["department"],
             email=data["email"],
             location=data["location"],

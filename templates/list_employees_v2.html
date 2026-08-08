@@ -10,8 +10,9 @@
 <section class="page-shell directory-tools">
     <div class="directory-count"><strong>{{ employees.total }}</strong><span>people on record</span></div>
     <form id="directory-filters" class="filter-bar">
+        <label>Company<select id="company-filter"><option value="">All companies</option>{% for company in companies %}<option value="{{ company[0] }}" {{ 'selected' if current_company == company[0] else '' }}>{{ company[0] }}</option>{% endfor %}</select></label>
         <label>Department<select id="department-filter"><option value="">All departments</option>{% for dept in departments %}<option value="{{ dept[0] }}" {{ 'selected' if current_department == dept[0] else '' }}>{{ dept[0] }}</option>{% endfor %}</select></label>
-        <label>Sort by<select id="sort-by"><option value="name" {{ 'selected' if current_sort == 'name' else '' }}>Name</option><option value="department" {{ 'selected' if current_sort == 'department' else '' }}>Department</option><option value="title" {{ 'selected' if current_sort == 'title' else '' }}>Title</option><option value="level" {{ 'selected' if current_sort == 'level' else '' }}>Reputation</option></select></label>
+        <label>Sort by<select id="sort-by"><option value="name" {{ 'selected' if current_sort == 'name' else '' }}>Name</option><option value="company" {{ 'selected' if current_sort == 'company' else '' }}>Company</option><option value="department" {{ 'selected' if current_sort == 'department' else '' }}>Department</option><option value="title" {{ 'selected' if current_sort == 'title' else '' }}>Title</option><option value="level" {{ 'selected' if current_sort == 'level' else '' }}>Reputation</option></select></label>
         <label>Direction<select id="sort-order"><option value="asc" {{ 'selected' if current_order == 'asc' else '' }}>Ascending</option><option value="desc" {{ 'selected' if current_order == 'desc' else '' }}>Descending</option></select></label>
     </form>
 </section>
@@ -19,11 +20,11 @@
     {% for employee in employees.items %}
     <a class="directory-card" href="{{ url_for('view_employee', id=employee.id) }}">
         <div class="directory-card-top">{{ avatar(employee, 'lg') }}<span>#{{ '%03d'|format(employee.id) }}</span></div>
-        <div><small>{{ employee.department or 'Unassigned' }}</small><h2>{{ employee.name }}</h2><p>{{ employee.title }}</p></div>
+        <div><small>{{ employee.company }} · {{ employee.department or 'Unassigned' }}</small><h2>{{ employee.name }}</h2><p>{{ employee.title }}</p></div>
         <div class="directory-card-foot"><span>{{ employee.location or 'Somewhere' }}</span><b>View dossier ↗</b></div>
     </a>
     {% else %}<div class="empty-state wide"><span>Nobody is here.</span><p>Add someone and begin the paperwork.</p></div>{% endfor %}
 </section>
-<nav class="page-shell pager" aria-label="Directory pages">{% if employees.has_prev %}<a href="{{ url_for('list_employees', page=employees.prev_num, department=current_department, sort=current_sort, order=current_order) }}">← Previous</a>{% endif %}<span>Page {{ employees.page }} of {{ employees.pages or 1 }}</span>{% if employees.has_next %}<a href="{{ url_for('list_employees', page=employees.next_num, department=current_department, sort=current_sort, order=current_order) }}">Next →</a>{% endif %}</nav>
+<nav class="page-shell pager" aria-label="Directory pages">{% if employees.has_prev %}<a href="{{ url_for('list_employees', page=employees.prev_num, company=current_company, department=current_department, sort=current_sort, order=current_order) }}">← Previous</a>{% endif %}<span>Page {{ employees.page }} of {{ employees.pages or 1 }}</span>{% if employees.has_next %}<a href="{{ url_for('list_employees', page=employees.next_num, company=current_company, department=current_department, sort=current_sort, order=current_order) }}">Next →</a>{% endif %}</nav>
 {% endblock %}
-{% block scripts %}<script>document.querySelectorAll('#directory-filters select').forEach(select => select.addEventListener('change', () => { const department=document.querySelector('#department-filter').value; const sort=document.querySelector('#sort-by').value; const order=document.querySelector('#sort-order').value; location.href=`{{ url_for('list_employees') }}?department=${encodeURIComponent(department)}&sort=${sort}&order=${order}`; }));</script>{% endblock %}
+{% block scripts %}<script>document.querySelectorAll('#directory-filters select').forEach(select => select.addEventListener('change', () => { const company=document.querySelector('#company-filter').value; const department=document.querySelector('#department-filter').value; const sort=document.querySelector('#sort-by').value; const order=document.querySelector('#sort-order').value; location.href=`{{ url_for('list_employees') }}?company=${encodeURIComponent(company)}&department=${encodeURIComponent(department)}&sort=${sort}&order=${order}`; }));</script>{% endblock %}

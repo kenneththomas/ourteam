@@ -7,6 +7,7 @@ class EmployeeForm(FlaskForm):
     id = HiddenField('ID')
     name = StringField('Name', validators=[DataRequired()])
     title = StringField('Title', validators=[DataRequired()])
+    company = StringField('Company', validators=[DataRequired()])
     department = StringField('Department')
     email = StringField('Email', validators=[Optional()]) # removed Email()
     phone = StringField('Phone', validators=[Optional()])

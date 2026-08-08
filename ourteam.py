@@ -3,7 +3,7 @@ from models import (
     db, Employee, EmployeeImage, EmployeeVideo, Comment, Action, Group, EmployeeXP, Status, GroupComment
 )
 from forms import EmployeeForm, AddImageUrlForm, AddVideoUrlForm
-from sqlalchemy import String, cast, func, or_, desc
+from sqlalchemy import String, cast, desc, func, inspect, or_, text
 from markupsafe import Markup, escape
 import squawk
 import os
@@ -174,6 +174,25 @@ app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
 app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
 db.init_app(app)
 
+
+DEFAULT_COMPANY = os.getenv('DEFAULT_COMPANY', 'OurTeam Industries')
+
+
+def ensure_current_schema():
+    """Apply tiny SQLite-safe migrations needed by this local sandbox."""
+    columns = {column['name'] for column in inspect(db.engine).get_columns('employee')}
+    with db.engine.begin() as connection:
+        if 'company' not in columns:
+            connection.execute(text('ALTER TABLE employee ADD COLUMN company VARCHAR'))
+        needs_backfill = connection.execute(
+            text("SELECT 1 FROM employee WHERE company IS NULL OR TRIM(company) = '' LIMIT 1")
+        ).first()
+        if needs_backfill:
+            connection.execute(
+                text("UPDATE employee SET company = :company WHERE company IS NULL OR TRIM(company) = ''"),
+                {'company': DEFAULT_COMPANY},
+            )
+
 @app.route('/')
 def index():
     # Get featured employees (most active based on XP)
@@ -215,11 +234,14 @@ def list_employees():
     sort_by = request.args.get('sort', 'name')  # Default sort by name
     order = request.args.get('order', 'asc')
     
-    # Add department filter
+    company = request.args.get('company')
     department = request.args.get('department')
     
     # Base query
     query = Employee.query
+
+    if company:
+        query = query.filter_by(company=company)
     
     # Apply department filter if specified
     if department:
@@ -230,6 +252,8 @@ def list_employees():
         query = query.order_by(Employee.name.asc() if order == 'asc' else Employee.name.desc())
     elif sort_by == 'department':
         query = query.order_by(Employee.department.asc() if order == 'asc' else Employee.department.desc())
+    elif sort_by == 'company':
+        query = query.order_by(Employee.company.asc() if order == 'asc' else Employee.company.desc())
     elif sort_by == 'title':
         query = query.order_by(Employee.title.asc() if order == 'asc' else Employee.title.desc())
     elif sort_by == 'level':
@@ -238,17 +262,23 @@ def list_employees():
         )
     
     # Get all unique departments for the filter dropdown, sorted alphabetically
-    departments = db.session.query(Employee.department)\
+    department_query = db.session.query(Employee.department)
+    if company:
+        department_query = department_query.filter(Employee.company == company)
+    departments = department_query\
         .distinct()\
         .order_by(Employee.department)\
         .all()
+    companies = db.session.query(Employee.company).distinct().order_by(Employee.company).all()
     
     employees = query.paginate(page=page, per_page=per_page)
     
     return render_template(
         'list_employees_v2.html',
         employees=employees,
+        companies=companies,
         departments=departments,
+        current_company=company,
         current_department=department,
         current_sort=sort_by,
         current_order=order
@@ -289,6 +319,7 @@ def view_employee(id):
     department = employee.department
     session['previous_employee_id'] = id
     session['previous_employee_department'] = department
+    session['previous_employee_company'] = employee.company
     manager_chain = None
     if employee.reports_to:
         manager_chain = get_management_chain(employee)
@@ -344,7 +375,10 @@ def org_tree(id):
     reports = get_reports(id)
     
     # Get department members for context
-    department_members = Employee.query.filter_by(department=employee.department).all()
+    department_members = Employee.query.filter_by(
+        department=employee.department,
+        company=employee.company,
+    ).all()
     
     return render_template('org_tree_v2.html',
                          employee=employee,
@@ -382,21 +416,29 @@ def add_employee():
     if 'previous_employee_department' in session:
         form.department.data = session['previous_employee_department']
         del session['previous_employee_department']
+    if 'previous_employee_company' in session:
+        form.company.data = session['previous_employee_company']
+        del session['previous_employee_company']
+    elif request.method == 'GET':
+        form.company.data = DEFAULT_COMPANY
     if form.validate_on_submit():
         new_employee = Employee(
             name=form.name.data,
             title=form.title.data,
+            company=form.company.data,
             department=form.department.data,
             email=form.email.data,
             phone=form.phone.data,
             picture_url=form.picture_url.data,
-            reports_to=form.reports_to.data
+            reports_to=form.reports_to.data,
+            bio=form.bio.data,
+            location=form.location.data,
         )
         db.session.add(new_employee)
         db.session.commit()
 
         #action for new employee
-        action = Action(description=f"New employee added: {new_employee.name} - {new_employee.department}", from_id=new_employee.id)
+        action = Action(description=f"New employee added: {new_employee.name} - {new_employee.company} / {new_employee.department}", from_id=new_employee.id)
         db.session.add(action)
         db.session.commit()
 
@@ -417,6 +459,7 @@ def edit_employee(id):
     #get original values for actions
     original_name = employee.name
     original_title = employee.title
+    original_company = employee.company
     original_department = employee.department
     original_reports_to = employee.reports_to
     original_bio = employee.bio
@@ -431,6 +474,7 @@ def edit_employee(id):
     if form.validate_on_submit():
         employee.name = form.name.data
         employee.title = form.title.data
+        employee.company = form.company.data
         employee.department = form.department.data
         employee.email = form.email.data
         employee.phone = form.phone.data
@@ -448,6 +492,10 @@ def edit_employee(id):
         #action for department change
         if form.department.data != original_department:
             action = Action(description=f"Department changed from {original_department} to {form.department.data}", from_id=employee.id)
+            db.session.add(action)
+            db.session.commit()
+        if form.company.data != original_company:
+            action = Action(description=f"Company changed from {original_company} to {form.company.data}", from_id=employee.id)
             db.session.add(action)
             db.session.commit()
         #action for reports_to change but get name of manager
@@ -819,11 +867,18 @@ def get_management_chain(employee, levels=3):
 
 @app.route('/generate_comment', methods=['POST'])
 def generate_comment():
-    from_employee = request.form.get('from')
-    to_employee = request.form.get('to')
+    from_employee = Employee.query.get(request.form.get('from'))
+    to_employee = Employee.query.get(request.form.get('to'))
     context = request.form.get('context')
 
-    prompt = f"From: {from_employee}\nTo: {to_employee}\nContext: {context}"
+    if not from_employee or not to_employee:
+        return jsonify({'error': 'Invalid employee IDs'}), 400
+
+    prompt = (
+        f"From: {from_employee.name}, {from_employee.title}, {from_employee.company}, "
+        f"{from_employee.department}\nTo: {to_employee.name}, {to_employee.title}, "
+        f"{to_employee.company}, {to_employee.department}\nContext: {context}"
+    )
     generated_comment = generate_text_from_prompt(prompt)
 
     return jsonify({'generated_comment': generated_comment})
@@ -839,9 +894,9 @@ def generate_context():
 
     if from_employee and to_employee:
         context = (
-            f"From Employee: {from_employee.name}, {from_employee.title}, {from_employee.department}, "
+            f"From Employee: {from_employee.name}, {from_employee.title}, {from_employee.company}, {from_employee.department}, "
             f"{from_employee.bio}, {from_employee.location}\n"
-            f"To Employee: {to_employee.name}, {to_employee.title}, {to_employee.department}, "
+            f"To Employee: {to_employee.name}, {to_employee.title}, {to_employee.company}, {to_employee.department}, "
             f"{to_employee.bio}, {to_employee.location}"
         )
     else:
@@ -1051,6 +1106,7 @@ def get_im_prompt_preview():
 Coworker 1:
 Name: {from_employee.name}
 Title: {from_employee.title}
+Company: {from_employee.company}
 Department: {from_employee.department}
 Bio: {from_employee.bio}
 Location: {from_employee.location}
@@ -1058,6 +1114,7 @@ Location: {from_employee.location}
 Coworker 2:
 Name: {to_employee.name}
 Title: {to_employee.title}
+Company: {to_employee.company}
 Department: {to_employee.department}
 Bio: {to_employee.bio}
 Location: {to_employee.location}
@@ -1094,6 +1151,7 @@ def generate_im_message():
 Coworker 1:
 Name: {from_employee.name}
 Title: {from_employee.title}
+Company: {from_employee.company}
 Department: {from_employee.department}
 Bio: {from_employee.bio}
 Location: {from_employee.location}
@@ -1101,6 +1159,7 @@ Location: {from_employee.location}
 Coworker 2:
 Name: {to_employee.name}
 Title: {to_employee.title}
+Company: {to_employee.company}
 Department: {to_employee.department}
 Bio: {to_employee.bio}
 Location: {to_employee.location}
@@ -1124,7 +1183,7 @@ def autocomplete_employee():
     suggestions = []
     for emp in employees:
         suggestions.append({
-            'label': f"{emp.name} ({emp.title})",
+            'label': f"{emp.name} ({emp.title}, {emp.company})",
             'value': emp.id,
             'picture': emp.picture_url
         })
@@ -1142,6 +1201,7 @@ def set_gpt_engine():
 
 with app.app_context():
     db.create_all()
+    ensure_current_schema()
 
 
 if __name__ == '__main__':

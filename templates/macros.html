@@ -8,7 +8,7 @@
 {% macro person_card(employee, context='View profile') %}
 <a class="person-card" href="{{ url_for('view_employee', id=employee.id) }}">
     {{ avatar(employee, 'lg') }}
-    <span class="person-card-copy"><strong>{{ employee.name }}</strong><span>{{ employee.title }}</span><small>{{ employee.department }}</small></span>
+    <span class="person-card-copy"><strong>{{ employee.name }}</strong><span>{{ employee.title }}</span><small>{{ employee.company }} · {{ employee.department }}</small></span>
     <span class="person-card-arrow" aria-label="{{ context }}">↗</span>
 </a>
 {% endmacro %}

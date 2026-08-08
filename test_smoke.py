@@ -36,6 +36,34 @@ class OurTeamSmokeTests(unittest.TestCase):
         with app.app_context():
             self.assertEqual(Employee.query.count(), 8)
             self.assertEqual(Employee.query.first().name, "Mira Chen")
+            self.assertEqual(Employee.query.first().company, "OurTeam Industries")
+
+    def test_profile_company_carries_into_add_employee(self):
+        self.client.get("/employee/1")
+        response = self.client.get("/employee/add")
+        self.assertIn(b'value="OurTeam Industries"', response.data)
+        self.assertIn(b'id="reports_to"', response.data)
+        self.assertIn(b'value="1"', response.data)
+
+    def test_directory_can_filter_by_company(self):
+        with app.app_context():
+            outsider = Employee(
+                name="Morgan Elsewhere",
+                title="Visiting Executive",
+                company="Elsewhere LLC",
+                department="Executive",
+            )
+            db.session.add(outsider)
+            db.session.commit()
+            outsider_id = outsider.id
+
+        response = self.client.get("/employees?company=Elsewhere%20LLC")
+        self.assertIn(b"Morgan Elsewhere", response.data)
+        self.assertNotIn(b"Mira Chen", response.data)
+
+        with app.app_context():
+            Employee.query.filter_by(id=outsider_id).delete()
+            db.session.commit()
 
     def test_ai_has_an_offline_mode(self):
         self.assertIn("AI is offline", squawk.generate_text("hello"))

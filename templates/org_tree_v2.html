@@ -5,7 +5,7 @@
 
 {% block content %}
 <section class="page-shell org-header">
-    <div><span class="section-kicker">Organizational terrain</span><h1>Who reports to whom,<br><em>more or less.</em></h1><p>Follow the reporting lines around {{ employee.name }} or search for another point in the company.</p></div>
+    <div><span class="section-kicker">{{ employee.company }} · Organizational terrain</span><h1>Who reports to whom,<br><em>more or less.</em></h1><p>Follow the reporting lines around {{ employee.name }} or search for another point in {{ employee.company }}.</p></div>
     <div class="org-search-wrap"><label for="employeeSearch">Jump to a coworker</label><div class="org-search"><input type="search" id="employeeSearch" placeholder="Type a name…" autocomplete="off"><span>⌘ K</span></div><div id="searchResults" class="search-results"></div></div>
 </section>
 
@@ -39,7 +39,7 @@
 </section>
 
 <section class="page-shell department-band">
-    <div class="section-heading"><div><span class="section-kicker">Nearby people</span><h2>{{ employee.department }} department</h2></div><a href="{{ url_for('list_employees', department=employee.department) }}">See department ↗</a></div>
+    <div class="section-heading"><div><span class="section-kicker">Nearby people · {{ employee.company }}</span><h2>{{ employee.department }} department</h2></div><a href="{{ url_for('list_employees', company=employee.company, department=employee.department) }}">See department ↗</a></div>
     <div class="colleague-row">{% for member in department_members if member.id != employee.id %}{{ person_card(member) }}{% else %}<p class="muted">A department of one. Efficient.</p>{% endfor %}</div>
 </section>
 {% endblock %}
