@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block title %}Add Image · OurTeam{% endblock %}
+{% block content %}
+<section class="page-shell inner-hero small"><div><span class="section-kicker">Personnel artifact</span><h1>Add an image.</h1><p>Attach evidence, context, or an inexplicable photograph to this employee.</p></div></section>
+<section class="page-shell form-sheet compact-sheet panel"><form method="post" enctype="multipart/form-data">{{ form.hidden_tag() }}<div class="upload-choice"><label><input type="radio" name="image_method" value="url" checked> Link from the web</label><label><input type="radio" name="image_method" value="file"> Upload a file</label></div><div class="form-fields"><label id="image-url-field">{{ form.image_url.label }}{{ form.image_url(placeholder='https://…') }}</label><label id="image-file-field" hidden>{{ form.image_file.label }}{{ form.image_file() }}</label><label>{{ form.caption.label }}{{ form.caption(placeholder='What are we looking at?') }}</label></div><div class="form-actions"><a class="button form-cancel" href="javascript:history.back()">Cancel</a>{{ form.submit(class='button button-primary') }}</div></form></section>
+{% endblock %}
+{% block scripts %}<script>document.querySelectorAll('[name=image_method]').forEach(r=>r.addEventListener('change',()=>{document.querySelector('#image-url-field').hidden=r.value==='file';document.querySelector('#image-file-field').hidden=r.value==='url';}));</script>{% endblock %}

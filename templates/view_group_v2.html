@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import avatar, person_card %}
+{% block title %}{{ group.groupname }} · OurTeam{% endblock %}
+{% block content %}
+<section class="group-hero"><div class="page-shell"><a href="{{ url_for('manage_groups') }}">← All groups</a><span class="section-kicker">Internal circle · {{ members|length }} members</span><h1>{{ group.groupname }}</h1><p>This channel is fictional, searchable, and almost certainly being monitored by someone.</p></div></section>
+<div class="page-shell group-detail-grid">
+    <main><div class="section-heading"><div><span class="section-kicker">Channel history</span><h2>Discussion</h2></div></div><form class="panel wall-composer group-composer" id="group-comment-form"><div class="field"><label for="group-author">Speaking as</label><select id="group-author" name="author_id" required><option value="">Choose a coworker</option>{% for employee in all_employees %}<option value="{{ employee.id }}">{{ employee.name }}</option>{% endfor %}</select></div><div class="field grow"><label for="group-content">Message</label><textarea id="group-content" name="content" placeholder="Add to the record…" required></textarea></div><button class="button button-primary" type="submit">Post</button></form><div class="wall" id="group-comments">{% for comment in comments %}{% include 'group_comment_v2.html' %}{% else %}<div class="empty-state"><span>No discussion yet.</span><p>A suspiciously disciplined group.</p></div>{% endfor %}</div></main>
+    <aside class="panel member-panel"><span class="section-kicker">Known associates</span><h2>Members</h2>{% for member in members %}{{ person_card(member) }}{% else %}<p class="muted">Nobody has joined.</p>{% endfor %}</aside>
+</div>
+{% endblock %}
+{% block scripts %}<script>document.querySelector('#group-comment-form')?.addEventListener('submit', async event => { event.preventDefault(); const form=event.currentTarget; const response=await fetch('{{ url_for('add_group_comment', id=group.id) }}',{method:'POST',body:new FormData(form)}); if(response.ok){document.querySelector('#group-comments').insertAdjacentHTML('afterbegin',await response.text());form.reset();}});</script>{% endblock %}

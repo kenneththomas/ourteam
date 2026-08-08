@@ -246,7 +246,7 @@ def list_employees():
     employees = query.paginate(page=page, per_page=per_page)
     
     return render_template(
-        'list_employees.html',
+        'list_employees_v2.html',
         employees=employees,
         departments=departments,
         current_department=department,
@@ -401,7 +401,7 @@ def add_employee():
         db.session.commit()
 
         return redirect(url_for('view_employee', id=new_employee.id))
-    return render_template('add_edit_employee.html', form=form)
+    return render_template('add_edit_employee_v2.html', form=form)
 
 @app.route('/employee/edit/<int:id>', methods=['GET', 'POST'])
 def edit_employee(id):
@@ -488,18 +488,18 @@ def edit_employee(id):
             employee_xp.xp += xp_actions['update_bio']
             db.session.commit()
         return redirect(url_for('view_employee', id=employee.id))
-    return render_template('add_edit_employee.html', form=form)
+    return render_template('add_edit_employee_v2.html', form=form)
 
 @app.route('/search')
 def search():
     query = (request.args.get('query') or '').strip()
     if not query:
-        return render_template('search_results.html', results=[])
+        return render_template('search_results_v2.html', results=[])
     results = Employee.query.filter(or_(
         Employee.name.ilike(f'%{query}%'),
         cast(Employee.id, String) == query,
     )).all()
-    return render_template('search_results.html', results=results)
+    return render_template('search_results_v2.html', results=results)
 
 @app.route('/employee/<int:id>/add_image', methods=['GET', 'POST'])
 def add_image(id):
@@ -513,14 +513,14 @@ def add_image(id):
                 image_url = f"/static/{saved_path}"
             else:
                 flash('Error saving uploaded file.')
-                return render_template('add_image.html', form=form)
+                return render_template('add_image_v2.html', form=form)
         
         image = EmployeeImage(image_url=image_url, employee_id=id, caption=form.caption.data)
         db.session.add(image)
         db.session.commit()
         flash('Image added successfully!')
         return redirect(url_for('view_employee', id=id))
-    return render_template('add_image.html', form=form)
+    return render_template('add_image_v2.html', form=form)
 
 @app.route('/employee/<int:id>/add_video', methods=['GET', 'POST'])
 def add_video(id):
@@ -544,7 +544,7 @@ def add_video(id):
             else:
                 print(f"ERROR: Failed to save video file")
                 flash('Error saving uploaded video file.')
-                return render_template('add_video.html', form=form)
+                return render_template('add_video_v2.html', form=form)
         
         # Handle thumbnail - either from URL, uploaded file, or auto-generated
         thumbnail_url = form.thumbnail_url.data
@@ -554,7 +554,7 @@ def add_video(id):
                 thumbnail_url = f"/static/{saved_thumbnail_path}"
             else:
                 flash('Error saving uploaded thumbnail file.')
-                return render_template('add_video.html', form=form)
+                return render_template('add_video_v2.html', form=form)
         elif not thumbnail_url and video_file_path:
             # Auto-generate thumbnail from video if no thumbnail provided
             print(f"DEBUG: Attempting to auto-generate thumbnail for video: {video_file_path}")
@@ -594,7 +594,7 @@ def add_video(id):
         db.session.commit()
         flash('Video added successfully!')
         return redirect(url_for('view_employee', id=id))
-    return render_template('add_video.html', form=form)
+    return render_template('add_video_v2.html', form=form)
 
 @app.route('/add_comment/<id>', methods=['POST'])
 def add_comment(id):
@@ -679,7 +679,8 @@ def comment():
         comment.to_employee = Employee.query.get(comment.employee_id)
 
     statuses = Status.query.order_by(Status.timestamp.desc()).limit(5).all()
-    return render_template('test_comment.html', comments=comments)
+    employees = Employee.query.order_by(Employee.name).all()
+    return render_template('test_comment_v2.html', comments=comments, employees=employees)
 
 
 @app.route('/department/<department_name>', methods=['GET'])
@@ -695,7 +696,7 @@ def recent_actions():
     actions.items = list(set(actions.items))
     next_url = url_for('recent_actions', page=actions.next_num) if actions.has_next else None
     prev_url = url_for('recent_actions', page=actions.prev_num) if actions.has_prev else None
-    return render_template('recent_actions.html', actions=actions.items, next_url=next_url, prev_url=prev_url)
+    return render_template('recent_actions_v2.html', actions=actions.items, next_url=next_url, prev_url=prev_url)
 
 @app.route('/add_to_group/<int:id>', methods=['POST'])
 def add_to_group(id):
@@ -729,7 +730,7 @@ def manage_groups():
         else:
             flash('Group name is required.')
     groups = Group.query.all()
-    return render_template('manage_groups.html', groups=groups)
+    return render_template('manage_groups_v2.html', groups=groups)
 
 @app.route('/view_group/<int:id>', methods=['GET'])
 def view_group(id):
@@ -740,7 +741,8 @@ def view_group(id):
     
     members = group.members.all()
     comments = group.comments  # This will get comments in descending order
-    return render_template('view_group.html', group=group, members=members, comments=comments)
+    all_employees = Employee.query.order_by(Employee.name).all()
+    return render_template('view_group_v2.html', group=group, members=members, comments=comments, all_employees=all_employees)
 
 @app.route('/group/<int:id>/add_comment', methods=['POST'])
 def add_group_comment(id):
@@ -778,7 +780,7 @@ def add_group_comment(id):
     db.session.commit()
     
     # Return the HTML for the new comment
-    return render_template('_group_comment.html', comment=comment)
+    return render_template('group_comment_v2.html', comment=comment)
 
 leaderboard_size = 50
 @app.route('/leaderboard')
@@ -786,7 +788,7 @@ def leaderboard():
     employees = EmployeeXP.query.order_by(EmployeeXP.xp.desc()).limit(leaderboard_size).all()
 
     # Render the leaderboard template
-    return render_template('leaderboard.html', employees=employees)
+    return render_template('leaderboard_v2.html', employees=employees)
 
 previous_positions = {}
 
@@ -879,7 +881,7 @@ def list_files(subpath=''):
         else:
             files.append(item)
 
-    return render_template('file_directory.html', files=files, directories=directories, subpath=subpath)
+    return render_template('file_directory_v2.html', files=files, directories=directories, subpath=subpath)
 
 def calculate_level(xp):
     # Define the XP requirement for each level
@@ -995,8 +997,8 @@ def view_all_statuses():
     per_page = 10  # Number of statuses per page
     
     statuses = Status.query.order_by(desc(Status.timestamp)).paginate(page=page, per_page=per_page, error_out=False)
-    
-    return render_template('all_statuses.html', statuses=statuses)
+    all_employees = Employee.query.order_by(Employee.name).all()
+    return render_template('all_statuses_v2.html', statuses=statuses, all_employees=all_employees)
 
 @app.route('/employee/delete/<int:id>', methods=['POST'])
 def delete_employee(id):
@@ -1030,7 +1032,7 @@ def delete_employee(id):
 def test_message():
     # Get all employees to populate the coworker dropdowns on the conversation simulation page
     employees = Employee.query.all()
-    return render_template('test_message.html', employees=employees)
+    return render_template('test_message_v2.html', employees=employees)
 
 @app.route('/get_im_prompt_preview', methods=['POST'])
 def get_im_prompt_preview():

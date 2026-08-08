@@ -15,6 +15,7 @@
                 <a href="{{ url_for('org_tree', id=org_root) }}" class="{{ 'active' if request.endpoint == 'org_tree' else '' }}">Org</a>
                 <a href="{{ url_for('view_all_statuses') }}">Status</a>
                 <a href="{{ url_for('manage_groups') }}">Groups</a>
+                <a href="{{ url_for('leaderboard') }}" class="{{ 'active' if request.endpoint == 'leaderboard' else '' }}">Reputation</a>
             </div>
             <form action="{{ url_for('search') }}" method="get" class="nav-search" role="search">
                 <label class="sr-only" for="global-search">Search people</label>

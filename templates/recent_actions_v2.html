@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import avatar %}
+{% block title %}Activity Log · OurTeam{% endblock %}
+{% block content %}
+<section class="page-shell inner-hero small"><div><span class="section-kicker">Immutable-ish record</span><h1>The paper trail.</h1><p>Promotions, comments, changes, and other events someone decided to record.</p></div></section>
+<section class="page-shell ledger">
+    {% for action in actions %}<article class="ledger-row"><div class="ledger-time"><strong>{{ action.timestamp.strftime('%d') }}</strong><span>{{ action.timestamp.strftime('%b %Y') }}</span><small>{{ action.timestamp.strftime('%I:%M %p') }}</small></div><span class="ledger-dot"></span><div class="ledger-copy"><span class="section-kicker">Recorded action</span><p>{{ action.description }}</p>{% if action.from_employee %}<a href="{{ url_for('view_employee', id=action.from_employee.id) }}">{{ avatar(action.from_employee, 'xs') }} {{ action.from_employee.name }}</a>{% endif %}</div></article>{% else %}<div class="empty-state"><span>No paper trail.</span><p>Enjoy it while it lasts.</p></div>{% endfor %}
+</section>
+<nav class="page-shell pager">{% if prev_url %}<a href="{{ prev_url }}">← Newer</a>{% endif %}<span>Activity archive</span>{% if next_url %}<a href="{{ next_url }}">Older →</a>{% endif %}</nav>
+{% endblock %}

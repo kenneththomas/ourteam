@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import person_card %}
+{% block title %}Search · OurTeam{% endblock %}
+{% block content %}
+<section class="page-shell inner-hero small"><div><span class="section-kicker">Directory search</span><h1>{{ results|length }} signal{{ '' if results|length == 1 else 's' }} found.</h1><p>People matching the current transmission.</p></div></section>
+<section class="page-shell search-panel panel">{% for employee in results %}{{ person_card(employee) }}{% else %}<div class="empty-state"><span>No matching coworkers.</span><p>Try a name or exact employee number.</p></div>{% endfor %}</section>
+{% endblock %}

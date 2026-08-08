@@ -23,7 +23,12 @@ class OurTeamSmokeTests(unittest.TestCase):
         self.client = app.test_client()
 
     def test_primary_pages_render(self):
-        for path in ("/", "/employees", "/employee/1", "/org_tree/1", "/statuses", "/test_message"):
+        for path in (
+            "/", "/employees", "/employee/1", "/org_tree/1", "/statuses",
+            "/recent_actions", "/manage_groups", "/view_group/1", "/leaderboard",
+            "/employee/add", "/employee/1/add_image", "/employee/1/add_video",
+            "/test_comment", "/test_message", "/files",
+        ):
             with self.subTest(path=path):
                 self.assertEqual(self.client.get(path).status_code, 200)
 

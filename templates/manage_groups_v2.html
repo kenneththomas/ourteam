@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Groups · OurTeam{% endblock %}
+{% block content %}
+<section class="page-shell inner-hero small"><div><span class="section-kicker">Loose affiliations</span><h1>Groups, committees<br>& secret councils.</h1><p>Some have charters. Some have snacks. None have been properly audited.</p></div></section>
+<div class="page-shell groups-layout">
+    <section class="group-grid">{% for group in groups %}<a class="group-card" href="{{ url_for('view_group', id=group.id) }}"><span class="group-glyph">{{ '%02d'|format(loop.index) }}</span><div><small>{{ group.members.count() }} member{{ '' if group.members.count() == 1 else 's' }}</small><h2>{{ group.groupname }}</h2><p>{{ group.comments|length }} recorded discussion{{ '' if group.comments|length == 1 else 's' }}</p></div><b>Enter group ↗</b></a>{% else %}<div class="empty-state"><span>No factions yet.</span></div>{% endfor %}</section>
+    <aside class="panel sticky-composer"><span class="section-kicker">New affiliation</span><h2>Create a group</h2><p class="muted">Give people somewhere specific to conspire.</p><form action="{{ url_for('manage_groups') }}" method="post" class="stack-form"><label>Group name<input type="text" name="groupname" placeholder="e.g. Project Moonshot" required></label><button class="button button-primary" type="submit">Create group</button></form></aside>
+</div>
+{% endblock %}
