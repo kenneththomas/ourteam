@@ -1,19 +1,22 @@
-from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify, send_from_directory
+from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify
 from models import (
     db, Employee, EmployeeImage, EmployeeVideo, Comment, Action, Group, EmployeeXP, Status, GroupComment
 )
 from forms import EmployeeForm, AddImageUrlForm, AddVideoUrlForm
-from sqlalchemy import func, or_, desc
-from markupsafe import Markup
+from sqlalchemy import String, cast, func, or_, desc
+from markupsafe import Markup, escape
 import squawk
 import os
 import uuid
 from werkzeug.utils import secure_filename
 import cv2
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def nl2br(s):
-    #html doesnt do newlines so we need to convert them to <br> tags
-    return Markup(s.replace('\n', '<br>\n'))
+    """Render plain text with line breaks without trusting embedded HTML."""
+    return Markup(str(escape(s or '')).replace('\n', '<br>\n'))
 
 xp_actions = {
     'send_comment': 10,
@@ -22,20 +25,13 @@ xp_actions = {
 }
 
 # Global configuration for GPT engine selection
-DEFAULT_GPT_ENGINE = 'gpt-4.1-mini'
-ALLOWED_GPT_ENGINES = ['gpt-4.1-mini', 'gpt-4.1']
+DEFAULT_GPT_ENGINE = os.getenv('OPENAI_MODEL', 'gpt-5.6-luna')
+ALLOWED_GPT_ENGINES = ['gpt-5.6-luna', 'gpt-5.6-terra', 'gpt-5.6-sol']
 
 def generate_text_from_prompt(prompt):
-    """
-    Wrapper that checks the current session for the desired GPT engine.m
-    By default, uses 'gpt-4.1-mini'. If the user has selected 'gpt-4.1',
-    calls squawk.generate_text() with the engine parameter set to 'gpt-4.1'.
-    """
+    """Generate text with the model selected for this browser session."""
     engine = session.get('gpt_engine', DEFAULT_GPT_ENGINE)
-    if engine == 'gpt-4.1':
-        return squawk.generate_text(prompt, engine='gpt-4.1')
-    # Default or fallback uses gpt-4.1-mini
-    return squawk.generate_text(prompt)
+    return squawk.generate_text(prompt, engine=engine)
 
 def save_uploaded_file(file, folder):
     """Save an uploaded file and return the filename"""
@@ -55,6 +51,18 @@ def save_uploaded_file(file, folder):
         # Return the relative path for database storage
         return f"uploads/{folder}/{unique_filename}"
     return None
+
+
+def uploaded_file_path(file_url):
+    """Resolve an uploaded /static URL without allowing paths outside uploads."""
+    if not file_url or not file_url.startswith('/static/uploads/'):
+        return None
+    relative_path = file_url.removeprefix('/static/').replace('/', os.sep)
+    candidate = os.path.abspath(os.path.join(app.static_folder, relative_path))
+    upload_root = os.path.abspath(app.config['UPLOAD_FOLDER'])
+    if os.path.commonpath([candidate, upload_root]) != upload_root:
+        return None
+    return candidate
 
 def generate_video_thumbnail(video_path, thumbnail_path):
     """Generate a thumbnail from a video file using OpenCV"""
@@ -159,19 +167,19 @@ def generate_video_thumbnail(video_path, thumbnail_path):
 
 app = Flask(__name__)
 app.jinja_env.filters['nl2br'] = nl2br
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ourteam.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///ourteam.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'your-secret-key'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-only-change-me')
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
 db.init_app(app)
 
 @app.route('/')
 def index():
     # Get featured employees (most active based on XP)
     featured_employees = db.session.query(Employee, EmployeeXP)\
-        .join(EmployeeXP)\
-        .order_by(EmployeeXP.xp.desc())\
+        .outerjoin(EmployeeXP)\
+        .order_by(EmployeeXP.xp.desc().nullslast())\
         .limit(6)\
         .all()
     
@@ -183,14 +191,20 @@ def index():
     
     # Get recent activities
     recent_actions = Action.query.order_by(Action.timestamp.desc()).limit(5).all()
+    recent_statuses = Status.query.order_by(Status.timestamp.desc()).limit(6).all()
+    department_counts = db.session.query(
+        Employee.department, func.count(Employee.id)
+    ).group_by(Employee.department).order_by(func.count(Employee.id).desc()).all()
     
-    return render_template('index.html',
+    return render_template('index_v2.html',
                          featured_employees=[emp for emp, _ in featured_employees],
                          total_employees=total_employees,
                          total_departments=total_departments,
                          total_comments=total_comments,
                          total_actions=total_actions,
-                         recent_actions=recent_actions)
+                         recent_actions=recent_actions,
+                         recent_statuses=recent_statuses,
+                         department_counts=department_counts)
 
 @app.route('/employees')
 def list_employees():
@@ -249,15 +263,11 @@ def view_employee(id):
 
     if not employee_xp:
         employee_xp = EmployeeXP(employee_id=id, xp=0)
-        db.session.add(employee_xp)
 
-    employee_xp.xp += 1
-    #print employee name and xp gain
-    print(f'employee: {employee.name} xp: {employee_xp.xp} +1 xp')
     level = calculate_level(employee_xp.xp)
+    xp_at_level_start = 50 * level * (level - 1)
     next_level_xp = level * 100
-    progress = employee_xp.xp % next_level_xp
-    db.session.commit()
+    progress = max(0, employee_xp.xp - xp_at_level_start)
 
     # this is for my own broken implementation, will fix for real use later
     comanager_overrides = {
@@ -290,11 +300,14 @@ def view_employee(id):
 
     # Get recent statuses for this employee
     recent_statuses = Status.query.filter_by(employee_id=id).order_by(Status.timestamp.desc()).limit(5).all()
+    all_employees = Employee.query.order_by(Employee.name).all()
+    all_groups = Group.query.order_by(Group.groupname).all()
 
-    return render_template('view_employee.html', employee=employee, recent_actions=recent_actions, 
+    return render_template('view_employee_v2.html', employee=employee, recent_actions=recent_actions,
                            subordinates=subordinates, manager_chain=manager_chain, images=images, 
                            videos=videos, comments=comments, co_manager=co_manager, employee_xp=employee_xp, 
-                           next_level_xp=next_level_xp, progress=progress, recent_statuses=recent_statuses)
+                           next_level_xp=next_level_xp, progress=progress, recent_statuses=recent_statuses,
+                           all_employees=all_employees, all_groups=all_groups, level=level)
 
 @app.route('/org_tree/<int:id>')
 def org_tree(id):
@@ -333,7 +346,7 @@ def org_tree(id):
     # Get department members for context
     department_members = Employee.query.filter_by(department=employee.department).all()
     
-    return render_template('org_tree.html',
+    return render_template('org_tree_v2.html',
                          employee=employee,
                          managers=managers,
                          reports=reports,
@@ -439,6 +452,7 @@ def edit_employee(id):
             db.session.commit()
         #action for reports_to change but get name of manager
         if form.reports_to.data != original_reports_to:
+            action = None
             new_manager = None
             if form.reports_to.data:
                 new_manager = Employee.query.get(form.reports_to.data)
@@ -478,11 +492,13 @@ def edit_employee(id):
 
 @app.route('/search')
 def search():
-    query = request.args.get('query')
-    results = Employee.query.filter(Employee.name.contains(query)).all()
-    #also allow search by id
-    if not results:
-        results = Employee.query.filter(Employee.id.contains(query)).all()
+    query = (request.args.get('query') or '').strip()
+    if not query:
+        return render_template('search_results.html', results=[])
+    results = Employee.query.filter(or_(
+        Employee.name.ilike(f'%{query}%'),
+        cast(Employee.id, String) == query,
+    )).all()
     return render_template('search_results.html', results=results)
 
 @app.route('/employee/<int:id>/add_image', methods=['GET', 'POST'])
@@ -615,7 +631,7 @@ def add_comment(id):
     action = Action(description=f"New comment by {author_name} to {recipient_name}: {content}", from_id=author_id, to_id=id)
     db.session.add(action)
     db.session.commit()
-    return render_template('comment.html', comment=comment)
+    return render_template('comment_v2.html', comment=comment)
     #return redirect(url_for('view_employee', id=id))
 
 @app.route('/test_comment', methods=['GET', 'POST'])
@@ -844,14 +860,13 @@ def set_profile_picture():
     else:
         return jsonify({'error': 'Employee not found'}), 404
     
-@app.route('/files/<path:filename>')
-def serve_static_files(filename):
-    return send_from_directory(app.static_folder, filename)
-
 @app.route('/files')
 @app.route('/files/<path:subpath>')
 def list_files(subpath=''):
-    directory = os.path.join(app.static_folder, subpath)
+    directory = os.path.abspath(os.path.join(app.static_folder, subpath))
+    static_root = os.path.abspath(app.static_folder)
+    if os.path.commonpath([directory, static_root]) != static_root:
+        return "Directory not found", 404
     if not os.path.exists(directory):
         return "Directory not found", 404
 
@@ -887,9 +902,9 @@ def delete_image(image_id):
     
     # Delete the actual file if it's an uploaded file
     if image.image_url and image.image_url.startswith('/static/uploads/'):
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], image.image_url.replace('/static/', ''))
+        file_path = uploaded_file_path(image.image_url)
         try:
-            if os.path.exists(file_path):
+            if file_path and os.path.exists(file_path):
                 os.remove(file_path)
                 print(f"Deleted image file: {file_path}")
         except Exception as e:
@@ -905,9 +920,9 @@ def delete_video(video_id):
     
     # Delete the actual video file if it's an uploaded file
     if video.video_url and video.video_url.startswith('/static/uploads/'):
-        video_file_path = os.path.join(app.config['UPLOAD_FOLDER'], video.video_url.replace('/static/', ''))
+        video_file_path = uploaded_file_path(video.video_url)
         try:
-            if os.path.exists(video_file_path):
+            if video_file_path and os.path.exists(video_file_path):
                 os.remove(video_file_path)
                 print(f"Deleted video file: {video_file_path}")
         except Exception as e:
@@ -915,9 +930,9 @@ def delete_video(video_id):
     
     # Delete the thumbnail file if it's an uploaded file
     if video.thumbnail_url and video.thumbnail_url.startswith('/static/uploads/'):
-        thumbnail_file_path = os.path.join(app.config['UPLOAD_FOLDER'], video.thumbnail_url.replace('/static/', ''))
+        thumbnail_file_path = uploaded_file_path(video.thumbnail_url)
         try:
-            if os.path.exists(thumbnail_file_path):
+            if thumbnail_file_path and os.path.exists(thumbnail_file_path):
                 os.remove(thumbnail_file_path)
                 print(f"Deleted thumbnail file: {thumbnail_file_path}")
         except Exception as e:
@@ -1115,10 +1130,7 @@ def autocomplete_employee():
 
 @app.route('/set_gpt_engine', methods=['POST'])
 def set_gpt_engine():
-    """
-    Set the GPT engine to use for generating messages.
-    Accepts a POST parameter 'engine' which must be either 'gpt-4.1-mini' or 'gpt-4.1'.
-    """
+    """Set the allowed OpenAI model used for generated messages."""
     engine = request.form.get('engine')
     if engine in ALLOWED_GPT_ENGINES:
         session['gpt_engine'] = engine
@@ -1126,11 +1138,11 @@ def set_gpt_engine():
     else:
         return jsonify({'success': False, 'message': 'Invalid engine value.'}), 400
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=5002)
-
-
 with app.app_context():
     db.create_all()
+
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', debug=True, port=5002)
 
 

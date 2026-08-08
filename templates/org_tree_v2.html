@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import avatar, person_card %}
+{% block title %}Org Map · {{ employee.name }}{% endblock %}
+{% block body_class %}org-page{% endblock %}
+
+{% block content %}
+<section class="page-shell org-header">
+    <div><span class="section-kicker">Organizational terrain</span><h1>Who reports to whom,<br><em>more or less.</em></h1><p>Follow the reporting lines around {{ employee.name }} or search for another point in the company.</p></div>
+    <div class="org-search-wrap"><label for="employeeSearch">Jump to a coworker</label><div class="org-search"><input type="search" id="employeeSearch" placeholder="Type a name…" autocomplete="off"><span>⌘ K</span></div><div id="searchResults" class="search-results"></div></div>
+</section>
+
+<section class="page-shell org-map" aria-label="Organization map centered on {{ employee.name }}">
+    <div class="map-legend"><span><i class="legend-manager"></i> Managers</span><span><i class="legend-focus"></i> Current focus</span><span><i class="legend-report"></i> Reports</span></div>
+
+    {% if managers %}
+    <div class="manager-line">
+        {% for manager in managers|reverse %}
+        <a class="org-node manager-node" href="{{ url_for('org_tree', id=manager.id) }}" data-employee-id="{{ manager.id }}">{{ avatar(manager, 'sm') }}<span><small>{{ 'Executive line' if loop.first else 'Reports to' }}</small><strong>{{ manager.name }}</strong><em>{{ manager.title }}</em></span><b>↗</b></a>
+        {% if not loop.last %}<span class="line-arrow">→</span>{% endif %}
+        {% endfor %}
+        <span class="line-arrow">→</span>
+    </div>
+    {% endif %}
+
+    <div class="focus-node-wrap">
+        <div class="focus-halo" aria-hidden="true"></div>
+        <article class="org-node focus-node" data-employee-id="{{ employee.id }}">{{ avatar(employee, 'lg') }}<span><small>Current focus</small><strong>{{ employee.name }}</strong><em>{{ employee.title }}</em><i>{{ employee.department }}</i></span><a href="{{ url_for('view_employee', id=employee.id) }}">Profile ↗</a></article>
+    </div>
+
+    <div class="report-branch"><span></span><b>{{ reports|length }} direct report{{ '' if reports|length == 1 else 's' }}</b><span></span></div>
+    <div class="reports-grid">
+        {% for report in reports %}
+        <section class="report-stack">
+            <a class="org-node report-node" href="{{ url_for('org_tree', id=report.employee.id) }}" data-employee-id="{{ report.employee.id }}">{{ avatar(report.employee, 'md') }}<span><small>Direct report</small><strong>{{ report.employee.name }}</strong><em>{{ report.employee.title }}</em><i>{{ report.employee.department }}</i></span><b>↗</b></a>
+            {% if report.reports %}<div class="sub-report-list">{% for child in report.reports %}<a href="{{ url_for('org_tree', id=child.employee.id) }}">{{ avatar(child.employee, 'xs') }}<span><strong>{{ child.employee.name }}</strong><small>{{ child.employee.title }}</small></span></a>{% endfor %}</div>{% endif %}
+        </section>
+        {% else %}<div class="empty-state map-empty"><span>No direct reports.</span><p>{{ employee.name.split()[0] }} remains an individual contributor to the situation.</p></div>{% endfor %}
+    </div>
+</section>
+
+<section class="page-shell department-band">
+    <div class="section-heading"><div><span class="section-kicker">Nearby people</span><h2>{{ employee.department }} department</h2></div><a href="{{ url_for('list_employees', department=employee.department) }}">See department ↗</a></div>
+    <div class="colleague-row">{% for member in department_members if member.id != employee.id %}{{ person_card(member) }}{% else %}<p class="muted">A department of one. Efficient.</p>{% endfor %}</div>
+</section>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='org_tree_v2.js') }}"></script>{% endblock %}

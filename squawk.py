@@ -1,24 +1,29 @@
-from openai import OpenAI
-import maricon
-client = OpenAI(api_key=maricon.gptkey)
+import os
 
-def generate_text(prompt):
 
-    system_prompt = 'you are roleplaying as a corporate employee in an internal chat app. please generate a message based on the context provided.'
+SYSTEM_PROMPT = (
+    "You are roleplaying as an employee inside a strange, fictional company. "
+    "Write natural workplace communication grounded in the supplied character "
+    "details. Be specific, concise, and a little human. Return only the requested text."
+)
 
-    full_prompt = [ {"role": "system", "content": f"{system_prompt}"},{"role": "user", "content": f"{prompt}"}]
 
-    response = client.chat.completions.create(model="gpt-4o-mini",
-    max_tokens=250,
-    temperature=0.8,
-    messages = full_prompt)
+def generate_text(prompt, engine=None):
+    """Generate text when an API key exists, with a useful local-mode fallback."""
+    if not os.getenv("OPENAI_API_KEY"):
+        return (
+            "[AI is offline] Add OPENAI_API_KEY to your environment, then try this "
+            "simulation again. The rest of OurTeam works without it."
+        )
 
-    print(response)
-    
-    generated_text = response.choices[0].message.content.strip()
+    # Import lazily so the entire sandbox still runs without the optional AI client.
+    from openai import OpenAI
 
-    print(generated_text)
-
-    return generated_text
-
-#generate_text('you are Steve Smith, sending a message to Donald Lacrosse if he has finished reviewing the budget for the upcoming quarter.')
+    client = OpenAI()
+    response = client.responses.create(
+        model=engine or os.getenv("OPENAI_MODEL", "gpt-5.6-luna"),
+        instructions=SYSTEM_PROMPT,
+        input=prompt,
+        max_output_tokens=300,
+    )
+    return response.output_text.strip()

@@ -1,3 +1,6 @@
-Flask
-Flask-SQLAlchemy
-opencv-python
+Flask>=3.0,<4
+Flask-SQLAlchemy>=3.1,<4
+Flask-WTF>=1.2,<2
+openai>=1.68,<3
+opencv-python-headless>=4.8,<5
+python-dotenv>=1.0,<2

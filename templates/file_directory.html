@@ -14,7 +14,7 @@
             <li><a href="{{ url_for('list_files', subpath=(subpath + '/' + directory).strip('/')) }}">{{ directory }}/</a></li>
         {% endfor %}
         {% for file in files %}
-            <li><a href="{{ url_for('serve_static_files', filename=(subpath + '/' + file).strip('/')) }}">{{ file }}</a></li>
+            <li><a href="{{ url_for('static', filename=(subpath + '/' + file).strip('/')) }}">{{ file }}</a></li>
         {% endfor %}
     </ul>
 </body>

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% from 'macros.html' import avatar %}
+{% block title %}Company Pulse · OurTeam{% endblock %}
+{% block body_class %}pulse-page{% endblock %}
+{% block content %}
+<section class="pulse-hero page-shell">
+    <div class="hero-copy">
+        <div class="eyebrow"><span class="live-dot"></span> Company pulse</div>
+        <h1>The office is<br><em>acting normal.</em></h1>
+        <p>Catch up on the people, politics, and extremely important developments moving through OurTeam.</p>
+        <div class="hero-actions"><a class="button button-primary" href="{{ url_for('list_employees') }}">Browse the company</a><a class="button button-ghost" href="{{ url_for('test_message') }}">Enter conversation lab</a></div>
+    </div>
+    <div class="signal-card">
+        <div class="signal-card-head"><span>Live company signal</span><span class="signal-status">Nominal-ish</span></div>
+        <div class="signal-orbit" aria-hidden="true"><span class="orbit orbit-one"></span><span class="orbit orbit-two"></span><span class="orbit-core">OT</span></div>
+        <div class="signal-stats"><div><strong>{{ total_employees }}</strong><span>people</span></div><div><strong>{{ total_departments }}</strong><span>departments</span></div><div><strong>{{ total_comments }}</strong><span>interactions</span></div></div>
+    </div>
+</section>
+<section class="page-shell pulse-grid">
+    <div class="feed-column">
+        <div class="section-heading"><div><span class="section-kicker">Dispatches</span><h2>What people are saying</h2></div><a href="{{ url_for('view_all_statuses') }}">View all statuses ↗</a></div>
+        <div class="status-feed">
+            {% for status in recent_statuses %}
+            <article class="feed-card">
+                {{ avatar(status.employee, 'md') }}
+                <div class="feed-card-body"><div class="feed-meta"><a href="{{ url_for('view_employee', id=status.employee.id) }}">{{ status.employee.name }}</a><span>{{ status.employee.title }}</span><time>{{ status.timestamp.strftime('%b %d · %I:%M %p') }}</time></div><p>{{ status.content }}</p><div class="feed-reactions"><span>◎ witnessed</span><span>◇ noted</span><span>↳ discuss</span></div></div>
+            </article>
+            {% else %}<div class="empty-state"><span>Radio silence.</span><p>Seed the demo company or post the first status.</p></div>{% endfor %}
+        </div>
+    </div>
+    <aside class="pulse-sidebar">
+        <section class="brief-card"><span class="section-kicker">Morning brief</span><h3>Low-grade intrigue detected</h3><p>Operations is investigating atmospheric conditions near Conference B. Product remains committed to the moon.</p><a href="{{ url_for('recent_actions') }}">Read the activity log ↗</a></section>
+        <section class="sidebar-section"><div class="section-heading compact"><div><span class="section-kicker">High signal</span><h2>People to watch</h2></div></div><div class="watch-list">
+            {% for employee in featured_employees[:4] %}<a href="{{ url_for('view_employee', id=employee.id) }}" class="watch-person">{{ avatar(employee, 'sm') }}<span><strong>{{ employee.name }}</strong><small>{{ employee.title }}</small></span><b>{{ employee.xp[0].xp if employee.xp else 0 }}</b></a>{% endfor %}
+        </div></section>
+        <section class="sidebar-section"><div class="section-heading compact"><div><span class="section-kicker">Terrain</span><h2>Departments</h2></div></div><div class="department-list">{% for department, count in department_counts %}<a href="{{ url_for('list_employees', department=department) }}"><span>{{ department or 'Unassigned' }}</span><b>{{ count }}</b></a>{% endfor %}</div></section>
+    </aside>
+</section>
+<section class="page-shell activity-strip">
+    <div class="section-heading"><div><span class="section-kicker">Paper trail</span><h2>Recent activity</h2></div><span>{{ total_actions }} recorded events</span></div>
+    <div class="activity-list">{% for action in recent_actions %}<div class="activity-item"><span class="activity-mark"></span><p>{{ action.description }}</p><time>{{ action.timestamp.strftime('%I:%M %p') }}</time></div>{% else %}<p class="muted">Nothing has happened yet. Suspicious.</p>{% endfor %}</div>
+</section>
+{% endblock %}
