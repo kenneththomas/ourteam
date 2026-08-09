@@ -18,8 +18,8 @@ empty. Running it again preserves the current company.
 
 The directory, feed, profiles, org chart, and seeded demo all work offline. To
 enable generated conversations, copy `.env.example` to `.env` and set
-`OPENAI_API_KEY`. `OPENAI_MODEL` controls the model used by the conversation
-tools.
+`OPENROUTER_API_KEY`. `OPENROUTER_MODEL` controls the model used by the
+conversation tools and defaults to GPT Luna (`openai/gpt-5.6-luna`).
 
 ## Resetting the sandbox
 

@@ -1,4 +1,7 @@
 import os
+import json
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 
 SYSTEM_PROMPT = (
@@ -8,22 +11,41 @@ SYSTEM_PROMPT = (
 )
 
 
-def generate_text(prompt, engine=None):
-    """Generate text when an API key exists, with a useful local-mode fallback."""
-    if not os.getenv("OPENAI_API_KEY"):
+OPENROUTER_CHAT_COMPLETIONS_URL = "https://openrouter.ai/api/v1/chat/completions"
+DEFAULT_MODEL = "openai/gpt-5.6-luna"
+
+
+def generate_text(prompt, model=None):
+    """Generate text through OpenRouter, with a useful local-mode fallback."""
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    if not api_key:
         return (
-            "[AI is offline] Add OPENAI_API_KEY to your environment, then try this "
+            "[AI is offline] Add OPENROUTER_API_KEY to your environment, then try this "
             "simulation again. The rest of OurTeam works without it."
         )
 
-    # Import lazily so the entire sandbox still runs without the optional AI client.
-    from openai import OpenAI
-
-    client = OpenAI()
-    response = client.responses.create(
-        model=engine or os.getenv("OPENAI_MODEL", "gpt-5.6-luna"),
-        instructions=SYSTEM_PROMPT,
-        input=prompt,
-        max_output_tokens=300,
+    payload = json.dumps({
+        "model": model or os.getenv("OPENROUTER_MODEL", DEFAULT_MODEL),
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ],
+        "max_tokens": 300,
+    }).encode("utf-8")
+    request = Request(
+        OPENROUTER_CHAT_COMPLETIONS_URL,
+        data=payload,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+            "X-OpenRouter-Title": "OurTeam",
+        },
+        method="POST",
     )
-    return response.output_text.strip()
+
+    try:
+        with urlopen(request, timeout=30) as response:
+            completion = json.load(response)
+        return completion["choices"][0]["message"]["content"].strip()
+    except (HTTPError, URLError, KeyError, IndexError, TypeError, json.JSONDecodeError):
+        return "[AI is unavailable] OpenRouter could not generate a response. Please try again."

@@ -24,9 +24,9 @@ xp_actions = {
     'update_bio' : 10,
 }
 
-# Global configuration for GPT engine selection
-DEFAULT_GPT_ENGINE = os.getenv('OPENAI_MODEL', 'gpt-5.6-luna')
-ALLOWED_GPT_ENGINES = ['gpt-5.6-luna', 'gpt-5.6-terra', 'gpt-5.6-sol']
+# Global configuration for model selection. More models can be added as needed.
+DEFAULT_GPT_ENGINE = os.getenv('OPENROUTER_MODEL', 'openai/gpt-5.6-luna')
+ALLOWED_GPT_ENGINES = ['openai/gpt-5.6-luna']
 
 def generate_text_from_prompt(prompt):
     """Generate text with the model selected for this browser session."""
@@ -1191,7 +1191,7 @@ def autocomplete_employee():
 
 @app.route('/set_gpt_engine', methods=['POST'])
 def set_gpt_engine():
-    """Set the allowed OpenAI model used for generated messages."""
+    """Set the allowed OpenRouter model used for generated messages."""
     engine = request.form.get('engine')
     if engine in ALLOWED_GPT_ENGINES:
         session['gpt_engine'] = engine

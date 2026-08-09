@@ -2,7 +2,7 @@ import os
 import unittest
 
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
-os.environ.pop("OPENAI_API_KEY", None)
+os.environ.pop("OPENROUTER_API_KEY", None)
 
 from ourteam import app  # noqa: E402
 from models import Employee, db  # noqa: E402
