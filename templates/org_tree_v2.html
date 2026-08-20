@@ -15,7 +15,7 @@
     {% if managers %}
     <div class="manager-line">
         {% for manager in managers|reverse %}
-        <a class="org-node manager-node" href="{{ url_for('org_tree', id=manager.id) }}" data-employee-id="{{ manager.id }}">{{ avatar(manager, 'sm') }}<span><small>{{ 'Executive line' if loop.first else 'Reports to' }}</small><strong>{{ manager.name }}</strong><em>{{ manager.title }}</em></span><b>↗</b></a>
+        <a class="org-node manager-node" href="{{ url_for('employees.org_tree', id=manager.id) }}" data-employee-id="{{ manager.id }}">{{ avatar(manager, 'sm') }}<span><small>{{ 'Executive line' if loop.first else 'Reports to' }}</small><strong>{{ manager.name }}</strong><em>{{ manager.title }}</em></span><b>↗</b></a>
         {% if not loop.last %}<span class="line-arrow">→</span>{% endif %}
         {% endfor %}
         <span class="line-arrow">→</span>
@@ -24,22 +24,22 @@
 
     <div class="focus-node-wrap">
         <div class="focus-halo" aria-hidden="true"></div>
-        <article class="org-node focus-node" data-employee-id="{{ employee.id }}">{{ avatar(employee, 'lg') }}<span><small>Current focus</small><strong>{{ employee.name }}</strong><em>{{ employee.title }}</em><i>{{ employee.department }}</i></span><a href="{{ url_for('view_employee', id=employee.id) }}">Profile ↗</a></article>
+        <article class="org-node focus-node" data-employee-id="{{ employee.id }}">{{ avatar(employee, 'lg') }}<span><small>Current focus</small><strong>{{ employee.name }}</strong><em>{{ employee.title }}</em><i>{{ employee.department }}</i></span><a href="{{ url_for('employees.view_employee', id=employee.id) }}">Profile ↗</a></article>
     </div>
 
     <div class="report-branch"><span></span><b>{{ reports|length }} direct report{{ '' if reports|length == 1 else 's' }}</b><span></span></div>
     <div class="reports-grid">
         {% for report in reports %}
         <section class="report-stack">
-            <a class="org-node report-node" href="{{ url_for('org_tree', id=report.employee.id) }}" data-employee-id="{{ report.employee.id }}">{{ avatar(report.employee, 'md') }}<span><small>Direct report</small><strong>{{ report.employee.name }}</strong><em>{{ report.employee.title }}</em><i>{{ report.employee.department }}</i></span><b>↗</b></a>
-            {% if report.reports %}<div class="sub-report-list">{% for child in report.reports %}<a href="{{ url_for('org_tree', id=child.employee.id) }}">{{ avatar(child.employee, 'xs') }}<span><strong>{{ child.employee.name }}</strong><small>{{ child.employee.title }}</small></span></a>{% endfor %}</div>{% endif %}
+            <a class="org-node report-node" href="{{ url_for('employees.org_tree', id=report.employee.id) }}" data-employee-id="{{ report.employee.id }}">{{ avatar(report.employee, 'md') }}<span><small>Direct report</small><strong>{{ report.employee.name }}</strong><em>{{ report.employee.title }}</em><i>{{ report.employee.department }}</i></span><b>↗</b></a>
+            {% if report.reports %}<div class="sub-report-list">{% for child in report.reports %}<a href="{{ url_for('employees.org_tree', id=child.employee.id) }}">{{ avatar(child.employee, 'xs') }}<span><strong>{{ child.employee.name }}</strong><small>{{ child.employee.title }}</small></span></a>{% endfor %}</div>{% endif %}
         </section>
         {% else %}<div class="empty-state map-empty"><span>No direct reports.</span><p>{{ employee.name.split()[0] }} remains an individual contributor to the situation.</p></div>{% endfor %}
     </div>
 </section>
 
 <section class="page-shell department-band">
-    <div class="section-heading"><div><span class="section-kicker">Nearby people · {{ employee.company }}</span><h2>{{ employee.department }} department</h2></div><a href="{{ url_for('list_employees', company=employee.company, department=employee.department) }}">See department ↗</a></div>
+    <div class="section-heading"><div><span class="section-kicker">Nearby people · {{ employee.company }}</span><h2>{{ employee.department }} department</h2></div><a href="{{ url_for('employees.list_employees', company=employee.company, department=employee.department) }}">See department ↗</a></div>
     <div class="colleague-row">{% for member in department_members if member.id != employee.id %}{{ person_card(member) }}{% else %}<p class="muted">A department of one. Efficient.</p>{% endfor %}</div>
 </section>
 {% endblock %}

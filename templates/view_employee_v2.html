@@ -25,14 +25,14 @@
 <div class="page-shell profile-layout">
     <div class="profile-main">
         <section class="panel profile-about">
-            <div class="panel-heading"><div><span class="section-kicker">Personnel file</span><h2>About {{ employee.name.split()[0] }}</h2></div><a class="text-link" href="{{ url_for('edit_employee', id=employee.id) }}">Edit profile ↗</a></div>
+            <div class="panel-heading"><div><span class="section-kicker">Personnel file</span><h2>About {{ employee.name.split()[0] }}</h2></div><a class="text-link" href="{{ url_for('employees.edit_employee', id=employee.id) }}">Edit profile ↗</a></div>
             <p class="profile-bio">{{ employee.bio|nl2br if employee.bio else 'No official biography. This is probably strategic.' }}</p>
-            <div class="detail-grid"><div><span>Company</span><strong><a href="{{ url_for('list_employees', company=employee.company) }}">{{ employee.company }}</a></strong></div><div><span>Department</span><strong><a href="{{ url_for('list_employees', company=employee.company, department=employee.department) }}">{{ employee.department }}</a></strong></div><div><span>Email</span><strong>{{ employee.email or 'Not listed' }}</strong></div><div><span>Phone</span><strong>{{ employee.phone or 'Not listed' }}</strong></div><div><span>Base</span><strong>{{ employee.location or 'Remote-ish' }}</strong></div></div>
+            <div class="detail-grid"><div><span>Company</span><strong><a href="{{ url_for('employees.list_employees', company=employee.company) }}">{{ employee.company }}</a></strong></div><div><span>Department</span><strong><a href="{{ url_for('employees.list_employees', company=employee.company, department=employee.department) }}">{{ employee.department }}</a></strong></div><div><span>Email</span><strong>{{ employee.email or 'Not listed' }}</strong></div><div><span>Phone</span><strong>{{ employee.phone or 'Not listed' }}</strong></div><div><span>Base</span><strong>{{ employee.location or 'Remote-ish' }}</strong></div></div>
         </section>
 
         <section class="panel status-composer-panel">
             <div class="composer-person">{{ avatar(employee, 'sm') }}<div><strong>Post as {{ employee.name }}</strong><span>What should the company know?</span></div></div>
-            <form action="{{ url_for('post_status_from_profile') }}" method="post" class="status-composer"><input type="hidden" name="employee_id" value="{{ employee.id }}"><textarea name="content" maxlength="280" placeholder="Share a status, rumor, warning, or extremely normal update…" required></textarea><button class="button button-dark" type="submit">Publish status</button></form>
+            <form action="{{ url_for('employees.post_status_from_profile') }}" method="post" class="status-composer"><input type="hidden" name="employee_id" value="{{ employee.id }}"><textarea name="content" maxlength="280" placeholder="Share a status, rumor, warning, or extremely normal update…" required></textarea><button class="button button-dark" type="submit">Publish status</button></form>
         </section>
 
         <section class="profile-section">
@@ -45,7 +45,7 @@
 
         <section class="profile-section">
             <div class="section-heading"><div><span class="section-kicker">The wall</span><h2>Messages & observations</h2></div><span>{{ comments.total }} entries</span></div>
-            <form id="comment-form" class="panel wall-composer" action="{{ url_for('add_comment', id=employee.id) }}" method="post">
+            <form id="comment-form" class="panel wall-composer" action="{{ url_for('social.add_comment', id=employee.id) }}" method="post">
                 <div class="field"><label for="author_id">Speaking as</label><select id="author_id" name="author_id" required><option value="">Choose a coworker</option>{% for person in all_employees %}<option value="{{ person.id }}">{{ person.name }} · {{ person.title }}</option>{% endfor %}</select></div>
                 <div class="field grow"><label for="comment-content">Message</label><textarea id="comment-content" name="content" placeholder="Leave something on {{ employee.name.split()[0] }}’s wall…" required></textarea></div>
                 <button class="button button-primary" type="submit">Post</button>
@@ -54,17 +54,17 @@
                 {% for comment in comments.items %}
                 <article class="wall-message" id="comment-{{ comment.id }}">
                     {{ avatar(comment.author, 'sm') }}
-                    <div><div class="wall-message-head"><a href="{{ url_for('view_employee', id=comment.author.id) }}">{{ comment.author.name }}</a><span>{{ comment.author.title }}</span><time>{{ comment.timestamp.strftime('%b %d · %I:%M %p') }}</time></div><p>{{ comment.content|nl2br }}</p></div>
+                    <div><div class="wall-message-head"><a href="{{ url_for('employees.view_employee', id=comment.author.id) }}">{{ comment.author.name }}</a><span>{{ comment.author.title }}</span><time>{{ comment.timestamp.strftime('%b %d · %I:%M %p') }}</time></div><p>{{ comment.content|nl2br }}</p></div>
                     <button class="icon-button delete-comment" type="button" data-comment-id="{{ comment.id }}" aria-label="Delete comment">×</button>
                 </article>
                 {% else %}<div class="empty-state"><span>The wall is pristine.</span><p>Be the first person to compromise it.</p></div>{% endfor %}
             </div>
-            {% if comments.has_prev or comments.has_next %}<div class="pagination-links">{% if comments.has_prev %}<a href="{{ url_for('view_employee', id=employee.id, comments_page=comments.prev_num) }}">← Newer</a>{% endif %}{% if comments.has_next %}<a href="{{ url_for('view_employee', id=employee.id, comments_page=comments.next_num) }}">Older →</a>{% endif %}</div>{% endif %}
+            {% if comments.has_prev or comments.has_next %}<div class="pagination-links">{% if comments.has_prev %}<a href="{{ url_for('employees.view_employee', id=employee.id, comments_page=comments.prev_num) }}">← Newer</a>{% endif %}{% if comments.has_next %}<a href="{{ url_for('employees.view_employee', id=employee.id, comments_page=comments.next_num) }}">Older →</a>{% endif %}</div>{% endif %}
         </section>
 
         {% if images or videos %}
         <section class="profile-section">
-            <div class="section-heading"><div><span class="section-kicker">Artifacts</span><h2>Gallery</h2></div><div><a href="{{ url_for('add_image', id=employee.id) }}">Add image</a> · <a href="{{ url_for('add_video', id=employee.id) }}">Add video</a></div></div>
+            <div class="section-heading"><div><span class="section-kicker">Artifacts</span><h2>Gallery</h2></div><div><a href="{{ url_for('media.add_image', id=employee.id) }}">Add image</a> · <a href="{{ url_for('media.add_video', id=employee.id) }}">Add video</a></div></div>
             <div class="media-grid">
                 {% for image in images %}<button class="media-tile" type="button" data-kind="image" data-url="{{ image.image_url }}" data-caption="{{ image.caption or '' }}" data-id="{{ image.id }}"><img src="{{ image.image_url }}" alt="{{ image.caption or 'Employee gallery image' }}"><span>{{ image.caption or 'Untitled artifact' }}</span></button>{% endfor %}
                 {% for video in videos %}<button class="media-tile video-tile" type="button" data-kind="video" data-url="{{ video.video_url }}" data-caption="{{ video.caption or '' }}" data-id="{{ video.id }}">{% if video.thumbnail_url %}<img src="{{ video.thumbnail_url }}" alt="">{% else %}<span class="video-glyph">▶</span>{% endif %}<span>{{ video.caption or 'Video artifact' }}</span></button>{% endfor %}
@@ -75,22 +75,22 @@
 
     <aside class="profile-sidebar">
         <section class="panel org-mini">
-            <div class="panel-heading"><div><span class="section-kicker">Position</span><h2>In the org</h2></div><a class="text-link" href="{{ url_for('org_tree', id=employee.id) }}">Open tree ↗</a></div>
+            <div class="panel-heading"><div><span class="section-kicker">Position</span><h2>In the org</h2></div><a class="text-link" href="{{ url_for('employees.org_tree', id=employee.id) }}">Open tree ↗</a></div>
             {% if manager_chain %}<div class="mini-label">Reports through</div>{% for manager in manager_chain %}{{ person_card(manager) }}{% endfor %}{% else %}<p class="muted">Top of the food chain.</p>{% endif %}
             <div class="mini-label">Direct reports · {{ subordinates|length }}</div>{% for subordinate in subordinates[:4] %}{{ person_card(subordinate) }}{% else %}<p class="muted">No direct reports.</p>{% endfor %}
         </section>
 
         <section class="panel social-panel">
             <span class="section-kicker">Circles</span><h2>Groups & allies</h2>
-            <div class="tag-list">{% for group in employee.groups %}<a href="{{ url_for('view_group', id=group.id) }}">{{ group.groupname }}</a>{% else %}<span class="muted">No groups yet</span>{% endfor %}</div>
-            <form action="{{ url_for('add_to_group', id=employee.id) }}" method="post" class="inline-form"><select name="groupname" required><option value="">Add to group…</option>{% for group in all_groups %}<option>{{ group.groupname }}</option>{% endfor %}</select><button type="submit">+</button></form>
-            <div class="friend-row">{% for friend in employee.friends %}<a href="{{ url_for('view_employee', id=friend.id) }}" title="{{ friend.name }}">{{ avatar(friend, 'xs') }}</a>{% else %}<span class="muted">No declared allies.</span>{% endfor %}</div>
+            <div class="tag-list">{% for group in employee.groups %}<a href="{{ url_for('groups.view_group', id=group.id) }}">{{ group.groupname }}</a>{% else %}<span class="muted">No groups yet</span>{% endfor %}</div>
+            <form action="{{ url_for('groups.add_to_group', id=employee.id) }}" method="post" class="inline-form"><select name="groupname" required><option value="">Add to group…</option>{% for group in all_groups %}<option>{{ group.groupname }}</option>{% endfor %}</select><button type="submit">+</button></form>
+            <div class="friend-row">{% for friend in employee.friends %}<a href="{{ url_for('employees.view_employee', id=friend.id) }}" title="{{ friend.name }}">{{ avatar(friend, 'xs') }}</a>{% else %}<span class="muted">No declared allies.</span>{% endfor %}</div>
             <form id="add-friend-form" class="inline-form"><select id="friend-id" required><option value="">Declare an ally…</option>{% for person in all_employees if person.id != employee.id %}<option value="{{ person.id }}">{{ person.name }}</option>{% endfor %}</select><button type="submit">+</button></form>
         </section>
 
         <section class="panel activity-panel"><span class="section-kicker">Trace</span><h2>Recent activity</h2><div class="mini-timeline">{% for action in recent_actions %}<div><i></i><span><time>{{ action.timestamp.strftime('%b %d') }}</time>{{ action.description|truncate(110, True) }}</span></div>{% else %}<p class="muted">No paper trail.</p>{% endfor %}</div></section>
 
-        <section class="danger-zone"><span>Sandbox controls</span><div><a href="{{ url_for('add_image', id=employee.id) }}">Add media</a><form id="deleteEmployeeForm" action="{{ url_for('delete_employee', id=employee.id) }}" method="post"><button type="button" onclick="if(confirm('Delete this employee and their history?')) this.form.submit()">Delete employee</button></form></div></section>
+        <section class="danger-zone"><span>Sandbox controls</span><div><a href="{{ url_for('media.add_image', id=employee.id) }}">Add media</a><form id="deleteEmployeeForm" action="{{ url_for('ai.delete_employee', id=employee.id) }}" method="post"><button type="button" onclick="if(confirm('Delete this employee and their history?')) this.form.submit()">Delete employee</button></form></div></section>
     </aside>
 </div>
 

@@ -5,7 +5,7 @@
 {% block content %}
 <section class="page-shell inner-hero">
     <div><span class="section-kicker">Company directory</span><h1>Everybody who<br><em>works here.</em></h1><p>Official titles, unofficial influence, and the reporting lines connecting them.</p></div>
-    <a class="button button-primary" href="{{ url_for('add_employee') }}">Add a new person</a>
+    <a class="button button-primary" href="{{ url_for('employees.add_employee') }}">Add a new person</a>
 </section>
 <section class="page-shell directory-tools">
     <div class="directory-count"><strong>{{ employees.total }}</strong><span>people on record</span></div>
@@ -18,13 +18,13 @@
 </section>
 <section class="page-shell people-grid">
     {% for employee in employees.items %}
-    <a class="directory-card" href="{{ url_for('view_employee', id=employee.id) }}">
+    <a class="directory-card" href="{{ url_for('employees.view_employee', id=employee.id) }}">
         <div class="directory-card-top">{{ avatar(employee, 'lg') }}<span>#{{ '%03d'|format(employee.id) }}</span></div>
         <div><small>{{ employee.company }} · {{ employee.department or 'Unassigned' }}</small><h2>{{ employee.name }}</h2><p>{{ employee.title }}</p></div>
         <div class="directory-card-foot"><span>{{ employee.location or 'Somewhere' }}</span><b>View dossier ↗</b></div>
     </a>
     {% else %}<div class="empty-state wide"><span>Nobody is here.</span><p>Add someone and begin the paperwork.</p></div>{% endfor %}
 </section>
-<nav class="page-shell pager" aria-label="Directory pages">{% if employees.has_prev %}<a href="{{ url_for('list_employees', page=employees.prev_num, company=current_company, department=current_department, sort=current_sort, order=current_order) }}">← Previous</a>{% endif %}<span>Page {{ employees.page }} of {{ employees.pages or 1 }}</span>{% if employees.has_next %}<a href="{{ url_for('list_employees', page=employees.next_num, company=current_company, department=current_department, sort=current_sort, order=current_order) }}">Next →</a>{% endif %}</nav>
+<nav class="page-shell pager" aria-label="Directory pages">{% if employees.has_prev %}<a href="{{ url_for('employees.list_employees', page=employees.prev_num, company=current_company, department=current_department, sort=current_sort, order=current_order) }}">← Previous</a>{% endif %}<span>Page {{ employees.page }} of {{ employees.pages or 1 }}</span>{% if employees.has_next %}<a href="{{ url_for('employees.list_employees', page=employees.next_num, company=current_company, department=current_department, sort=current_sort, order=current_order) }}">Next →</a>{% endif %}</nav>
 {% endblock %}
-{% block scripts %}<script>document.querySelectorAll('#directory-filters select').forEach(select => select.addEventListener('change', () => { const company=document.querySelector('#company-filter').value; const department=document.querySelector('#department-filter').value; const sort=document.querySelector('#sort-by').value; const order=document.querySelector('#sort-order').value; location.href=`{{ url_for('list_employees') }}?company=${encodeURIComponent(company)}&department=${encodeURIComponent(department)}&sort=${sort}&order=${order}`; }));</script>{% endblock %}
+{% block scripts %}<script>document.querySelectorAll('#directory-filters select').forEach(select => select.addEventListener('change', () => { const company=document.querySelector('#company-filter').value; const department=document.querySelector('#department-filter').value; const sort=document.querySelector('#sort-by').value; const order=document.querySelector('#sort-order').value; location.href=`{{ url_for('employees.list_employees') }}?company=${encodeURIComponent(company)}&department=${encodeURIComponent(department)}&sort=${sort}&order=${order}`; }));</script>{% endblock %}

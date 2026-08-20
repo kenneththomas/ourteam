@@ -1,6 +1,6 @@
 <header class="site-header">
     <nav class="site-nav" aria-label="Primary navigation">
-        <a href="{{ url_for('index') }}" class="wordmark" aria-label="OurTeam home">
+        <a href="{{ url_for('employees.index') }}" class="wordmark" aria-label="OurTeam home">
             <span class="wordmark-mark"><span></span><span></span><span></span></span>
             <span>OUR<span>TEAM</span></span>
         </a>
@@ -9,20 +9,20 @@
         </button>
         <div class="nav-menu" id="nav-menu">
             <div class="nav-links">
-                <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' else '' }}">Pulse</a>
-                <a href="{{ url_for('list_employees') }}" class="{{ 'active' if request.endpoint in ['list_employees', 'view_employee'] else '' }}">People</a>
+                <a href="{{ url_for('employees.index') }}" class="{{ 'active' if request.endpoint == 'index' else '' }}">Pulse</a>
+                <a href="{{ url_for('employees.list_employees') }}" class="{{ 'active' if request.endpoint in ['list_employees', 'view_employee'] else '' }}">People</a>
                 {% set org_root = session.get('previous_employee_id', 1) %}
-                <a href="{{ url_for('org_tree', id=org_root) }}" class="{{ 'active' if request.endpoint == 'org_tree' else '' }}">Org</a>
-                <a href="{{ url_for('view_all_statuses') }}">Status</a>
-                <a href="{{ url_for('manage_groups') }}">Groups</a>
-                <a href="{{ url_for('leaderboard') }}" class="{{ 'active' if request.endpoint == 'leaderboard' else '' }}">Reputation</a>
+                <a href="{{ url_for('employees.org_tree', id=org_root) }}" class="{{ 'active' if request.endpoint == 'org_tree' else '' }}">Org</a>
+                <a href="{{ url_for('ai.view_all_statuses') }}">Status</a>
+                <a href="{{ url_for('groups.manage_groups') }}">Groups</a>
+                <a href="{{ url_for('groups.leaderboard') }}" class="{{ 'active' if request.endpoint == 'leaderboard' else '' }}">Reputation</a>
             </div>
-            <form action="{{ url_for('search') }}" method="get" class="nav-search" role="search">
+            <form action="{{ url_for('employees.search') }}" method="get" class="nav-search" role="search">
                 <label class="sr-only" for="global-search">Search people</label>
                 <input id="global-search" type="search" name="query" placeholder="Find a coworker" autocomplete="off">
                 <button type="submit" aria-label="Search">↗</button>
             </form>
-            <a href="{{ url_for('test_message') }}" class="nav-lab">Open the lab</a>
+            <a href="{{ url_for('ai.test_message') }}" class="nav-lab">Open the lab</a>
         </div>
     </nav>
 </header>
