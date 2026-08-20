@@ -286,7 +286,7 @@ def list_employees():
 
 @app.route('/employee/<int:id>')
 def view_employee(id):
-    employee = Employee.query.get_or_404(id)
+    employee = db.get_or_404(Employee, id)
     images = EmployeeImage.query.filter_by(employee_id=id).all()
     videos = EmployeeVideo.query.filter_by(employee_id=id).all()
     employee_xp = EmployeeXP.query.filter_by(employee_id=id).first()
@@ -342,14 +342,14 @@ def view_employee(id):
 
 @app.route('/org_tree/<int:id>')
 def org_tree(id):
-    employee = Employee.query.get_or_404(id)
+    employee = db.get_or_404(Employee, id)
     
     # Get 2 levels of managers above
     managers = []
     current = employee
     for _ in range(2):
         if current.reports_to:
-            manager = Employee.query.get(current.reports_to)
+            manager = db.session.get(Employee, current.reports_to)
             if manager:
                 managers.append(manager)
                 current = manager
@@ -395,7 +395,7 @@ def post_status_from_profile():
         flash('Employee ID and content are required.')
         return redirect(url_for('view_employee', id=employee_id))
     
-    employee = Employee.query.get(employee_id)
+    employee = db.session.get(Employee, employee_id)
     if not employee:
         flash('Employee not found.')
         return redirect(url_for('view_employee', id=employee_id))
@@ -447,7 +447,7 @@ def add_employee():
 
 @app.route('/employee/edit/<int:id>', methods=['GET', 'POST'])
 def edit_employee(id):
-    employee = Employee.query.get_or_404(id)
+    employee = db.get_or_404(Employee, id)
     form = EmployeeForm(obj=employee)
 
     #initialize xp gain
@@ -467,7 +467,7 @@ def edit_employee(id):
     #get original name of manager
     original_mgr_name = None
     if employee.reports_to:
-        original_manager = Employee.query.get(employee.reports_to)
+        original_manager = db.session.get(Employee, employee.reports_to)
         if original_manager:
             original_mgr_name = original_manager.name
 
@@ -503,7 +503,7 @@ def edit_employee(id):
             action = None
             new_manager = None
             if form.reports_to.data:
-                new_manager = Employee.query.get(form.reports_to.data)
+                new_manager = db.session.get(Employee, form.reports_to.data)
             
             if original_mgr_name and new_manager:
                 action = Action(description=f"Manager changed from {original_mgr_name} to {new_manager.name}", from_id=employee.id)
@@ -648,9 +648,9 @@ def add_video(id):
 def add_comment(id):
     content = request.form.get('content')
     author_id = request.form.get('author_id', type=int)
-    author = Employee.query.get(author_id)
+    author = db.session.get(Employee, author_id)
     author_name = author.name
-    recipient = Employee.query.get(id)
+    recipient = db.session.get(Employee, id)
     recipient_name = recipient.name
     comment = Comment(content=content, employee_id=id, author_id=author_id)
 
@@ -710,8 +710,8 @@ def comment():
         author_xp.level = calculate_level(author_xp.xp)
         print(f'author: {from_employee} xp: {author_xp.xp}')
 
-        fromname = Employee.query.get(from_employee).name
-        toname = Employee.query.get(to_employee).name
+        fromname = db.session.get(Employee, from_employee).name
+        toname = db.session.get(Employee, to_employee).name
 
         action = Action(description=f"New comment by {fromname} to {toname}: {content}", from_id=from_employee, to_id=to_employee)
 
@@ -723,8 +723,8 @@ def comment():
 
     comments = db.session.query(Comment).join(Employee, Comment.employee_id == Employee.id).order_by(Comment.id.desc()).limit(5).all()
     for comment in comments:
-        comment.from_employee = Employee.query.get(comment.author_id)
-        comment.to_employee = Employee.query.get(comment.employee_id)
+        comment.from_employee = db.session.get(Employee, comment.author_id)
+        comment.to_employee = db.session.get(Employee, comment.employee_id)
 
     statuses = Status.query.order_by(Status.timestamp.desc()).limit(5).all()
     employees = Employee.query.order_by(Employee.name).all()
@@ -750,7 +750,7 @@ def recent_actions():
 def add_to_group(id):
     group_name = request.form.get('groupname')
     group = Group.query.filter_by(groupname=group_name).first()
-    employee = Employee.query.get(id)
+    employee = db.session.get(Employee, id)
 
     print(f'debug: group_name: {group_name} group: {group} employee: {employee}')
     
@@ -782,7 +782,7 @@ def manage_groups():
 
 @app.route('/view_group/<int:id>', methods=['GET'])
 def view_group(id):
-    group = Group.query.get(id)
+    group = db.session.get(Group, id)
     if group is None:
         flash('Group not found.')
         return redirect(url_for('manage_groups'))
@@ -801,12 +801,12 @@ def add_group_comment(id):
         return jsonify({'error': 'Missing required fields'}), 400
     
     # Validate author exists
-    author = Employee.query.get(author_id)
+    author = db.session.get(Employee, author_id)
     if not author:
         return jsonify({'error': 'Invalid author ID'}), 400
     
     # Get group first
-    group = Group.query.get(id)
+    group = db.session.get(Group, id)
     if not group:
         return jsonify({'error': 'Invalid group ID'}), 400
     
@@ -857,7 +857,7 @@ def get_management_chain(employee, levels=3):
     current = employee
     while current and levels > 0:
         if current.reports_to:
-            manager = Employee.query.get(current.reports_to)
+            manager = db.session.get(Employee, current.reports_to)
             chain.append(manager)
             current = manager
             levels -= 1
@@ -867,8 +867,8 @@ def get_management_chain(employee, levels=3):
 
 @app.route('/generate_comment', methods=['POST'])
 def generate_comment():
-    from_employee = Employee.query.get(request.form.get('from'))
-    to_employee = Employee.query.get(request.form.get('to'))
+    from_employee = db.session.get(Employee, request.form.get('from'))
+    to_employee = db.session.get(Employee, request.form.get('to'))
     context = request.form.get('context')
 
     if not from_employee or not to_employee:
@@ -889,8 +889,8 @@ def generate_context():
     from_employee_id = request.form.get('from')
     to_employee_id = request.form.get('to')
 
-    from_employee = Employee.query.get(from_employee_id)
-    to_employee = Employee.query.get(to_employee_id)
+    from_employee = db.session.get(Employee, from_employee_id)
+    to_employee = db.session.get(Employee, to_employee_id)
 
     if from_employee and to_employee:
         context = (
@@ -909,7 +909,7 @@ def set_profile_picture():
     employee_id = request.form.get('employee_id')
     image_url = request.form.get('image_url')
 
-    employee = Employee.query.get(employee_id)
+    employee = db.session.get(Employee, employee_id)
     if employee:
         employee.picture_url = image_url
         db.session.commit()
@@ -948,14 +948,14 @@ def calculate_level(xp):
 
 @app.route('/delete_comment/<int:comment_id>', methods=['POST'])
 def delete_comment(comment_id):
-    comment = Comment.query.get_or_404(comment_id)
+    comment = db.get_or_404(Comment, comment_id)
     db.session.delete(comment)
     db.session.commit()
     return jsonify({'success': True}), 200
 
 @app.route('/delete_image/<int:image_id>', methods=['POST'])
 def delete_image(image_id):
-    image = EmployeeImage.query.get_or_404(image_id)
+    image = db.get_or_404(EmployeeImage, image_id)
     
     # Delete the actual file if it's an uploaded file
     if image.image_url and image.image_url.startswith('/static/uploads/'):
@@ -973,7 +973,7 @@ def delete_image(image_id):
 
 @app.route('/delete_video/<int:video_id>', methods=['POST'])
 def delete_video(video_id):
-    video = EmployeeVideo.query.get_or_404(video_id)
+    video = db.get_or_404(EmployeeVideo, video_id)
     
     # Delete the actual video file if it's an uploaded file
     if video.video_url and video.video_url.startswith('/static/uploads/'):
@@ -1003,9 +1003,9 @@ from sqlalchemy.exc import IntegrityError
 
 @app.route('/employee/<int:id>/add_friend', methods=['POST'])
 def add_friend(id):
-    employee = Employee.query.get_or_404(id)
+    employee = db.get_or_404(Employee, id)
     friend_id = request.form.get('friend_id', type=int)
-    friend = Employee.query.get(friend_id)
+    friend = db.session.get(Employee, friend_id)
 
     if friend is None:
         return jsonify({'success': False, 'message': 'Friend not found.'})
@@ -1034,7 +1034,7 @@ def post_status():
         flash('Employee ID and content are required.')
         return redirect(url_for('view_all_statuses'))
     
-    employee = Employee.query.get(employee_id)
+    employee = db.session.get(Employee, employee_id)
     if not employee:
         flash('Employee not found.')
         return redirect(url_for('view_all_statuses'))
@@ -1057,26 +1057,17 @@ def view_all_statuses():
 
 @app.route('/employee/delete/<int:id>', methods=['POST'])
 def delete_employee(id):
-    employee = Employee.query.get_or_404(id)
-    
-    # Delete associated records first
-    Comment.query.filter((Comment.employee_id == id) | (Comment.author_id == id)).delete()
-    Action.query.filter((Action.from_id == id) | (Action.to_id == id)).delete()
-    EmployeeImage.query.filter_by(employee_id=id).delete()
-    EmployeeVideo.query.filter_by(employee_id=id).delete()
-    EmployeeXP.query.filter_by(employee_id=id).delete()
-    Status.query.filter_by(employee_id=id).delete()
-    
-    # Remove from groups
+    employee = db.get_or_404(Employee, id)
+
+    # Association tables are not delete-orphan relationships, so unlink them
+    # explicitly. Dependent employee records are removed by model cascades.
     for group in employee.groups:
         group.members.remove(employee)
-    
-    # Remove friendships - replace clear() with proper relationship removal
-    for friend in employee.friends:
+
+    for friend in list(employee.friends):
         employee.friends.remove(friend)
         friend.friends.remove(employee)
-    
-    # Delete the employee
+
     db.session.delete(employee)
     db.session.commit()
     
@@ -1095,8 +1086,8 @@ def get_im_prompt_preview():
     to_id = request.form.get('to')
     context = request.form.get('context')
     conversation_history = request.form.get('conversation', '')
-    from_employee = Employee.query.get(from_id)
-    to_employee = Employee.query.get(to_id)
+    from_employee = db.session.get(Employee, from_id)
+    to_employee = db.session.get(Employee, to_id)
 
     if not from_employee or not to_employee:
         return jsonify({'error': 'Invalid employee IDs'}), 400
@@ -1136,8 +1127,8 @@ def generate_im_message():
     conversation_history = request.form.get('conversation', '')
     custom_prompt = request.form.get('custom_prompt', '').strip()
 
-    from_employee = Employee.query.get(from_id)
-    to_employee = Employee.query.get(to_id)
+    from_employee = db.session.get(Employee, from_id)
+    to_employee = db.session.get(Employee, to_id)
 
     if not from_employee or not to_employee:
         return jsonify({'error': 'Invalid employee IDs'}), 400
