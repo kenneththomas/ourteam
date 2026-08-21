@@ -260,7 +260,9 @@ def add_employee():
         db.session.commit()
 
         return redirect(url_for('employees.view_employee', id=new_employee.id))
-    return render_template('add_edit_employee_v2.html', form=form)
+    all_employees = Employee.query.order_by(Employee.name).all()
+    current_manager = db.session.get(Employee, form.reports_to.data) if form.reports_to.data else None
+    return render_template('add_edit_employee_v2.html', form=form, all_employees=all_employees, current_manager=current_manager)
 
 @bp.route('/employee/edit/<int:id>', methods=['GET', 'POST'])
 def edit_employee(id):
@@ -353,7 +355,9 @@ def edit_employee(id):
             employee_xp.xp += xp_actions['update_bio']
             db.session.commit()
         return redirect(url_for('employees.view_employee', id=employee.id))
-    return render_template('add_edit_employee_v2.html', form=form)
+    all_employees = Employee.query.order_by(Employee.name).all()
+    current_manager = db.session.get(Employee, form.reports_to.data) if form.reports_to.data else None
+    return render_template('add_edit_employee_v2.html', form=form, all_employees=all_employees, current_manager=current_manager)
 
 @bp.route('/search')
 def search():
@@ -365,4 +369,3 @@ def search():
         cast(Employee.id, String) == query,
     )).all()
     return render_template('search_results_v2.html', results=results)
-
