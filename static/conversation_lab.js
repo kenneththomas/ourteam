@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const $ = selector => document.querySelector(selector);
     const windowEl = $('#conversationWindow');
-    const selected = id => { const select=$(id); const option=select.options[select.selectedIndex]; return {id:select.value,name:option?.dataset.name || 'Unknown coworker',picture:option?.dataset.picture || ''}; };
+    const selected = id => { const select=$(id); const option=select.closest('.employee-picker')?.querySelector(`.employee-suggestion[data-employee-id="${select.value}"]`); return {id:select.value,name:option?.dataset.name || 'Unknown coworker',picture:option?.dataset.picture || ''}; };
     const transcript = () => [...windowEl.querySelectorAll('.message')].map(el => el.innerText).join('\n');
     const appendMessage = (person, text) => {
         windowEl.querySelector('.conversation-empty')?.remove();

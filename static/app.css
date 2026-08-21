@@ -180,7 +180,8 @@ img { max-width: 100%; }
 .field label { color: var(--muted); font-size: 9px; font-weight: 850; text-transform: uppercase; letter-spacing: .1em; }
 .field input, .field select, .field textarea, .inline-form select { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 11px; outline: 0; background: white; }
 .employee-autocomplete { position: relative; }
-.employee-picker { position: relative; }
+.employee-picker { position: relative; flex: 1; min-width: 0; }
+.employee-picker > input[type="text"] { width: 100%; min-height: 42px; padding: 10px; border: 1px solid var(--line); border-radius: 11px; outline: 0; background: var(--surface); color: var(--ink); }
 .form-field-label { display: grid; gap: 6px; color: var(--muted); font-size: 10px; font-weight: 800; }
 .employee-suggestions { position: absolute; z-index: 10; top: calc(100% + 5px); right: 0; left: 0; max-height: 240px; overflow-y: auto; padding: 5px; border: 1px solid var(--line); border-radius: 13px; background: white; box-shadow: 0 12px 30px rgba(28,31,36,.14); }
 .employee-suggestion { width: 100%; display: flex; align-items: center; gap: 9px; padding: 7px; border: 0; border-radius: 9px; background: transparent; text-align: left; cursor: pointer; }

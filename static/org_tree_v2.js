@@ -19,7 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 button.type = 'button';
                 const avatar = document.createElement('span');
                 avatar.className = 'avatar avatar-xs avatar-tone-' + (person.value % 6);
-                avatar.textContent = initials(person.label);
+                if (person.picture) {
+                    const image = document.createElement('img');
+                    image.src = person.picture;
+                    image.alt = '';
+                    avatar.appendChild(image);
+                } else avatar.textContent = initials(person.label);
                 const name = document.createElement('span');
                 name.textContent = person.label;
                 const arrow = document.createElement('b');

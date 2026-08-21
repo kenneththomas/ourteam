@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         picker.closest('form')?.addEventListener('submit', event => {
             if (input.value && !hidden.value) {
                 event.preventDefault();
-                input.setCustomValidity('Choose a manager from the suggestions.');
+                input.setCustomValidity('Choose an employee from the suggestions.');
                 input.reportValidity();
             }
         });
