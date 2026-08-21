@@ -5,10 +5,14 @@ from sqlalchemy import String, cast, desc, func, or_, text
 from sqlalchemy.exc import IntegrityError
 from models import db, Employee, EmployeeImage, EmployeeVideo, Comment, Action, Group, EmployeeXP, Status, GroupComment
 from forms import EmployeeForm, AddImageUrlForm, AddVideoUrlForm
-from services import calculate_level, get_management_chain, xp_actions
+from services import calculate_level, get_management_chain, markdown_to_html, xp_actions
 
 from flask import Blueprint
 bp=Blueprint('employees',__name__)
+
+@bp.route('/preview/bio', methods=['POST'])
+def preview_bio():
+    return jsonify({'html': str(markdown_to_html(request.form.get('content', '')))})
 
 @bp.route('/')
 def index():

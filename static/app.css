@@ -163,6 +163,11 @@ img { max-width: 100%; }
 .profile-layout { margin-top: 42px; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(310px, .75fr); gap: 26px; align-items: start; }
 .profile-main, .profile-sidebar { display: grid; gap: 26px; }
 .profile-bio { margin: 0; color: var(--ink-soft); font-family: Georgia, serif; font-size: 21px; line-height: 1.55; }
+.profile-bio > :first-child { margin-top: 0; }
+.profile-bio > :last-child { margin-bottom: 0; }
+.profile-bio li + li { margin-top: 4px; }
+.profile-bio blockquote { margin: 16px 0; padding-left: 16px; border-left: 3px solid var(--blue); color: var(--muted); }
+.profile-bio code { padding: 2px 5px; border-radius: 5px; background: var(--paper); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .8em; }
 .detail-grid { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 .detail-grid div { display: grid; }
 .detail-grid span, .mini-label { color: var(--muted); font-size: 9px; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
@@ -369,6 +374,16 @@ img { max-width: 100%; }
 .form-fields label { display: grid; gap: 6px; color: var(--muted); font-size: 10px; font-weight: 800; }
 .form-fields input:not([type=file]), .form-fields textarea, .form-fields select { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 11px; outline: 0; background: #faf8f3; color: var(--ink); }
 .form-fields input:focus, .form-fields textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+.field-help { margin: 8px 0 0; color: var(--muted); font-size: 11px; }
+.markdown-editor { overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: #faf8f3; }
+.markdown-toolbar { min-height: 42px; padding: 6px 8px; display: flex; align-items: center; gap: 5px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.markdown-toolbar button { min-width: 32px; padding: 5px 8px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--ink-soft); cursor: pointer; font-size: 11px; }
+.markdown-toolbar button:hover, .markdown-toolbar button[aria-pressed="true"] { border-color: var(--line); background: var(--blue-soft); color: var(--blue); }
+.markdown-toolbar .preview-toggle { margin-left: auto; }
+.markdown-editor label { gap: 0; }
+.markdown-editor label[hidden] { display: none; }
+.form-fields .markdown-editor textarea { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.markdown-preview { min-height: 252px; padding: 12px; }
 .form-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .form-cancel { border-color: var(--line); background: transparent; color: var(--ink); }
 .form-errors { padding: 12px 16px; margin-bottom: 20px; border-radius: 11px; background: #ffe2dc; color: #9e2817; }

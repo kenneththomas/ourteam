@@ -26,7 +26,7 @@
     <div class="profile-main">
         <section class="panel profile-about">
             <div class="panel-heading"><div><span class="section-kicker">Personnel file</span><h2>About {{ employee.name.split()[0] }}</h2></div><a class="text-link" href="{{ url_for('employees.edit_employee', id=employee.id) }}">Edit profile ↗</a></div>
-            <p class="profile-bio">{{ employee.bio|nl2br if employee.bio else 'No official biography. This is probably strategic.' }}</p>
+            <div class="profile-bio">{{ employee.bio|markdown if employee.bio else '<p>No official biography. This is probably strategic.</p>'|safe }}</div>
             <div class="detail-grid"><div><span>Company</span><strong><a href="{{ url_for('employees.list_employees', company=employee.company) }}">{{ employee.company }}</a></strong></div><div><span>Department</span><strong><a href="{{ url_for('employees.list_employees', company=employee.company, department=employee.department) }}">{{ employee.department }}</a></strong></div><div><span>Email</span><strong>{{ employee.email or 'Not listed' }}</strong></div><div><span>Phone</span><strong>{{ employee.phone or 'Not listed' }}</strong></div><div><span>Base</span><strong>{{ employee.location or 'Remote-ish' }}</strong></div></div>
         </section>
 

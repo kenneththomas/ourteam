@@ -1,6 +1,8 @@
 import os
 import uuid
 import cv2
+import bleach
+import markdown
 from flask import current_app, session
 from markupsafe import Markup, escape
 from sqlalchemy import inspect, text
@@ -10,7 +12,21 @@ from models import db
 xp_actions={'send_comment':10,'receive_comment':5,'update_bio':10}
 
 def nl2br(s):
-    return Markup(str(escape(s or '')).replace('\\n','<br>\\n'))
+    escaped = str(escape(s or '')).replace('\r\n', '\n').replace('\r', '\n')
+    return Markup(escaped.replace('\n', '<br>\n'))
+
+def markdown_to_html(value):
+    """Render the small, safe Markdown subset used by long-form fields."""
+    source = str(escape(value or ''))
+    rendered = markdown.markdown(source, extensions=['sane_lists'], output_format='html')
+    cleaned = bleach.clean(
+        rendered,
+        tags={'p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'blockquote', 'code'},
+        attributes={'a': ['href', 'title']},
+        protocols={'http', 'https', 'mailto'},
+        strip=True,
+    )
+    return Markup(cleaned)
 
 def generate_text_from_prompt(prompt):
     return squawk.generate_text(prompt,engine=session.get('gpt_engine',current_app.config['DEFAULT_GPT_ENGINE']))
@@ -66,4 +82,3 @@ def get_management_chain(employee,levels=3):
         if not manager: break
         chain.append(manager); current=manager; levels-=1
     return chain
-

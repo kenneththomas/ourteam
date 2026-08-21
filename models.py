@@ -40,7 +40,7 @@ class Employee(db.Model):
         'Group', secondary=employee_group,
         backref=db.backref('members', lazy='dynamic')
     )
-    bio = db.Column(db.String)
+    bio = db.Column(db.Text)
     location = db.Column(db.String)
     friends = relationship(
         'Employee', 

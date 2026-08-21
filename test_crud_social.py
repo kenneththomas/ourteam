@@ -6,6 +6,7 @@ os.environ["OPENROUTER_API_KEY"] = ""
 
 from app_factory import create_app
 from models import Action, Comment, Employee, EmployeeXP, db
+from services import markdown_to_html, nl2br
 
 
 class IsolatedBehaviorTests(unittest.TestCase):
@@ -144,6 +145,31 @@ class IsolatedBehaviorTests(unittest.TestCase):
         self.assertIn("New comment by Mira Manager to Alex Employee", action.description)
         self.assertEqual(EmployeeXP.query.filter_by(employee_id=self.manager.id).one().xp, 10)
         self.assertEqual(EmployeeXP.query.filter_by(employee_id=self.employee.id).one().xp, 5)
+
+    def test_multiline_comments_render_line_breaks(self):
+        response = self.client.post(
+            f"/add_comment/{self.employee.id}",
+            data={"author_id": str(self.manager.id), "content": "First line\nSecond line"},
+        )
+
+        self.assertIn(b"First line<br>\nSecond line", response.data)
+
+    def test_bio_markdown_preview_is_formatted_and_sanitized(self):
+        response = self.client.post(
+            "/preview/bio",
+            data={"content": "**Bold**\n\n- one\n- two\n\n<script>alert(1)</script> [bad](javascript:alert(1))"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        html = response.json["html"]
+        self.assertIn("<strong>Bold</strong>", html)
+        self.assertIn("<ul>", html)
+        self.assertNotIn("<script", html)
+        self.assertNotIn("javascript:", html)
+
+    def test_text_renderers_escape_html(self):
+        self.assertEqual(str(nl2br('<b>one</b>\ntwo')), '&lt;b&gt;one&lt;/b&gt;<br>\ntwo')
+        self.assertNotIn('<img', str(markdown_to_html('<img src=x onerror=alert(1)>')))
 
     def test_test_comment_post_creates_comment_action_and_awards_xp(self):
         response = self.client.post(
