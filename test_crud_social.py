@@ -157,12 +157,13 @@ class IsolatedBehaviorTests(unittest.TestCase):
     def test_bio_markdown_preview_is_formatted_and_sanitized(self):
         response = self.client.post(
             "/preview/bio",
-            data={"content": "**Bold**\n\n- one\n- two\n\n<script>alert(1)</script> [bad](javascript:alert(1))"},
+            data={"content": "**Bold**\nNext line\n\n- one\n- two\n\n<script>alert(1)</script> [bad](javascript:alert(1))"},
         )
 
         self.assertEqual(response.status_code, 200)
         html = response.json["html"]
         self.assertIn("<strong>Bold</strong>", html)
+        self.assertIn("<br>\nNext line", html)
         self.assertIn("<ul>", html)
         self.assertNotIn("<script", html)
         self.assertNotIn("javascript:", html)

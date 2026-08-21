@@ -18,7 +18,11 @@ def nl2br(s):
 def markdown_to_html(value):
     """Render the small, safe Markdown subset used by long-form fields."""
     source = str(escape(value or ''))
-    rendered = markdown.markdown(source, extensions=['sane_lists'], output_format='html')
+    rendered = markdown.markdown(
+        source,
+        extensions=['sane_lists', 'nl2br'],
+        output_format='html',
+    )
     cleaned = bleach.clean(
         rendered,
         tags={'p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'blockquote', 'code'},
