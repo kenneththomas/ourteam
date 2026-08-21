@@ -46,7 +46,7 @@
         <section class="profile-section">
             <div class="section-heading"><div><span class="section-kicker">The wall</span><h2>Messages & observations</h2></div><span>{{ comments.total }} entries</span></div>
             <form id="comment-form" class="panel wall-composer" action="{{ url_for('social.add_comment', id=employee.id) }}" method="post">
-                <div class="field"><label for="author_id">Speaking as</label><select id="author_id" name="author_id" required><option value="">Choose a coworker</option>{% for person in all_employees %}<option value="{{ person.id }}">{{ person.name }} · {{ person.title }}</option>{% endfor %}</select></div>
+                <div class="field"><label for="author-name">Speaking as</label><div class="employee-autocomplete"><input id="author-name" name="author_name" autocomplete="off" placeholder="Search by name…" aria-controls="employee-suggestions" aria-autocomplete="list" required><input type="hidden" id="author_id" name="author_id" required><div id="employee-suggestions" class="employee-suggestions" role="listbox" hidden>{% for person in all_employees %}<button type="button" class="employee-suggestion" role="option" data-name="{{ person.name }}" data-employee-id="{{ person.id }}">{{ avatar(person, 'xs') }}<span><strong>{{ person.name }}</strong><small>{{ person.title }}</small></span></button>{% endfor %}</div></div></div>
                 <div class="field grow"><label for="comment-content">Message</label><textarea id="comment-content" name="content" placeholder="Leave something on {{ employee.name.split()[0] }}’s wall…" required></textarea></div>
                 <button class="button button-primary" type="submit">Post</button>
             </form>

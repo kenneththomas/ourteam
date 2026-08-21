@@ -3,6 +3,51 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentForm = document.querySelector('#comment-form');
     const friendForm = document.querySelector('#add-friend-form');
 
+    const authorName = document.querySelector('#author-name');
+    const authorId = document.querySelector('#author_id');
+    const authorSuggestions = [...document.querySelectorAll('.employee-suggestion')];
+    if (authorName && authorId) {
+        const suggestionBox = document.querySelector('#employee-suggestions');
+        let visibleSuggestions = authorSuggestions;
+        let activeIndex = -1;
+        const hideSuggestions = () => {
+            suggestionBox.hidden = true;
+            activeIndex = -1;
+        };
+        const showSuggestions = () => { suggestionBox.hidden = visibleSuggestions.length === 0; };
+        const syncAuthor = () => {
+            const selected = authorSuggestions.find(option => option.dataset.name === authorName.value);
+            authorId.value = selected?.dataset.employeeId || '';
+            visibleSuggestions = authorSuggestions.filter(option => option.dataset.name.toLowerCase().includes(authorName.value.toLowerCase()));
+            authorSuggestions.forEach(option => { option.hidden = !visibleSuggestions.includes(option); option.classList.remove('is-active'); });
+            activeIndex = -1;
+            showSuggestions();
+        };
+        const chooseAuthor = option => {
+            authorName.value = option.dataset.name;
+            authorId.value = option.dataset.employeeId;
+            hideSuggestions();
+        };
+        authorSuggestions.forEach(option => option.addEventListener('click', () => chooseAuthor(option)));
+        authorName.addEventListener('input', syncAuthor);
+        authorName.addEventListener('focus', syncAuthor);
+        authorName.addEventListener('keydown', event => {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                if (!visibleSuggestions.length) return;
+                activeIndex = (activeIndex + (event.key === 'ArrowDown' ? 1 : -1) + visibleSuggestions.length) % visibleSuggestions.length;
+                authorSuggestions.forEach(option => option.classList.remove('is-active'));
+                visibleSuggestions[activeIndex].classList.add('is-active');
+            } else if (event.key === 'Enter' && activeIndex >= 0) {
+                event.preventDefault();
+                chooseAuthor(visibleSuggestions[activeIndex]);
+            } else if (event.key === 'Escape') hideSuggestions();
+        });
+        document.addEventListener('click', event => {
+            if (!event.target.closest('.employee-autocomplete')) hideSuggestions();
+        });
+    }
+
     commentForm?.addEventListener('submit', async (event) => {
         event.preventDefault();
         const response = await fetch(commentForm.action, { method: 'POST', body: new FormData(commentForm) });
